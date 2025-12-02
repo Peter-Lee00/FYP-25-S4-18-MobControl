@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/shoulder_button_bg"
+    android:padding="12dp"
+    android:layout_marginBottom="16dp">
+
+    <!-- Preview Image -->
+    <ImageView
+        android:id="@+id/layoutPreview"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"
+        android:background="#40000000"/>
+
+    <!-- Layout Name -->
+    <TextView
+        android:id="@+id/layoutName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Layout Name"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+    <!-- Delete Button (for custom layouts) -->
+    <ImageButton
+        android:id="@+id/deleteButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/transparent"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:visibility="gone"/>
+
+</LinearLayout>

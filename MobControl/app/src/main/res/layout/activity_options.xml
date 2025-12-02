@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/controller_background"
+    android:padding="24dp">
+
+    <!-- Back Button with Icon -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/back_button_bg"
+        android:src="@drawable/ic_back"
+        android:scaleType="centerInside"
+        android:padding="0dp"/>
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Options"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleText"
+        android:layout_marginTop="48dp"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Vibration Setting -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Enable Vibrations"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"/>
+
+            <Switch
+                android:id="@+id/vibrationSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Dark Mode Setting -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Dark Mode"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"/>
+
+            <Switch
+                android:id="@+id/darkModeSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Sound Settings -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="48dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sound Effects"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"/>
+
+            <Switch
+                android:id="@+id/soundSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- Quit Button -->
+        <Button
+            android:id="@+id/quitButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Quit App"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/shoulder_button_bg"
+            android:layout_marginTop="32dp"/>
+    </LinearLayout>
+
+</RelativeLayout>
