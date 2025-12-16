@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            // Search for desktop with this code
             searchForDesktop(code);
         });
     }
@@ -78,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
                 DatagramSocket socket = new DatagramSocket();
                 socket.setSoTimeout(5000);
 
-                // Create discovery message
                 Map<String, String> discoveryMsg = new HashMap<>();
                 discoveryMsg.put("action", "discover");
                 discoveryMsg.put("code", code);
@@ -86,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
                 byte[] sendData = message.getBytes();
 
-                // Try multiple IPs
                 String[] ipsToTry = {
                         "10.0.2.2",           // Emulator → Host PC
                         "192.168.1.255",      // Local broadcast
@@ -108,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
                         socket.send(sendPacket);
 
-                        // Wait for response
                         byte[] receiveData = new byte[1024];
                         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
@@ -118,13 +114,12 @@ public class MainActivity extends AppCompatActivity {
                             String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
                             Map<String, Object> jsonResponse = gson.fromJson(response, Map.class);
 
-                            if ("found".equals(jsonResponse.get("status"))) {
+                            if ("discovered".equals(jsonResponse.get("action"))) {
                                 desktopIP = receivePacket.getAddress().getHostAddress();
                                 found = true;
                                 break;
                             }
                         } catch (Exception e) {
-                            // Timeout, try next IP
                             continue;
                         }
                     } catch (Exception e) {
@@ -214,7 +209,10 @@ public class MainActivity extends AppCompatActivity {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null && result.getContents() != null) {
             // QR format: "192.168.1.100:7777:1234"
-            String[] parts = result.getContents().split(":");
+            String qrContent = result.getContents();
+            Toast.makeText(this, "QR: " + qrContent, Toast.LENGTH_LONG).show();
+
+            String[] parts = qrContent.split(":");
             if (parts.length == 3) {
                 String ip = parts[0];
                 int port = DEFAULT_PORT;
@@ -225,7 +223,12 @@ public class MainActivity extends AppCompatActivity {
                 }
                 String code = parts[2];
 
-                connectToDesktop(ip, port, code);
+                Toast.makeText(this,
+                        "Parsed:\nIP: " + ip + "\nPort: " + port + "\nCode: " + code,
+                        Toast.LENGTH_LONG).show();
+
+                // Verify connection before proceeding
+                verifyAndConnect(ip, port, code);
             } else {
                 Toast.makeText(this, "Invalid QR code format", Toast.LENGTH_SHORT).show();
             }
@@ -234,13 +237,85 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void verifyAndConnect(String ip, int port, String code) {
+        showProgressDialog("Verifying connection...");
+
+        executorService.execute(() -> {
+            try {
+                DatagramSocket socket = new DatagramSocket();
+                socket.setSoTimeout(3000); // 3 second timeout
+
+                // Send a discovery message to verify the server is reachable
+                Map<String, String> discoveryMsg = new HashMap<>();
+                discoveryMsg.put("action", "discover");
+                discoveryMsg.put("code", code);
+                String message = gson.toJson(discoveryMsg);
+
+                byte[] sendData = message.getBytes();
+                InetAddress address = InetAddress.getByName(ip);
+                DatagramPacket sendPacket = new DatagramPacket(
+                        sendData,
+                        sendData.length,
+                        address,
+                        port
+                );
+
+                socket.send(sendPacket);
+
+                // Wait for response
+                byte[] receiveData = new byte[1024];
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
+                socket.receive(receivePacket);
+
+                String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                Map<String, Object> jsonResponse = gson.fromJson(response, Map.class);
+
+                socket.close();
+
+                if ("discovered".equals(jsonResponse.get("action"))) {
+                    // Server is reachable, proceed to connect
+                    mainHandler.post(() -> {
+                        dismissProgressDialog();
+                        connectToDesktop(ip, port, code);
+                    });
+                } else {
+                    throw new Exception("Invalid response from server");
+                }
+
+            } catch (Exception e) {
+                mainHandler.post(() -> {
+                    dismissProgressDialog();
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && errorMsg.contains("timed out")) {
+                        Toast.makeText(this,
+                                "Cannot reach desktop at " + ip + "\n\n" +
+                                        "Check:\n" +
+                                        "1. Desktop app is running\n" +
+                                        "2. Same WiFi network\n" +
+                                        "3. Firewall allows UDP " + port,
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this,
+                                "Connection verification failed: " + errorMsg,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+                e.printStackTrace();
+            }
+        });
+    }
+
     private void connectToDesktop(String ip, int port, String code) {
         Toast.makeText(this, "Connecting to " + ip + ":" + port, Toast.LENGTH_SHORT).show();
+
+        String deviceName = android.os.Build.MODEL;
 
         Intent intent = new Intent(this, ControllerActivity.class);
         intent.putExtra("IP", ip);
         intent.putExtra("PORT", port);
         intent.putExtra("CODE", code);
+        intent.putExtra("DEVICE_NAME", deviceName);
         startActivity(intent);
     }
 

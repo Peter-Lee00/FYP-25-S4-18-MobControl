@@ -9,7 +9,6 @@ import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -49,6 +48,7 @@ public class ControllerActivity extends AppCompatActivity {
     private String serverIP;
     private int serverPort;
     private String pairingCode;
+    private String deviceName;
 
     private DatagramSocket udpSocket;
     private boolean isConnected = false;
@@ -67,6 +67,11 @@ public class ControllerActivity extends AppCompatActivity {
         serverIP = getIntent().getStringExtra("IP");
         serverPort = getIntent().getIntExtra("PORT", 7777);
         pairingCode = getIntent().getStringExtra("CODE");
+        deviceName = getIntent().getStringExtra("DEVICE_NAME");
+
+        if (deviceName == null || deviceName.isEmpty()) {
+            deviceName = android.os.Build.MODEL;
+        }
 
         preferences = getSharedPreferences("AppSettings", MODE_PRIVATE);
 
@@ -104,7 +109,7 @@ public class ControllerActivity extends AppCompatActivity {
         mainHandler = new Handler(Looper.getMainLooper());
         gson = new Gson();
 
-        statusText.setText("Searching for Luna...");
+        statusText.setText("Connecting to " + serverIP + "...");
 
         // Setup D-Pad buttons
         setupImageButton(upButton, "up");
@@ -124,7 +129,7 @@ public class ControllerActivity extends AppCompatActivity {
         setupButton(ltButton, "lt");
         setupButton(rtButton, "rt");
 
-        // Setup Center buttons - APP FUNCTIONS (서버로 전송하지 않음)
+        // Setup Center buttons - APP FUNCTIONS
         setupAppFunctionButton(menuButton, this::openLayoutsMenu);
         setupAppFunctionButton(homeButton, this::goToHome);
         setupAppFunctionButton(optionsButton, this::openOptions);
@@ -142,7 +147,7 @@ public class ControllerActivity extends AppCompatActivity {
                     button.setAlpha(0.6f);
                     button.setScaleX(0.95f);
                     button.setScaleY(0.95f);
-                    sendInput(action);
+                    sendInput(action + "_down"); // Send key down event
                     vibrateShort();
                     return true;
                 case MotionEvent.ACTION_UP:
@@ -150,6 +155,7 @@ public class ControllerActivity extends AppCompatActivity {
                     button.setAlpha(1.0f);
                     button.setScaleX(1.0f);
                     button.setScaleY(1.0f);
+                    sendInput(action + "_up"); // Send key up event
                     return true;
             }
             return false;
@@ -163,7 +169,7 @@ public class ControllerActivity extends AppCompatActivity {
                     button.setAlpha(0.6f);
                     button.setScaleX(0.9f);
                     button.setScaleY(0.9f);
-                    sendInput(action);
+                    sendInput(action + "_down"); // Send key down event
                     vibrateShort();
                     return true;
                 case MotionEvent.ACTION_UP:
@@ -171,16 +177,15 @@ public class ControllerActivity extends AppCompatActivity {
                     button.setAlpha(1.0f);
                     button.setScaleX(1.0f);
                     button.setScaleY(1.0f);
+                    sendInput(action + "_up"); // Send key up event
                     return true;
             }
             return false;
         });
     }
 
-    // 앱 내부 기능 버튼 설정 (서버로 전송 안함)
     private void setupAppFunctionButton(ImageButton button, Runnable function) {
         button.setOnClickListener(v -> {
-            // Visual feedback
             button.setAlpha(0.6f);
             button.setScaleX(0.9f);
             button.setScaleY(0.9f);
@@ -196,13 +201,11 @@ public class ControllerActivity extends AppCompatActivity {
         });
     }
 
-    // Menu 버튼 - Layouts 화면으로 이동
     private void openLayoutsMenu() {
         Intent intent = new Intent(ControllerActivity.this, LayoutSelectionActivity.class);
         startActivity(intent);
     }
 
-    // Home 버튼 - MainActivity로 이동
     private void goToHome() {
         Intent intent = new Intent(ControllerActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -210,7 +213,6 @@ public class ControllerActivity extends AppCompatActivity {
         finish();
     }
 
-    // Options 버튼 - 설정 화면으로 이동
     private void openOptions() {
         Intent intent = new Intent(ControllerActivity.this, OptionsActivity.class);
         startActivity(intent);
@@ -224,11 +226,12 @@ public class ControllerActivity extends AppCompatActivity {
                 Map<String, String> pairMessage = new HashMap<>();
                 pairMessage.put("action", "pair");
                 pairMessage.put("code", pairingCode);
+                pairMessage.put("deviceName", deviceName);
                 String jsonMessage = gson.toJson(pairMessage);
 
                 sendMessage(jsonMessage);
 
-                // Wait for ACK with timeout
+                // Wait for response with timeout
                 udpSocket.setSoTimeout(5000);
                 byte[] buffer = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -237,7 +240,7 @@ public class ControllerActivity extends AppCompatActivity {
                 String response = new String(packet.getData(), 0, packet.getLength());
                 Map<String, Object> jsonResponse = gson.fromJson(response, Map.class);
 
-                if ("connected".equals(jsonResponse.get("status"))) {
+                if ("pair_success".equals(jsonResponse.get("action"))) {
                     isConnected = true;
                     mainHandler.post(() -> {
                         statusText.setText("Connected to " + serverIP);
@@ -245,13 +248,31 @@ public class ControllerActivity extends AppCompatActivity {
                         Toast.makeText(this, "Controller connected!", Toast.LENGTH_SHORT).show();
                         vibrateLong();
                     });
+                } else if ("pair_failed".equals(jsonResponse.get("action"))) {
+                    mainHandler.post(() -> {
+                        statusText.setText("Pairing failed: Invalid code");
+                        statusText.setTextColor(Color.parseColor("#F44336"));
+                        Toast.makeText(this, "Invalid pairing code", Toast.LENGTH_LONG).show();
+                    });
                 }
 
             } catch (Exception e) {
                 mainHandler.post(() -> {
-                    statusText.setText("Connection failed: " + e.getMessage());
+                    String errorMsg = e.getMessage();
+                    if (errorMsg != null && errorMsg.contains("poll timed out")) {
+                        statusText.setText("Connection timeout - Check firewall");
+                        Toast.makeText(this,
+                                "Connection timeout!\n\n" +
+                                        "Troubleshooting:\n" +
+                                        "1. Same WiFi network?\n" +
+                                        "2. Desktop firewall allows UDP 7777?\n" +
+                                        "3. Desktop app is running?",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        statusText.setText("Connection failed: " + errorMsg);
+                        Toast.makeText(this, "Failed to connect: " + errorMsg, Toast.LENGTH_LONG).show();
+                    }
                     statusText.setTextColor(Color.parseColor("#F44336"));
-                    Toast.makeText(this, "Failed to connect", Toast.LENGTH_SHORT).show();
                 });
                 e.printStackTrace();
             }
@@ -290,7 +311,6 @@ public class ControllerActivity extends AppCompatActivity {
     }
 
     private void vibrateShort() {
-        // Check if vibration is enabled
         if (!preferences.getBoolean("vibration_enabled", true)) {
             return;
         }
@@ -305,7 +325,6 @@ public class ControllerActivity extends AppCompatActivity {
     }
 
     private void vibrateLong() {
-        // Check if vibration is enabled
         if (!preferences.getBoolean("vibration_enabled", true)) {
             return;
         }
