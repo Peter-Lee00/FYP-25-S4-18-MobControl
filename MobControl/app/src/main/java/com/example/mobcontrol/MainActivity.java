@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         scanQRButton.setOnClickListener(v -> requestCameraPermission());
 
+        // 4-digit input
         connectButton.setOnClickListener(v -> {
             String code = manualCodeInput.getText().toString().trim();
 
@@ -204,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
+    // QR code Sacan Method
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -214,13 +216,15 @@ public class MainActivity extends AppCompatActivity {
 
             String[] parts = qrContent.split(":");
             if (parts.length == 3) {
-                String ip = parts[0];
+                String ip = parts[0]; // ex : 192.168.1.100
                 int port = DEFAULT_PORT;
                 try {
+                    // get port
                     port = Integer.parseInt(parts[1]);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
+                // get code
                 String code = parts[2];
 
                 Toast.makeText(this,
@@ -307,16 +311,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connectToDesktop(String ip, int port, String code) {
-        Toast.makeText(this, "Connecting to " + ip + ":" + port, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Connected! Choose your layout", Toast.LENGTH_SHORT).show();
 
-        String deviceName = android.os.Build.MODEL;
-
-        Intent intent = new Intent(this, ControllerActivity.class);
+        // When the connection is successful, move to LayoutSelectionActivity
+        Intent intent = new Intent(this, LayoutSelectionActivity.class);
         intent.putExtra("IP", ip);
         intent.putExtra("PORT", port);
         intent.putExtra("CODE", code);
-        intent.putExtra("DEVICE_NAME", deviceName);
+        intent.putExtra("DEVICE_NAME", android.os.Build.MODEL);
         startActivity(intent);
+        finish(); // Close MainActivity
     }
 
     @Override

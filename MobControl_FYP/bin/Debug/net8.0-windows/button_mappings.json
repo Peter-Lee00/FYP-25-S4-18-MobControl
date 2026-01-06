@@ -21,18 +21,18 @@
   },
   "a": {
     "Enabled": true,
-    "Key": "Q",
-    "VirtualKey": 81
+    "Key": "SPACE",
+    "VirtualKey": 32
   },
   "b": {
     "Enabled": true,
-    "Key": "I",
-    "VirtualKey": 73
+    "Key": "E",
+    "VirtualKey": 69
   },
   "x": {
     "Enabled": true,
-    "Key": "E",
-    "VirtualKey": 69
+    "Key": "Q",
+    "VirtualKey": 81
   },
   "y": {
     "Enabled": true,

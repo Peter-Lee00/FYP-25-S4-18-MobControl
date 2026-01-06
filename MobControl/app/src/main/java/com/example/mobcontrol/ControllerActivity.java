@@ -1,5 +1,6 @@
 package com.example.mobcontrol;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -62,6 +63,7 @@ public class ControllerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_controller);
 
         serverIP = getIntent().getStringExtra("IP");
@@ -203,7 +205,20 @@ public class ControllerActivity extends AppCompatActivity {
 
     private void openLayoutsMenu() {
         Intent intent = new Intent(ControllerActivity.this, LayoutSelectionActivity.class);
-        startActivity(intent);
+        intent.putExtra("IP", serverIP);
+        intent.putExtra("PORT", serverPort);
+        intent.putExtra("CODE", pairingCode);
+        intent.putExtra("DEVICE_NAME", deviceName);
+        startActivityForResult(intent, 100);  // Result를 받도록 변경
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            // 새 레이아웃이 선택되었으므로 현재 Activity 종료
+            finish();
+        }
     }
 
     private void goToHome() {
@@ -223,56 +238,20 @@ public class ControllerActivity extends AppCompatActivity {
             try {
                 udpSocket = new DatagramSocket();
 
-                Map<String, String> pairMessage = new HashMap<>();
-                pairMessage.put("action", "pair");
-                pairMessage.put("code", pairingCode);
-                pairMessage.put("deviceName", deviceName);
-                String jsonMessage = gson.toJson(pairMessage);
+                isConnected = true;
 
-                sendMessage(jsonMessage);
-
-                // Wait for response with timeout
-                udpSocket.setSoTimeout(5000);
-                byte[] buffer = new byte[1024];
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                udpSocket.receive(packet);
-
-                String response = new String(packet.getData(), 0, packet.getLength());
-                Map<String, Object> jsonResponse = gson.fromJson(response, Map.class);
-
-                if ("pair_success".equals(jsonResponse.get("action"))) {
-                    isConnected = true;
-                    mainHandler.post(() -> {
-                        statusText.setText("Connected to " + serverIP);
-                        statusText.setTextColor(Color.parseColor("#4CAF50"));
-                        Toast.makeText(this, "Controller connected!", Toast.LENGTH_SHORT).show();
-                        vibrateLong();
-                    });
-                } else if ("pair_failed".equals(jsonResponse.get("action"))) {
-                    mainHandler.post(() -> {
-                        statusText.setText("Pairing failed: Invalid code");
-                        statusText.setTextColor(Color.parseColor("#F44336"));
-                        Toast.makeText(this, "Invalid pairing code", Toast.LENGTH_LONG).show();
-                    });
-                }
+                mainHandler.post(() -> {
+                    statusText.setText("Connected to " + serverIP);
+                    statusText.setTextColor(Color.parseColor("#4CAF50"));
+                    Toast.makeText(this, "Controller connected!", Toast.LENGTH_SHORT).show();
+                    vibrateLong();
+                });
 
             } catch (Exception e) {
                 mainHandler.post(() -> {
-                    String errorMsg = e.getMessage();
-                    if (errorMsg != null && errorMsg.contains("poll timed out")) {
-                        statusText.setText("Connection timeout - Check firewall");
-                        Toast.makeText(this,
-                                "Connection timeout!\n\n" +
-                                        "Troubleshooting:\n" +
-                                        "1. Same WiFi network?\n" +
-                                        "2. Desktop firewall allows UDP 7777?\n" +
-                                        "3. Desktop app is running?",
-                                Toast.LENGTH_LONG).show();
-                    } else {
-                        statusText.setText("Connection failed: " + errorMsg);
-                        Toast.makeText(this, "Failed to connect: " + errorMsg, Toast.LENGTH_LONG).show();
-                    }
+                    statusText.setText("Connection failed: " + e.getMessage());
                     statusText.setTextColor(Color.parseColor("#F44336"));
+                    Toast.makeText(this, "Failed to connect", Toast.LENGTH_SHORT).show();
                 });
                 e.printStackTrace();
             }

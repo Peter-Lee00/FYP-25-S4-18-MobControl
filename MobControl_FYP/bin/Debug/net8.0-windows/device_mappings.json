@@ -22,6 +22,58 @@
     },
     "a": {
       "Enabled": true,
+      "Key": "SPACE",
+      "VirtualKey": 32
+    },
+    "b": {
+      "Enabled": true,
+      "Key": "E",
+      "VirtualKey": 69
+    },
+    "x": {
+      "Enabled": true,
+      "Key": "Q",
+      "VirtualKey": 81
+    },
+    "y": {
+      "Enabled": true,
+      "Key": "R",
+      "VirtualKey": 82
+    },
+    "go": {
+      "Enabled": true,
+      "Key": "UP",
+      "VirtualKey": 38
+    },
+    "back": {
+      "Enabled": true,
+      "Key": "DOWN",
+      "VirtualKey": 40
+    }
+  },
+  "127.0.0.1": {
+    "up": {
+      "Enabled": true,
+      "Key": "T",
+      "VirtualKey": 84
+    },
+    "down": {
+      "Enabled": true,
+      "Key": "S",
+      "VirtualKey": 83
+    },
+    "left": {
+      "Enabled": true,
+      "Key": "A",
+      "VirtualKey": 65
+    },
+    "right": {
+      "Enabled": true,
+      "Key": "D",
+      "VirtualKey": 68
+    },
+    "a": {
+      "Enabled": true,
       "Key": "Q",
       "VirtualKey": 81
     },

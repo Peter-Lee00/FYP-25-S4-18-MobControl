@@ -1,0 +1,13 @@
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\MobControl_FYP.exe
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\MobControl_FYP.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\MobControl_FYP.deps.json
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\MobControl_FYP.runtimeconfig.json
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\MobControl_FYP.pdb
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\WindowsInput.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\Microsoft.Win32.SystemEvents.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\Newtonsoft.Json.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\System.Drawing.Common.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\System.Private.Windows.Core.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\zxing.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\ZXing.Windows.Compatibility.dll
+C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\bin\Release\net8.0-windows\publish\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll

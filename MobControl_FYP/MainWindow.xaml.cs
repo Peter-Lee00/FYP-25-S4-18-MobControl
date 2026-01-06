@@ -355,6 +355,7 @@ namespace MobControlDesktop
             }
         }
 
+        // When the host button is clicked
         private void HostButton_Click(object sender, RoutedEventArgs e)
         {
             ShowScreen("Host");
@@ -375,6 +376,7 @@ namespace MobControlDesktop
 
         #region Server Methods
 
+        // Start Server
         private void StartServer()
         {
             if (isServerRunning)
@@ -391,6 +393,7 @@ namespace MobControlDesktop
             PairingCodeText.Text = pairingCode;
             IPAddressText.Text = $"IP: {localIP}:{serverPort}";
 
+            // Create QR Code
             string qrData = $"{localIP}:{serverPort}:{pairingCode}";
             GenerateQRCode(qrData);
 
@@ -416,6 +419,7 @@ namespace MobControlDesktop
         {
             try
             {
+                // Generate QR Image
                 var writer = new ZXing.BarcodeWriter<System.Drawing.Bitmap>()
                 {
                     Format = BarcodeFormat.QR_CODE,
@@ -442,6 +446,7 @@ namespace MobControlDesktop
                         bitmapImage.EndInit();
                         bitmapImage.Freeze();
 
+                        // Show QR Code
                         QRCodeImage.Source = bitmapImage;
                     }
                 }
@@ -481,16 +486,26 @@ namespace MobControlDesktop
         {
             try
             {
-                var input = JsonConvert.DeserializeObject<InputMessage>(message);
+                var jsonData = JsonConvert.DeserializeObject<Dictionary<string, object>>(message);
 
-                if (input.action == "discover")
+                if (!jsonData.ContainsKey("action"))
+                {
+                    AddLog($"⚠ Invalid message format from {remoteEndPoint.Address}");
+                    return;
+                }
+
+                string action = jsonData["action"].ToString();
+
+                if (action == "discover")
                 {
                     AddLog($"📱 Discovery request from {remoteEndPoint.Address}");
                     SendDiscoveryResponse(remoteEndPoint);
                 }
-                else if (input.action == "pair")
+                else if (action == "pair")
                 {
-                    if (input.code == pairingCode)
+                    string receivedCode = jsonData.ContainsKey("code") ? jsonData["code"].ToString() : "";
+
+                    if (receivedCode == pairingCode)
                     {
                         string deviceIP = remoteEndPoint.Address.ToString();
 
@@ -498,9 +513,20 @@ namespace MobControlDesktop
                         {
                             deviceEndpoints[deviceIP] = remoteEndPoint;
 
+                            // Try both "device" and "deviceName" fields
+                            string deviceNameFromMessage = null;
+                            if (jsonData.ContainsKey("device"))
+                            {
+                                deviceNameFromMessage = jsonData["device"].ToString();
+                            }
+                            else if (jsonData.ContainsKey("deviceName"))
+                            {
+                                deviceNameFromMessage = jsonData["deviceName"].ToString();
+                            }
+
                             var newDevice = new ConnectedDevice
                             {
-                                Name = input.deviceName ?? "Unknown Device",
+                                Name = deviceNameFromMessage ?? "Unknown Device",
                                 IPAddress = deviceIP,
                                 Status = "Connected"
                             };
@@ -508,9 +534,8 @@ namespace MobControlDesktop
                             connectedDevices.Add(newDevice);
                             ConnectionCountText.Text = $"{connectedDevices.Count} device{(connectedDevices.Count != 1 ? "s" : "")} connected";
 
-                            // Update status text
                             StatusText.Text = $"({connectedDevices.Count}) device{(connectedDevices.Count != 1 ? "s" : "")} connected";
-                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
 
                             AddLog($"✓ {newDevice.Name} paired successfully ({deviceIP})");
 
@@ -526,6 +551,8 @@ namespace MobControlDesktop
                         else
                         {
                             AddLog($"⚠ Device {deviceIP} already connected");
+                            // Still send success response
+                            SendPairSuccessResponse(remoteEndPoint);
                         }
                     }
                     else
@@ -534,9 +561,23 @@ namespace MobControlDesktop
                         SendPairFailedResponse(remoteEndPoint);
                     }
                 }
+                else if (action == "input")
+                {
+                    // New input format: { "action": "input", "input": "w_down", "device": "..." }
+                    if (jsonData.ContainsKey("input"))
+                    {
+                        string inputAction = jsonData["input"].ToString();
+                        SimulateKeyPress(inputAction, remoteEndPoint.Address.ToString());
+                    }
+                    else
+                    {
+                        AddLog($"⚠ Empty input from {remoteEndPoint.Address}");
+                    }
+                }
                 else
                 {
-                    SimulateKeyPress(input.action, remoteEndPoint.Address.ToString());
+                    // Legacy format: action is the key input directly (e.g., "up_down")
+                    SimulateKeyPress(action, remoteEndPoint.Address.ToString());
                 }
             }
             catch (Exception ex)
@@ -572,7 +613,8 @@ namespace MobControlDesktop
         {
             var response = new
             {
-                action = "pair_success",
+                status = "connected",
+                action = "pair_success",  
                 message = "Connected successfully!"
             };
 
@@ -582,6 +624,7 @@ namespace MobControlDesktop
             try
             {
                 udpServer.Send(data, data.Length, endpoint);
+                AddLog($"✓ Sent pairing success to {endpoint.Address}");
             }
             catch (Exception ex)
             {
@@ -1156,6 +1199,8 @@ namespace MobControlDesktop
         public string action { get; set; }
         public string code { get; set; }
         public string deviceName { get; set; }
+        public string input { get; set; } 
+        public string device { get; set; }
     }
 
     public class ButtonMapping
