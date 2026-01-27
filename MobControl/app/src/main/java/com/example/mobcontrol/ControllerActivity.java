@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -33,6 +34,14 @@ public class ControllerActivity extends AppCompatActivity {
 
     // D-Pad buttons
     private ImageButton upButton, downButton, leftButton, rightButton;
+
+    //Joystick
+    private View joystick;
+    private View joystickHandle;
+
+    // Right Joystick (for mouse)
+    private View rightJoystick;
+    private View rightJoystickHandle;
 
     // Action buttons (ABXY)
     private Button actionAButton, actionBButton, actionXButton, actionYButton;
@@ -85,6 +94,88 @@ public class ControllerActivity extends AppCompatActivity {
         downButton = findViewById(R.id.downButton);
         leftButton = findViewById(R.id.leftButton);
         rightButton = findViewById(R.id.rightButton);
+
+        //Joystick
+        joystick = findViewById(R.id.joystick);
+        joystickHandle = joystick.findViewById(R.id.joystick_handle);
+        joystick.setOnTouchListener((v, event) -> {
+            float centerX = v.getWidth() / 2f;
+            float centerY = v.getHeight() / 2f;
+
+            float deltaX = event.getX() - centerX;
+            float deltaY = event.getY() - centerY;
+
+            float radius = v.getWidth() / 2f; // limit handle movement
+
+            float distance = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            if (distance > radius) {
+                deltaX = deltaX / distance * radius;
+                deltaY = deltaY / distance * radius;
+            }
+
+            // Move the handle
+            joystickHandle.setX(centerX + deltaX - joystickHandle.getWidth() / 2f);
+            joystickHandle.setY(centerY + deltaY - joystickHandle.getHeight() / 2f);
+
+            // Normalize values for sending
+            float x = deltaX / radius;
+            float y = -deltaY / radius;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    sendJoystickInput(x, y); // send values to desktop
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    joystickHandle.setX(centerX - joystickHandle.getWidth() / 2f);
+                    joystickHandle.setY(centerY - joystickHandle.getHeight() / 2f);
+                    sendJoystickInput(0f, 0f); // reset
+                    break;
+            }
+
+            return true;
+        });
+
+        // Right Joystick for mouse
+        rightJoystick = findViewById(R.id.right_joystick);
+        rightJoystickHandle = rightJoystick.findViewById(R.id.right_joystick_handle);
+        rightJoystick.setOnTouchListener((v, event) -> {
+            float centerX = v.getWidth() / 2f;
+            float centerY = v.getHeight() / 2f;
+
+            float deltaX = event.getX() - centerX;
+            float deltaY = event.getY() - centerY;
+
+            float radius = v.getWidth() / 2f;
+
+            float distance = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            if (distance > radius) {
+                deltaX = deltaX / distance * radius;
+                deltaY = deltaY / distance * radius;
+            }
+
+            rightJoystickHandle.setX(centerX + deltaX - rightJoystickHandle.getWidth() / 2f);
+            rightJoystickHandle.setY(centerY + deltaY - rightJoystickHandle.getHeight() / 2f);
+
+            float x = deltaX / radius;
+            float y = -deltaY / radius;
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    sendMouseInput(x, y);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    rightJoystickHandle.setX(centerX - rightJoystickHandle.getWidth() / 2f);
+                    rightJoystickHandle.setY(centerY - rightJoystickHandle.getHeight() / 2f);
+                    sendMouseInput(0f, 0f);
+                    break;
+            }
+
+            return true;
+        });
 
         // Action buttons
         actionAButton = findViewById(R.id.actionAButton);
@@ -140,6 +231,40 @@ public class ControllerActivity extends AppCompatActivity {
         setupImageButton(settingsButton, "settings");
 
         connectToServer();
+    }
+
+    private void sendJoystickInput(float x, float y) {
+        if (!isConnected) return;
+
+        executorService.execute(() -> {
+            try {
+                Map<String, Object> message = new HashMap<>();
+                message.put("action", "joystick");
+                message.put("x", x);
+                message.put("y", y);
+                String jsonMessage = gson.toJson(message);
+                sendMessage(jsonMessage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void sendMouseInput(float x, float y) {
+        if (!isConnected) return;
+
+        executorService.execute(() -> {
+            try {
+                Map<String, Object> message = new HashMap<>();
+                message.put("action", "mouse");
+                message.put("x", x);
+                message.put("y", y);
+                String jsonMessage = gson.toJson(message);
+                sendMessage(jsonMessage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void setupButton(Button button, String action) {

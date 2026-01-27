@@ -182,14 +182,13 @@
             android:layout_marginLeft="6dp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
-            android:text="B\nR\nA\nK\nE"
+            android:backgroundTint="#D32F2F"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:lineSpacingExtra="14dp"
             android:textColor="#FFFFFF"
             android:textSize="36sp"
-            android:textStyle="bold"
-            android:lineSpacingExtra="14dp"
-            android:gravity="center"
-            android:backgroundTint="#D32F2F"
-            android:elevation="4dp"/>
+            android:textStyle="bold" />
 
         <!-- Right Side: Accelerator Button -->
         <Button
@@ -197,17 +196,16 @@
             android:layout_width="140dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="6dp"
             android:layout_marginTop="2dp"
+            android:layout_marginRight="6dp"
             android:layout_marginBottom="2dp"
-            android:text="G\nA\nS"
+            android:backgroundTint="#4CAF50"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:lineSpacingExtra="14dp"
             android:textColor="#FFFFFF"
             android:textSize="36sp"
-            android:textStyle="bold"
-            android:lineSpacingExtra="14dp"
-            android:gravity="center"
-            android:backgroundTint="#4CAF50"
-            android:elevation="4dp"/>
+            android:textStyle="bold" />
 
         <!-- Hidden D-Pad Layout -->
         <RelativeLayout

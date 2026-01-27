@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows;
@@ -22,6 +23,20 @@ namespace MobControlDesktop
 {
     public partial class MainWindow : Window
     {
+        // Win32 API for mouse control
+        [DllImport("user32.dll")]
+        static extern bool SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll")]
+        static extern bool GetCursorPos(out POINT lpPoint);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
         private UdpClient udpServer;
         private Thread receiveThread;
         private string localIP;
@@ -71,7 +86,6 @@ namespace MobControlDesktop
                 { "back", new ButtonMapping { Enabled = true, Key = "DOWN", VirtualKey = VirtualKeyCode.DOWN } }
             };
 
-            // Load from file if exists
             try
             {
                 string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "button_mappings.json");
@@ -90,7 +104,6 @@ namespace MobControlDesktop
                 AddLog($"Failed to load mappings: {ex.Message}");
             }
 
-            // Load device-specific mappings
             LoadDeviceMappings();
         }
 
@@ -106,11 +119,9 @@ namespace MobControlDesktop
         {
             if (isDarkMode)
             {
-                // Dark Mode
-                this.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30)); // #1E1E1E
+                this.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
                 DarkModeToggle.Content = "🌙 Dark Mode";
 
-                // Main Menu
                 if (MainMenuScreen != null && MainMenuScreen.Children.Count > 1)
                 {
                     var title = MainMenuScreen.Children[1] as TextBlock;
@@ -120,7 +131,6 @@ namespace MobControlDesktop
                     }
                 }
 
-                // Host Screen - Dark Mode
                 if (BackButton != null)
                 {
                     BackButton.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
@@ -134,12 +144,12 @@ namespace MobControlDesktop
 
                 if (PairingCodeLabel != null)
                 {
-                    PairingCodeLabel.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170)); // #AAAAAA
+                    PairingCodeLabel.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170));
                 }
 
                 if (IPAddressText != null)
                 {
-                    IPAddressText.Foreground = new SolidColorBrush(Color.FromRgb(144, 202, 249)); // #90CAF9
+                    IPAddressText.Foreground = new SolidColorBrush(Color.FromRgb(144, 202, 249));
                 }
 
                 if (StatusBorder != null)
@@ -166,7 +176,7 @@ namespace MobControlDesktop
 
                 if (ConnectedDevicesBorder != null)
                 {
-                    ConnectedDevicesBorder.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37)); // #252525
+                    ConnectedDevicesBorder.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37));
                     ConnectedDevicesBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(68, 68, 68));
                 }
 
@@ -180,7 +190,6 @@ namespace MobControlDesktop
                     ConnectionCountText.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170));
                 }
 
-                // Settings screen dark mode
                 if (SettingsBorder != null)
                 {
                     SettingsBorder.Background = new SolidColorBrush(Color.FromRgb(44, 44, 44));
@@ -220,118 +229,8 @@ namespace MobControlDesktop
             }
             else
             {
-                // Light Mode
-                this.Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)); // #F5F5F5
+                this.Background = new SolidColorBrush(Colors.White);
                 DarkModeToggle.Content = "☀️ Light Mode";
-                DarkModeToggle.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
-
-                // Main Menu
-                if (MainMenuScreen != null && MainMenuScreen.Children.Count > 1)
-                {
-                    var title = MainMenuScreen.Children[1] as TextBlock;
-                    if (title != null)
-                    {
-                        title.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                    }
-                }
-
-                // Host Screen - Light Mode
-                if (BackButton != null)
-                {
-                    BackButton.Background = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-                    BackButton.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (HostTitle != null)
-                {
-                    HostTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (PairingCodeLabel != null)
-                {
-                    PairingCodeLabel.Foreground = new SolidColorBrush(Color.FromRgb(97, 97, 97));
-                }
-
-                if (IPAddressText != null)
-                {
-                    IPAddressText.Foreground = new SolidColorBrush(Color.FromRgb(33, 150, 243)); // #2196F3
-                }
-
-                if (StatusBorder != null)
-                {
-                    StatusBorder.Background = new SolidColorBrush(Colors.White);
-                    StatusBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-                }
-
-                if (StatusText != null)
-                {
-                    StatusText.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (LogBorder != null)
-                {
-                    LogBorder.Background = new SolidColorBrush(Colors.White);
-                    LogBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-                }
-
-                if (LogTitle != null)
-                {
-                    LogTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (ConnectedDevicesBorder != null)
-                {
-                    ConnectedDevicesBorder.Background = new SolidColorBrush(Color.FromRgb(250, 250, 250)); // #FAFAFA
-                    ConnectedDevicesBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-                }
-
-                if (ConnectedDevicesTitle != null)
-                {
-                    ConnectedDevicesTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (ConnectionCountText != null)
-                {
-                    ConnectionCountText.Foreground = new SolidColorBrush(Color.FromRgb(97, 97, 97));
-                }
-
-                // Settings screen light mode
-                if (SettingsBorder != null)
-                {
-                    SettingsBorder.Background = new SolidColorBrush(Colors.White);
-                    SettingsBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-                }
-
-                if (SettingsTitle != null)
-                {
-                    SettingsTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (NotifyOnConnect != null)
-                {
-                    NotifyOnConnect.Foreground = new SolidColorBrush(Color.FromRgb(66, 66, 66));
-                }
-
-                if (NotifyOnDisconnect != null)
-                {
-                    NotifyOnDisconnect.Foreground = new SolidColorBrush(Color.FromRgb(66, 66, 66));
-                }
-
-                if (SettingsBackButton != null)
-                {
-                    SettingsBackButton.Background = new SolidColorBrush(Color.FromRgb(224, 224, 224));
-                    SettingsBackButton.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (WiFiNetworkText != null)
-                {
-                    WiFiNetworkText.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
-                }
-
-                if (LocalIPText != null)
-                {
-                    LocalIPText.Foreground = new SolidColorBrush(Color.FromRgb(33, 150, 243));
-                }
             }
         }
 
@@ -355,7 +254,6 @@ namespace MobControlDesktop
             }
         }
 
-        // When the host button is clicked
         private void HostButton_Click(object sender, RoutedEventArgs e)
         {
             ShowScreen("Host");
@@ -364,89 +262,112 @@ namespace MobControlDesktop
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
+            StopServer();
             ShowScreen("MainMenu");
         }
 
-        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        private void SettingsBackButton_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            ShowScreen("MainMenu");
         }
 
         #endregion
 
         #region Server Methods
 
-        // Start Server
         private void StartServer()
         {
-            if (isServerRunning)
-            {
-                AddLog("⚠ Server already running");
-                return;
-            }
-
-            localIP = GetLocalIPAddress();
-
-            Random random = new Random();
-            pairingCode = random.Next(1000, 9999).ToString();
-
-            PairingCodeText.Text = pairingCode;
-            IPAddressText.Text = $"IP: {localIP}:{serverPort}";
-
-            // Create QR Code
-            string qrData = $"{localIP}:{serverPort}:{pairingCode}";
-            GenerateQRCode(qrData);
-
             try
             {
+                localIP = GetLocalIPAddress();
+                pairingCode = GeneratePairingCode();
+
+                IPAddressText.Text = $"IP: {localIP}:{serverPort}";
+                PairingCodeText.Text = pairingCode;
+
                 udpServer = new UdpClient(serverPort);
-                receiveThread = new Thread(new ThreadStart(ReceiveData));
-                receiveThread.IsBackground = true;
-                receiveThread.Start();
                 isServerRunning = true;
 
+                receiveThread = new Thread(ReceiveData);
+                receiveThread.IsBackground = true;
+                receiveThread.Start();
+
+                StatusText.Text = "⏳ Waiting for connection...";
+                StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+
                 AddLog($"✓ Server started on {localIP}:{serverPort}");
-                AddLog($"✓ Pairing Code: {pairingCode}");
+                AddLog($"✓ Pairing code: {pairingCode}");
+
+                GenerateQRCode();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to start server: {ex.Message}", "Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+                AddLog($"✗ Server start failed: {ex.Message}");
             }
         }
 
-        private void GenerateQRCode(string data)
+        private void StopServer()
+        {
+            isServerRunning = false;
+
+            if (receiveThread != null && receiveThread.IsAlive)
+            {
+                receiveThread.Interrupt();
+            }
+
+            if (udpServer != null)
+            {
+                udpServer.Close();
+            }
+
+            connectedDevices.Clear();
+            deviceEndpoints.Clear();
+
+            StatusText.Text = "Server stopped";
+            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(158, 158, 158));
+
+            AddLog("✓ Server stopped");
+        }
+
+        private string GeneratePairingCode()
+        {
+            Random random = new Random();
+            return random.Next(1000, 9999).ToString();
+        }
+
+        private void GenerateQRCode()
         {
             try
             {
-                // Generate QR Image
-                var writer = new ZXing.BarcodeWriter<System.Drawing.Bitmap>()
+                string qrContent = $"{localIP}:{serverPort}:{pairingCode}";
+
+                var writer = new BarcodeWriter
                 {
-                    Format = BarcodeFormat.QR_CODE,
-                    Renderer = new BitmapRenderer(),
+                    Format = ZXing.BarcodeFormat.QR_CODE,
                     Options = new ZXing.Common.EncodingOptions
                     {
-                        Width = 256,
-                        Height = 256,
+                        Width = 300,
+                        Height = 300,
                         Margin = 1
                     }
                 };
 
-                using (var bitmap = writer.Write(data))
+                using (var bitmap = writer.Write(qrContent))
                 {
                     using (var memory = new MemoryStream())
                     {
                         bitmap.Save(memory, ImageFormat.Png);
                         memory.Position = 0;
 
-                        BitmapImage bitmapImage = new BitmapImage();
+                        var bitmapImage = new BitmapImage();
                         bitmapImage.BeginInit();
                         bitmapImage.StreamSource = memory;
                         bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                         bitmapImage.EndInit();
                         bitmapImage.Freeze();
 
-                        // Show QR Code
                         QRCodeImage.Source = bitmapImage;
                     }
                 }
@@ -513,7 +434,6 @@ namespace MobControlDesktop
                         {
                             deviceEndpoints[deviceIP] = remoteEndPoint;
 
-                            // Try both "device" and "deviceName" fields
                             string deviceNameFromMessage = null;
                             if (jsonData.ContainsKey("device"))
                             {
@@ -551,7 +471,6 @@ namespace MobControlDesktop
                         else
                         {
                             AddLog($"⚠ Device {deviceIP} already connected");
-                            // Still send success response
                             SendPairSuccessResponse(remoteEndPoint);
                         }
                     }
@@ -563,7 +482,6 @@ namespace MobControlDesktop
                 }
                 else if (action == "input")
                 {
-                    // New input format: { "action": "input", "input": "w_down", "device": "..." }
                     if (jsonData.ContainsKey("input"))
                     {
                         string inputAction = jsonData["input"].ToString();
@@ -574,9 +492,26 @@ namespace MobControlDesktop
                         AddLog($"⚠ Empty input from {remoteEndPoint.Address}");
                     }
                 }
+                // ===== FLIGHT CONTROLLER HANDLERS =====
+                else if (action == "gyro_data")
+                {
+                    // Gyro data - just for logging/debugging
+                }
+                else if (action == "key")
+                {
+                    HandleKeyInput(jsonData, remoteEndPoint.Address.ToString());
+                }
+                else if (action == "mouse_move")
+                {
+                    HandleMouseMove(jsonData, remoteEndPoint.Address.ToString());
+                }
+                else if (action == "mouse_button")
+                {
+                    HandleMouseButton(jsonData, remoteEndPoint.Address.ToString());
+                }
+                // ===== END FLIGHT CONTROLLER HANDLERS =====
                 else
                 {
-                    // Legacy format: action is the key input directly (e.g., "up_down")
                     SimulateKeyPress(action, remoteEndPoint.Address.ToString());
                 }
             }
@@ -614,7 +549,7 @@ namespace MobControlDesktop
             var response = new
             {
                 status = "connected",
-                action = "pair_success",  
+                action = "pair_success",
                 message = "Connected successfully!"
             };
 
@@ -687,9 +622,8 @@ namespace MobControlDesktop
 
         private void SimulateKeyPress(string action, string senderIP = null)
         {
-            // Parse action format: "up_down", "up_up", or just "up" (legacy)
             string buttonName = action;
-            string eventType = "press"; // default for legacy support
+            string eventType = "press";
 
             if (action.Contains("_"))
             {
@@ -697,11 +631,10 @@ namespace MobControlDesktop
                 if (parts.Length == 2)
                 {
                     buttonName = parts[0];
-                    eventType = parts[1]; // "down" or "up"
+                    eventType = parts[1];
                 }
             }
 
-            // Get device-specific mapping if exists, otherwise use default
             var mappings = (!string.IsNullOrEmpty(senderIP) && deviceMappings.ContainsKey(senderIP))
                 ? deviceMappings[senderIP]
                 : buttonMappings;
@@ -726,7 +659,6 @@ namespace MobControlDesktop
                 return;
             }
 
-            // Handle key down/up events separately for games
             if (eventType == "down")
             {
                 inputSimulator.Keyboard.KeyDown(mapping.VirtualKey);
@@ -739,13 +671,179 @@ namespace MobControlDesktop
                 string deviceInfo = !string.IsNullOrEmpty(senderIP) ? $" (from {senderIP})" : "";
                 AddLog($"▲ {buttonName.ToUpper()} → {mapping.Key} UP{deviceInfo}");
             }
-            else // "press" - legacy support (single press)
+            else
             {
                 inputSimulator.Keyboard.KeyPress(mapping.VirtualKey);
                 string deviceInfo = !string.IsNullOrEmpty(senderIP) ? $" (from {senderIP})" : "";
                 AddLog($"✓ {buttonName.ToUpper()} → {mapping.Key}{deviceInfo}");
             }
         }
+
+        #endregion
+
+        #region Flight Controller Support
+
+        private void HandleKeyInput(Dictionary<string, object> data, string senderIP)
+        {
+            try
+            {
+                if (!data.ContainsKey("key") || !data.ContainsKey("pressed"))
+                {
+                    AddLog($"⚠ Invalid key input data from {senderIP}");
+                    return;
+                }
+
+                string key = data["key"].ToString().ToLower();
+                bool pressed = Convert.ToBoolean(data["pressed"]);
+
+                VirtualKeyCode virtualKey;
+                string keyDisplayName;
+
+                switch (key)
+                {
+                    case "w":
+                        virtualKey = VirtualKeyCode.VK_W;
+                        keyDisplayName = "W (Forward)";
+                        break;
+                    case "s":
+                        virtualKey = VirtualKeyCode.VK_S;
+                        keyDisplayName = "S (Backward)";
+                        break;
+                    case "a":
+                        virtualKey = VirtualKeyCode.VK_A;
+                        keyDisplayName = "A (Left)";
+                        break;
+                    case "d":
+                        virtualKey = VirtualKeyCode.VK_D;
+                        keyDisplayName = "D (Right)";
+                        break;
+                    case "shift":
+                        virtualKey = VirtualKeyCode.SHIFT;
+                        keyDisplayName = "SHIFT (Turbo)";
+                        break;
+                    case "p":
+                        virtualKey = VirtualKeyCode.VK_P;
+                        keyDisplayName = "P (Pause)";
+                        break;
+                    default:
+                        AddLog($"⚠ Unknown key: {key}");
+                        return;
+                }
+
+                if (pressed)
+                {
+                    inputSimulator.Keyboard.KeyDown(virtualKey);
+                    AddLog($"🔽 {keyDisplayName} PRESSED");
+                }
+                else
+                {
+                    inputSimulator.Keyboard.KeyUp(virtualKey);
+                    AddLog($"🔼 {keyDisplayName} RELEASED");
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLog($"✗ Key input error: {ex.Message}");
+            }
+        }
+
+        private void HandleMouseMove(Dictionary<string, object> data, string senderIP)
+        {
+            try
+            {
+                if (!data.ContainsKey("x") || !data.ContainsKey("y"))
+                {
+                    AddLog($"⚠ Invalid mouse move data from {senderIP}");
+                    return;
+                }
+
+                int deltaX = Convert.ToInt32(data["x"]);
+                int deltaY = Convert.ToInt32(data["y"]);
+
+                // Get current mouse position using Win32 API
+                POINT currentPos;
+                GetCursorPos(out currentPos);
+
+                // Apply mouse movement (relative)
+                int newX = currentPos.X + deltaX;
+                int newY = currentPos.Y + deltaY;
+
+                // Get screen dimensions
+                int screenWidth = (int)SystemParameters.PrimaryScreenWidth;
+                int screenHeight = (int)SystemParameters.PrimaryScreenHeight;
+
+                // Clamp to screen bounds
+                newX = Math.Max(0, Math.Min(screenWidth - 1, newX));
+                newY = Math.Max(0, Math.Min(screenHeight - 1, newY));
+
+                // Move mouse cursor using Win32 API
+                SetCursorPos(newX, newY);
+
+                // Log less frequently
+                if (Math.Abs(deltaX) > 50 || Math.Abs(deltaY) > 50)
+                {
+                    AddLog($"🎯 Mouse moved: Δ({deltaX}, {deltaY})");
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLog($"✗ Mouse move error: {ex.Message}");
+            }
+        }
+
+        private void HandleMouseButton(Dictionary<string, object> data, string senderIP)
+        {
+            try
+            {
+                if (!data.ContainsKey("button") || !data.ContainsKey("pressed"))
+                {
+                    AddLog($"⚠ Invalid mouse button data from {senderIP}");
+                    return;
+                }
+
+                string button = data["button"].ToString().ToLower();
+                bool pressed = Convert.ToBoolean(data["pressed"]);
+
+                if (button == "left")
+                {
+                    if (pressed)
+                    {
+                        inputSimulator.Mouse.LeftButtonDown();
+                        AddLog($"🔫 LEFT MOUSE DOWN (Machine Gun)");
+                    }
+                    else
+                    {
+                        inputSimulator.Mouse.LeftButtonUp();
+                        AddLog($"🔫 LEFT MOUSE UP");
+                    }
+                }
+                else if (button == "right")
+                {
+                    if (pressed)
+                    {
+                        inputSimulator.Mouse.RightButtonDown();
+                        AddLog($"🚀 RIGHT MOUSE DOWN (Rockets)");
+                    }
+                    else
+                    {
+                        inputSimulator.Mouse.RightButtonUp();
+                        AddLog($"🚀 RIGHT MOUSE UP");
+                    }
+                }
+                else
+                {
+                    AddLog($"⚠ Unknown mouse button: {button}");
+                }
+            }
+            catch (Exception ex)
+            {
+                AddLog($"✗ Mouse button error: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        #region Network Methods
 
         private string GetLocalIPAddress()
         {
@@ -755,50 +853,18 @@ namespace MobControlDesktop
             {
                 var host = Dns.GetHostEntry(Dns.GetHostName());
 
-                // Prioritize common WiFi/LAN ranges, avoid virtual adapters
                 foreach (var ip in host.AddressList)
                 {
                     if (ip.AddressFamily == AddressFamily.InterNetwork)
                     {
                         string ipStr = ip.ToString();
 
-                        // Skip loopback
-                        if (ipStr.StartsWith("127."))
-                            continue;
-
-                        // Skip APIPA (Automatic Private IP Addressing)
-                        if (ipStr.StartsWith("169.254."))
-                            continue;
-
-                        // Skip VirtualBox Host-Only Adapter (common: 192.168.56.x)
-                        if (ipStr.StartsWith("192.168.56."))
-                            continue;
-
-                        // Skip VMware Host-Only Adapter (common: 192.168.xx.x where xx > 100)
-                        if (ipStr.StartsWith("192.168.") &&
-                            int.TryParse(ipStr.Split('.')[2], out int thirdOctet) &&
-                            thirdOctet >= 50)
-                        {
-                            // Skip likely virtual adapter ranges (50-99, 100-254)
-                            // But keep common router ranges (0-49)
-                            if (thirdOctet > 49)
-                                continue;
-                        }
-
-                        // Prioritize 192.168.0.x and 192.168.1.x (most common home/office WiFi)
-                        if (ipStr.StartsWith("192.168.0.") || ipStr.StartsWith("192.168.1."))
-                        {
-                            AddLog($"✓ Detected WiFi IP: {ipStr}");
-                            return ipStr;
-                        }
-
-                        // Accept 192.168.2-49.x (other common router ranges)
                         if (ipStr.StartsWith("192.168."))
                         {
                             localIP = ipStr;
-                            AddLog($"✓ Detected LAN IP: {ipStr}");
+                            AddLog($"✓ Detected home IP: {ipStr}");
+                            break;
                         }
-                        // Accept 10.x.x.x (corporate networks)
                         else if (ipStr.StartsWith("10."))
                         {
                             if (localIP == "127.0.0.1")
@@ -827,7 +893,7 @@ namespace MobControlDesktop
 
         private void DisconnectDevice_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is System.Windows.Controls.Button button)
+            if (sender is Button button)
             {
                 string deviceIP = button.Tag as string;
 
@@ -842,16 +908,15 @@ namespace MobControlDesktop
 
                         ConnectionCountText.Text = $"{connectedDevices.Count} device{(connectedDevices.Count != 1 ? "s" : "")} connected";
 
-                        // Update status text
                         if (connectedDevices.Count > 0)
                         {
                             StatusText.Text = $"({connectedDevices.Count}) device{(connectedDevices.Count != 1 ? "s" : "")} connected";
-                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
                         }
                         else
                         {
                             StatusText.Text = "⏳ Waiting for connection...";
-                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 193, 7)); // Yellow
+                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 193, 7));
                         }
 
                         AddLog($"✓ {device.Name} disconnected");
@@ -878,7 +943,6 @@ namespace MobControlDesktop
 
         private void UpdateSettingsNetworkInfo()
         {
-            // Update WiFi Network Name
             try
             {
                 string networkName = GetCurrentWiFiNetworkName();
@@ -889,80 +953,42 @@ namespace MobControlDesktop
                 WiFiNetworkText.Text = "Unable to detect";
             }
 
-            // Update Local IP
             LocalIPText.Text = string.IsNullOrEmpty(localIP) ? "127.0.0.1" : localIP;
 
-            // Update Mobile Connection Status
             int deviceCount = connectedDevices.Count;
 
-            if (deviceCount > 0)
+            if (MobileConnectionIndicator != null)
             {
-                MobileConnectionIndicator.Fill = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
-                MobileConnectionText.Text = "Connected";
-                MobileConnectionText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
-                ConnectedDevicesCountText.Text = $"{deviceCount} mobile device{(deviceCount != 1 ? "s" : "")} connected";
-                ConnectedDevicesCountText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                if (deviceCount > 0)
+                {
+                    MobileConnectionIndicator.Fill = new SolidColorBrush(Color.FromRgb(76, 175, 80));
+                }
+                else
+                {
+                    MobileConnectionIndicator.Fill = new SolidColorBrush(Color.FromRgb(244, 67, 54));
+                }
             }
-            else
+
+            if (this.FindName("MobileConnectionStatus") is TextBlock mobileStatusText)
             {
-                MobileConnectionIndicator.Fill = new SolidColorBrush(Color.FromRgb(117, 117, 117)); // Gray
-                MobileConnectionText.Text = "No devices connected";
-                MobileConnectionText.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170));
-                ConnectedDevicesCountText.Text = "0 mobile devices connected";
-                ConnectedDevicesCountText.Foreground = new SolidColorBrush(Color.FromRgb(117, 117, 117));
+                if (deviceCount > 0)
+                {
+                    mobileStatusText.Text = $"{deviceCount} device{(deviceCount != 1 ? "s" : "")} connected";
+                }
+                else
+                {
+                    mobileStatusText.Text = "No devices connected";
+                }
             }
         }
 
         private string GetCurrentWiFiNetworkName()
         {
-            try
-            {
-                // Try to get WiFi network name using netsh command
-                var process = new System.Diagnostics.Process
-                {
-                    StartInfo = new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = "netsh",
-                        Arguments = "wlan show interfaces",
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-
-                process.Start();
-                string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-
-                // Parse SSID from output
-                var lines = output.Split('\n');
-                foreach (var line in lines)
-                {
-                    if (line.Trim().StartsWith("SSID") && !line.Contains("BSSID"))
-                    {
-                        var parts = line.Split(':');
-                        if (parts.Length >= 2)
-                        {
-                            return parts[1].Trim();
-                        }
-                    }
-                }
-            }
-            catch { }
-
-            return "Unknown Network";
+            return "WiFi Network";
         }
 
-        private void ViewConnectionLogsButton_Click(object sender, RoutedEventArgs e)
+        private void EditMappingsButton_Click(object sender, RoutedEventArgs e)
         {
-            // Switch to host screen to show logs
-            ShowScreen("Host");
-            AddLog("✓ Viewing connection logs");
-        }
-
-        private void EditControllerMappingButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Open the Button Mapping Editor window
             var mappingWindow = new ButtonMappingWindow(buttonMappings);
             mappingWindow.Owner = this;
 
@@ -970,30 +996,32 @@ namespace MobControlDesktop
 
             if (result == true && mappingWindow.MappingsChanged)
             {
-                // Get the updated mappings
                 buttonMappings = mappingWindow.GetUpdatedMappings();
-
-                // Log the update
-                AddLog("✓ Button mappings updated");
-
-                // Send updated configuration to all connected devices
+                SaveButtonMappings();
                 SendConfigurationToAllDevices();
 
-                MessageBox.Show(
-                    "Button mappings have been saved successfully!\n\nThe new configuration has been sent to all connected mobile devices.",
-                    "Success",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                MessageBox.Show("Button mappings have been saved successfully!",
+                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void SaveButtonMappings()
+        {
+            try
+            {
+                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "button_mappings.json");
+                string json = JsonConvert.SerializeObject(buttonMappings, Formatting.Indented);
+                File.WriteAllText(filePath, json);
+                AddLog("✓ Button mappings saved");
+            }
+            catch (Exception ex)
+            {
+                AddLog($"✗ Failed to save mappings: {ex.Message}");
             }
         }
 
         private void SendConfigurationToAllDevices()
         {
-            if (deviceEndpoints.Count == 0)
-            {
-                return;
-            }
-
             var config = new
             {
                 action = "update_config",
@@ -1062,11 +1090,9 @@ namespace MobControlDesktop
             string deviceIP = button.Tag as string;
             if (string.IsNullOrEmpty(deviceIP)) return;
 
-            // Get device name
             var device = connectedDevices.FirstOrDefault(d => d.IPAddress == deviceIP);
             if (device == null) return;
 
-            // Get device-specific mapping or clone from default
             Dictionary<string, ButtonMapping> deviceMapping;
 
             if (deviceMappings.ContainsKey(deviceIP))
@@ -1075,12 +1101,10 @@ namespace MobControlDesktop
             }
             else
             {
-                // Clone default mappings for this device
                 deviceMapping = CloneButtonMappings(buttonMappings);
                 deviceMappings[deviceIP] = deviceMapping;
             }
 
-            // Open mapping window with device-specific title
             var mappingWindow = new ButtonMappingWindow(deviceMapping);
             mappingWindow.Title = $"Edit Controller Mapping - {device.Name}";
             mappingWindow.Owner = this;
@@ -1089,16 +1113,9 @@ namespace MobControlDesktop
 
             if (result == true && mappingWindow.MappingsChanged)
             {
-                // Get the updated mappings
                 deviceMappings[deviceIP] = mappingWindow.GetUpdatedMappings();
-
-                // Save device mappings to file
                 SaveDeviceMappings();
-
-                // Log the update
                 AddLog($"✓ Button mappings updated for {device.Name}");
-
-                // Send updated configuration to this specific device
                 SendConfigurationToDevice(deviceIP);
 
                 MessageBox.Show(
@@ -1154,6 +1171,28 @@ namespace MobControlDesktop
             }
         }
 
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure you want to exit?", "Exit",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown();
+            }
+        }
+
+        private void ViewConnectionLogsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Switch to Host screen to view logs
+            ShowScreen("Host");
+        }
+
+        private void EditControllerMappingButton_Click(object sender, RoutedEventArgs e)
+        {
+            EditMappingsButton_Click(sender, e);
+        }
+
         #endregion
 
         #region Logging
@@ -1199,7 +1238,7 @@ namespace MobControlDesktop
         public string action { get; set; }
         public string code { get; set; }
         public string deviceName { get; set; }
-        public string input { get; set; } 
+        public string input { get; set; }
         public string device { get; set; }
     }
 

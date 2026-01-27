@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "p8FOPOubQwk=",
+  "dgSpecHash": "9hx71u3Fj4U=",
   "success": true,
   "projectFilePath": "C:\\Users\\Peter\\source\\repos\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Peter\\.nuget\\packages\\inputsimulatorcore\\1.0.5\\inputsimulatorcore.1.0.5.nupkg.sha512",
-    "C:\\Users\\Peter\\.nuget\\packages\\microsoft.win32.systemevents\\9.0.10\\microsoft.win32.systemevents.9.0.10.nupkg.sha512",
+    "C:\\Users\\Peter\\.nuget\\packages\\microsoft.win32.systemevents\\10.0.2\\microsoft.win32.systemevents.10.0.2.nupkg.sha512",
     "C:\\Users\\Peter\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512",
-    "C:\\Users\\Peter\\.nuget\\packages\\system.drawing.common\\9.0.10\\system.drawing.common.9.0.10.nupkg.sha512",
+    "C:\\Users\\Peter\\.nuget\\packages\\system.drawing.common\\10.0.2\\system.drawing.common.10.0.2.nupkg.sha512",
     "C:\\Users\\Peter\\.nuget\\packages\\zxing.net\\0.16.11\\zxing.net.0.16.11.nupkg.sha512",
     "C:\\Users\\Peter\\.nuget\\packages\\zxing.net.bindings.windows.compatibility\\0.16.14\\zxing.net.bindings.windows.compatibility.0.16.14.nupkg.sha512"
   ],

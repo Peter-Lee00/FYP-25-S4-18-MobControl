@@ -69,10 +69,10 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
     private boolean gyroAvailable = false;
 
     // Gyro settings
-    private static final float DEADZONE = 0.5f;  // 초민감 데드존 (0.5도)
-    private static final float MAX_ANGLE = 45.0f;  // 최대 인식 각도
-    private static final float LANDSCAPE_OFFSET = -90.0f;  // 가로 모드 기준점
-    private float currentRoll = 0.0f;  // 현재 좌우 기울기 (보정된 값)
+    private static final float DEADZONE = 2.0f;  // 2 degrees fir dead zone
+    private static final float MAX_ANGLE = 45.0f;  // Max degrees
+    private static final float LANDSCAPE_OFFSET = -90.0f;  // Default point for horizontal
+    private float currentRoll = 0.0f;
     private String lastSteeringState = "center";  // "left", "center", "right"
 
     @Override
@@ -119,8 +119,8 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
         // Setup buttons based on visibility
         if (brakeButton.getVisibility() == View.VISIBLE) {
             // Racing layout: BRAKE/GAS buttons use up/down mappings
-            setupButton(brakeButton, "down");  // ✅ Brake = down → S
-            setupButton(acceleratorButton, "up");  // ✅ Gas = up → W
+            setupButton(brakeButton, "down");  // Brake = down → S
+            setupButton(acceleratorButton, "up");  // Gas = up → W
         }
 
         if (ltButton.getVisibility() == View.VISIBLE) {
@@ -188,18 +188,18 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
             // Remap coordinate system for landscape mode
             float[] remappedMatrix = new float[9];
             SensorManager.remapCoordinateSystem(rotationMatrix,
-                    SensorManager.AXIS_Y,        // X축을 Y축으로
-                    SensorManager.AXIS_MINUS_X,  // Y축을 -X축으로
+                    SensorManager.AXIS_Y,        // X to Y
+                    SensorManager.AXIS_MINUS_X,  // Y to -X
                     remappedMatrix);
 
             float[] orientation = new float[3];
             SensorManager.getOrientation(remappedMatrix, orientation);
 
-            // orientation[2] = Roll (좌우 기울기)
-            // orientation[1] = Pitch (위아래 기울기) - 무시!
+            // orientation[2] = Roll (Left and Right)
+            // orientation[1] = Pitch (Up and down) - Ignore for now
             currentRoll = (float) Math.toDegrees(orientation[2]);
 
-            // -180도 ~ +180도 범위로 정규화
+            // -180 ~ +180 degrees
             if (currentRoll > 180) {
                 currentRoll -= 360;
             } else if (currentRoll < -180) {
@@ -213,10 +213,10 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
                         String.format("Roll: %.1f° | Pitch: %.1f° (ignored)", currentRoll, pitch));
             }
 
-            // Update UI (Roll만 사용)
+            // Update UI (Roll only)
             updateGyroUI();
 
-            // Process steering input (Roll만 사용)
+            // Process steering input (Roll only용)
             processSteeringInput();
         }
     }
@@ -228,7 +228,7 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
 
     private void updateGyroUI() {
         runOnUiThread(() -> {
-            // Update angle display - 절댓값으로 표시
+            // Update angle display
             gyroAngleText.setText(String.format("%.1f°", Math.abs(currentRoll)));
 
             // Update gyro bars based on tilt
@@ -240,13 +240,13 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
             int maxBarWidth = screenWidth / 2 - 1; // Half screen minus divider
 
             if (currentRoll < -DEADZONE) {
-                // Left tilt - 왼쪽 바 증가
+                // Left tilt
                 float intensity = Math.min(Math.abs(currentRoll) / MAX_ANGLE, 1.0f);
                 leftParams.width = (int)(maxBarWidth * intensity);
                 rightParams.width = 0;
 
             } else if (currentRoll > DEADZONE) {
-                // Right tilt - 오른쪽 바 증가
+                // Right tilt
                 float intensity = Math.min(Math.abs(currentRoll) / MAX_ANGLE, 1.0f);
                 rightParams.width = (int)(maxBarWidth * intensity);
                 leftParams.width = 0;
@@ -375,7 +375,6 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == RESULT_OK) {
-            // 새 레이아웃이 선택되었으므로 현재 Activity 종료
             finish();
         }
     }
@@ -397,8 +396,7 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
             try {
                 udpSocket = new DatagramSocket();
 
-                // 이미 ControllerActivity가 pairing을 완료했으므로
-                // 바로 연결된 상태로 시작
+                // done pairing from controller activity
                 isConnected = true;
 
                 mainHandler.post(() -> {
@@ -427,8 +425,8 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
         executorService.execute(() -> {
             try {
                 Map<String, Object> message = new HashMap<>();
-                message.put("action", "input");  // ✅ "input" action
-                message.put("input", action);    // ✅ 실제 키 입력
+                message.put("action", "input");  // input action
+                message.put("input", action);    //
                 message.put("device", deviceName);
                 String jsonMessage = gson.toJson(message);
                 sendMessage(jsonMessage);

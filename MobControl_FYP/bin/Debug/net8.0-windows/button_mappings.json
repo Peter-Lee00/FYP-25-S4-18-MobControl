@@ -21,13 +21,13 @@
   },
   "a": {
     "Enabled": true,
-    "Key": "SPACE",
-    "VirtualKey": 32
+    "Key": "V",
+    "VirtualKey": 86
   },
   "b": {
     "Enabled": true,
-    "Key": "E",
-    "VirtualKey": 69
+    "Key": "B",
+    "VirtualKey": 66
   },
   "x": {
     "Enabled": true,

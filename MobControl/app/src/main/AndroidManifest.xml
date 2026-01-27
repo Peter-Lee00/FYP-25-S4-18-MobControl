@@ -64,6 +64,13 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Flight Controller Activity -->
+        <activity
+            android:name=".FlightControllerActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize"
+            android:exported="false" />
+
         <!-- ZXing QR Code Scanner  -->
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"

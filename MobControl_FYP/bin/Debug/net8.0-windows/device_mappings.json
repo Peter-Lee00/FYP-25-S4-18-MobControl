@@ -54,8 +54,8 @@
   "127.0.0.1": {
     "up": {
       "Enabled": true,
-      "Key": "T",
-      "VirtualKey": 84
+      "Key": "W",
+      "VirtualKey": 87
     },
     "down": {
       "Enabled": true,
@@ -74,8 +74,8 @@
     },
     "a": {
       "Enabled": true,
-      "Key": "Q",
-      "VirtualKey": 81
+      "Key": "O",
+      "VirtualKey": 79
     },
     "b": {
       "Enabled": true,
@@ -86,6 +86,58 @@
       "Enabled": true,
       "Key": "E",
       "VirtualKey": 69
+    },
+    "y": {
+      "Enabled": true,
+      "Key": "R",
+      "VirtualKey": 82
+    },
+    "go": {
+      "Enabled": true,
+      "Key": "UP",
+      "VirtualKey": 38
+    },
+    "back": {
+      "Enabled": true,
+      "Key": "DOWN",
+      "VirtualKey": 40
+    }
+  },
+  "172.20.10.2": {
+    "up": {
+      "Enabled": true,
+      "Key": "W",
+      "VirtualKey": 87
+    },
+    "down": {
+      "Enabled": true,
+      "Key": "S",
+      "VirtualKey": 83
+    },
+    "left": {
+      "Enabled": true,
+      "Key": "A",
+      "VirtualKey": 65
+    },
+    "right": {
+      "Enabled": true,
+      "Key": "D",
+      "VirtualKey": 68
+    },
+    "a": {
+      "Enabled": true,
+      "Key": "V",
+      "VirtualKey": 86
+    },
+    "b": {
+      "Enabled": true,
+      "Key": "B",
+      "VirtualKey": 66
+    },
+    "x": {
+      "Enabled": true,
+      "Key": "Q",
+      "VirtualKey": 81
     },
     "y": {
       "Enabled": true,
