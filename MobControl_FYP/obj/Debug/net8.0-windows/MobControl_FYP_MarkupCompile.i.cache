@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\obj\Debug\net8.0-windows\
+C:\Users\Tengri\Documents\GitHub\FYP-25-S4-18-MobControl\MobControl_FYP\obj\Debug\net8.0-windows\
 MobControl_FYP
 none
 false
 TRACE;DEBUG;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
-C:\Users\Peter\source\repos\MobControl_FYP\MobControl_FYP\App.xaml
-2-581466572
+C:\Users\Tengri\Documents\GitHub\FYP-25-S4-18-MobControl\MobControl_FYP\App.xaml
+41227724360
 
-71267427336
-205-1161757768
-ButtonMappingWindow.xaml;MainWindow.xaml;
+19-542084261
+205-1635065969
+ButtonMappingWindow.xaml;MainWindow.xaml;MobControl_FYP\App.xaml;MobControl_FYP\MainWindow.xaml;
 
-False
+True
 

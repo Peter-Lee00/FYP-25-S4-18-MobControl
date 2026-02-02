@@ -1,15 +1,19 @@
 {
   "version": 2,
-  "dgSpecHash": "9hx71u3Fj4U=",
+  "dgSpecHash": "b7SkjasYCwA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Peter\\source\\repos\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
+  "projectFilePath": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Peter\\.nuget\\packages\\inputsimulatorcore\\1.0.5\\inputsimulatorcore.1.0.5.nupkg.sha512",
-    "C:\\Users\\Peter\\.nuget\\packages\\microsoft.win32.systemevents\\10.0.2\\microsoft.win32.systemevents.10.0.2.nupkg.sha512",
-    "C:\\Users\\Peter\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512",
-    "C:\\Users\\Peter\\.nuget\\packages\\system.drawing.common\\10.0.2\\system.drawing.common.10.0.2.nupkg.sha512",
-    "C:\\Users\\Peter\\.nuget\\packages\\zxing.net\\0.16.11\\zxing.net.0.16.11.nupkg.sha512",
-    "C:\\Users\\Peter\\.nuget\\packages\\zxing.net.bindings.windows.compatibility\\0.16.14\\zxing.net.bindings.windows.compatibility.0.16.14.nupkg.sha512"
+    "C:\\Users\\Tengri\\.nuget\\packages\\inputsimulatorcore\\1.0.5\\inputsimulatorcore.1.0.5.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\microsoft.win32.systemevents\\10.0.2\\microsoft.win32.systemevents.10.0.2.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\system.drawing.common\\10.0.2\\system.drawing.common.10.0.2.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\zxing.net\\0.16.11\\zxing.net.0.16.11.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\zxing.net.bindings.windows.compatibility\\0.16.14\\zxing.net.bindings.windows.compatibility.0.16.14.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.23\\microsoft.windowsdesktop.app.ref.8.0.23.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.23\\microsoft.netcore.app.ref.8.0.23.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.23\\microsoft.aspnetcore.app.ref.8.0.23.nupkg.sha512",
+    "C:\\Users\\Tengri\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.23\\microsoft.netcore.app.host.win-x64.8.0.23.nupkg.sha512"
   ],
   "logs": []
 }

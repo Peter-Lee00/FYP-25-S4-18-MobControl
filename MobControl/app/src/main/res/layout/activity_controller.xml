@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/controller_background"
@@ -140,6 +141,22 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="10dp">
 
+        <FrameLayout
+            android:id="@+id/joystick"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:translationX="55dp"
+            android:translationY="105dp"
+            android:background="@drawable/dpad_center">
+
+            <View
+                android:id="@+id/joystick_handle"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:background="@drawable/joystick_handle_bg"/>
+        </FrameLayout>
+
         <!-- D-Pad (Left Side) - 크기 및 위치 조정 -->
         <RelativeLayout
             android:id="@+id/dpadLayout"
@@ -148,7 +165,9 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="20dp"
-            android:layout_marginBottom="25dp">
+            android:layout_marginBottom="25dp"
+            android:visibility="gone"
+            tools:visibility="gone">
 
             <!-- Up Button -->
             <ImageButton
@@ -159,7 +178,8 @@
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/dpad_background"
                 android:scaleType="centerInside"
-                android:src="@drawable/dpad_up"/>
+                android:src="@drawable/dpad_up"
+                android:visibility="gone"/>
 
             <!-- Down Button -->
             <ImageButton
@@ -170,7 +190,8 @@
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/dpad_background"
                 android:scaleType="centerInside"
-                android:src="@drawable/dpad_down"/>
+                android:src="@drawable/dpad_down"
+                android:visibility="gone"/>
 
             <!-- Left Button -->
             <ImageButton
@@ -181,7 +202,8 @@
                 android:layout_centerVertical="true"
                 android:background="@drawable/dpad_background"
                 android:scaleType="centerInside"
-                android:src="@drawable/dpad_left"/>
+                android:src="@drawable/dpad_left"
+                android:visibility="gone"/>
 
             <!-- Right Button -->
             <ImageButton
@@ -192,14 +214,8 @@
                 android:layout_centerVertical="true"
                 android:background="@drawable/dpad_background"
                 android:scaleType="centerInside"
-                android:src="@drawable/dpad_right"/>
-
-            <!-- Center Circle -->
-            <View
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_centerInParent="true"
-                android:background="@drawable/dpad_center" />
+                android:src="@drawable/dpad_right"
+                android:visibility="gone"/>
         </RelativeLayout>
 
         <!-- Action Buttons (Right Side) -->
@@ -276,6 +292,25 @@
                 android:includeFontPadding="false"
                 android:gravity="center" />
         </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/right_joystick"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:layout_toLeftOf="@id/actionButtonsLayout"
+            android:layout_alignBottom="@id/actionButtonsLayout"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="-20dp"
+            android:background="@drawable/dpad_center">
+
+            <View
+                android:id="@+id/right_joystick_handle"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:background="@drawable/joystick_handle_bg"/>
+        </FrameLayout>
+
     </RelativeLayout>
 
     <!-- Hidden Settings Button -->
