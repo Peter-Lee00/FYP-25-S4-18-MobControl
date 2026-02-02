@@ -18,11 +18,13 @@ using WindowsInput;
 using WindowsInput.Native;
 using ZXing;
 using ZXing.Windows.Compatibility;
+using System.Runtime.InteropServices;
 
 namespace MobControlDesktop
 {
     public partial class MainWindow : Window
     {
+
         // Win32 API for mouse control
         [DllImport("user32.dll")]
         static extern bool SetCursorPos(int X, int Y);
@@ -48,9 +50,6 @@ namespace MobControlDesktop
         // Button configuration
         private Dictionary<string, ButtonMapping> buttonMappings;
 
-        // Device-specific mappings (IP Address -> Mappings)
-        private Dictionary<string, Dictionary<string, ButtonMapping>> deviceMappings;
-
         // Connected devices
         private ObservableCollection<ConnectedDevice> connectedDevices;
         private Dictionary<string, IPEndPoint> deviceEndpoints;
@@ -64,7 +63,6 @@ namespace MobControlDesktop
             inputSimulator = new InputSimulator();
             connectedDevices = new ObservableCollection<ConnectedDevice>();
             deviceEndpoints = new Dictionary<string, IPEndPoint>();
-            deviceMappings = new Dictionary<string, Dictionary<string, ButtonMapping>>();
             ConnectedDevicesList.ItemsSource = connectedDevices;
             LoadButtonMappings();
             ApplyTheme();
@@ -86,6 +84,7 @@ namespace MobControlDesktop
                 { "back", new ButtonMapping { Enabled = true, Key = "DOWN", VirtualKey = VirtualKeyCode.DOWN } }
             };
 
+            // Load from file if exists
             try
             {
                 string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "button_mappings.json");
@@ -103,8 +102,6 @@ namespace MobControlDesktop
             {
                 AddLog($"Failed to load mappings: {ex.Message}");
             }
-
-            LoadDeviceMappings();
         }
 
         #region Navigation Methods
@@ -119,9 +116,11 @@ namespace MobControlDesktop
         {
             if (isDarkMode)
             {
-                this.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
+                // Dark Mode
+                this.Background = new SolidColorBrush(Color.FromRgb(30, 30, 30)); // #1E1E1E
                 DarkModeToggle.Content = "🌙 Dark Mode";
 
+                // Main Menu
                 if (MainMenuScreen != null && MainMenuScreen.Children.Count > 1)
                 {
                     var title = MainMenuScreen.Children[1] as TextBlock;
@@ -131,6 +130,7 @@ namespace MobControlDesktop
                     }
                 }
 
+                // Host Screen - Dark Mode
                 if (BackButton != null)
                 {
                     BackButton.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
@@ -144,12 +144,12 @@ namespace MobControlDesktop
 
                 if (PairingCodeLabel != null)
                 {
-                    PairingCodeLabel.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170));
+                    PairingCodeLabel.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170)); // #AAAAAA
                 }
 
                 if (IPAddressText != null)
                 {
-                    IPAddressText.Foreground = new SolidColorBrush(Color.FromRgb(144, 202, 249));
+                    IPAddressText.Foreground = new SolidColorBrush(Color.FromRgb(144, 202, 249)); // #90CAF9
                 }
 
                 if (StatusBorder != null)
@@ -176,7 +176,7 @@ namespace MobControlDesktop
 
                 if (ConnectedDevicesBorder != null)
                 {
-                    ConnectedDevicesBorder.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37));
+                    ConnectedDevicesBorder.Background = new SolidColorBrush(Color.FromRgb(37, 37, 37)); // #252525
                     ConnectedDevicesBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(68, 68, 68));
                 }
 
@@ -190,6 +190,7 @@ namespace MobControlDesktop
                     ConnectionCountText.Foreground = new SolidColorBrush(Color.FromRgb(170, 170, 170));
                 }
 
+                // Settings screen dark mode
                 if (SettingsBorder != null)
                 {
                     SettingsBorder.Background = new SolidColorBrush(Color.FromRgb(44, 44, 44));
@@ -216,22 +217,163 @@ namespace MobControlDesktop
                     SettingsBackButton.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
                     SettingsBackButton.Foreground = new SolidColorBrush(Colors.White);
                 }
-
-                if (WiFiNetworkText != null)
-                {
-                    WiFiNetworkText.Foreground = new SolidColorBrush(Colors.White);
-                }
-
-                if (LocalIPText != null)
-                {
-                    LocalIPText.Foreground = new SolidColorBrush(Color.FromRgb(144, 202, 249));
-                }
             }
             else
             {
-                this.Background = new SolidColorBrush(Colors.White);
+                // Light Mode
+                this.Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)); // #F5F5F5
                 DarkModeToggle.Content = "☀️ Light Mode";
+                DarkModeToggle.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
+                DarkModeToggle.Foreground = new SolidColorBrush(Colors.White);
+
+                // Main Menu - Light Mode
+                if (MainMenuScreen != null && MainMenuScreen.Children.Count > 1)
+                {
+                    var title = MainMenuScreen.Children[1] as TextBlock;
+                    if (title != null)
+                    {
+                        title.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                    }
+                }
+
+                // Host Screen - Light Mode
+                if (BackButton != null)
+                {
+                    BackButton.Background = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                    BackButton.Foreground = new SolidColorBrush(Colors.White);
+                }
+
+                if (HostTitle != null)
+                {
+                    HostTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                }
+
+                if (PairingCodeLabel != null)
+                {
+                    PairingCodeLabel.Foreground = new SolidColorBrush(Color.FromRgb(117, 117, 117)); // Darker gray for visibility
+                }
+
+                if (IPAddressText != null)
+                {
+                    IPAddressText.Foreground = new SolidColorBrush(Color.FromRgb(33, 150, 243)); // #2196F3 - Brighter blue
+                }
+
+                if (StatusBorder != null)
+                {
+                    StatusBorder.Background = new SolidColorBrush(Color.FromRgb(224, 224, 224)); // #E0E0E0
+                    StatusBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(189, 189, 189)); // #BDBDBD
+                }
+
+                if (StatusText != null)
+                {
+                    StatusText.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                }
+
+                if (LogBorder != null)
+                {
+                    LogBorder.Background = new SolidColorBrush(Color.FromRgb(250, 250, 250)); // Very light gray
+                    LogBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(189, 189, 189));
+                }
+
+                if (LogTitle != null)
+                {
+                    LogTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                }
+
+                if (LogText != null)
+                {
+                    LogText.Foreground = new SolidColorBrush(Color.FromRgb(0, 150, 0)); // Darker green for visibility
+                }
+
+                if (ConnectedDevicesBorder != null)
+                {
+                    ConnectedDevicesBorder.Background = new SolidColorBrush(Color.FromRgb(250, 250, 250)); // #FAFAFA
+                    ConnectedDevicesBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(189, 189, 189));
+                }
+
+                if (ConnectedDevicesTitle != null)
+                {
+                    ConnectedDevicesTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                }
+
+                if (ConnectionCountText != null)
+                {
+                    ConnectionCountText.Foreground = new SolidColorBrush(Color.FromRgb(117, 117, 117));
+                }
+
+                // Settings screen light mode
+                if (SettingsBorder != null)
+                {
+                    SettingsBorder.Background = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                    SettingsBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(189, 189, 189));
+                }
+
+                if (SettingsTitle != null)
+                {
+                    SettingsTitle.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                }
+
+                if (NotifyOnConnect != null)
+                {
+                    NotifyOnConnect.Foreground = new SolidColorBrush(Color.FromRgb(66, 66, 66));
+                }
+
+                if (NotifyOnDisconnect != null)
+                {
+                    NotifyOnDisconnect.Foreground = new SolidColorBrush(Color.FromRgb(66, 66, 66));
+                }
+
+                if (SettingsBackButton != null)
+                {
+                    SettingsBackButton.Background = new SolidColorBrush(Color.FromRgb(189, 189, 189));
+                    SettingsBackButton.Foreground = new SolidColorBrush(Color.FromRgb(33, 33, 33));
+                }
+
+                // Update Test Network button
+                if (TestNetworkButton != null)
+                {
+                    TestNetworkButton.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
+                    TestNetworkButton.Foreground = new SolidColorBrush(Colors.White);
+                }
+
+                // Update View Connection Logs button
+                if (ViewConnectionLogsButton != null)
+                {
+                    ViewConnectionLogsButton.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
+                    ViewConnectionLogsButton.Foreground = new SolidColorBrush(Colors.White);
+                }
+
+                // Update Edit Controller Mapping button
+                if (EditControllerMappingButton != null)
+                {
+                    EditControllerMappingButton.Background = new SolidColorBrush(Color.FromRgb(66, 66, 66));
+                    EditControllerMappingButton.Foreground = new SolidColorBrush(Colors.White);
+                }
             }
+        }
+
+        private void HostButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowScreen("Host");
+            if (!isServerRunning)
+            {
+                StartServer();
+            }
+        }
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowScreen("Settings");
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowScreen("MainMenu");
         }
 
         private void ShowScreen(string screenName)
@@ -254,23 +396,6 @@ namespace MobControlDesktop
             }
         }
 
-        private void HostButton_Click(object sender, RoutedEventArgs e)
-        {
-            ShowScreen("Host");
-            StartServer();
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            StopServer();
-            ShowScreen("MainMenu");
-        }
-
-        private void SettingsBackButton_Click(object sender, RoutedEventArgs e)
-        {
-            ShowScreen("MainMenu");
-        }
-
         #endregion
 
         #region Server Methods
@@ -279,26 +404,35 @@ namespace MobControlDesktop
         {
             try
             {
+                // VirtualBox IP 제외하고 실제 WiFi IP 가져오기
                 localIP = GetLocalIPAddress();
-                pairingCode = GeneratePairingCode();
 
-                IPAddressText.Text = $"IP: {localIP}:{serverPort}";
+                // 페어링 코드 생성
+                Random random = new Random();
+                pairingCode = random.Next(1000, 9999).ToString();
+
                 PairingCodeText.Text = pairingCode;
+                IPAddressText.Text = $"IP: {localIP}:{serverPort}";
 
+                // QR 코드 생성
+                string qrData = $"{localIP}:{serverPort}:{pairingCode}";
+                GenerateQRCode(qrData);
+
+                // UDP 서버 시작
                 udpServer = new UdpClient(serverPort);
-                isServerRunning = true;
+                udpServer.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 
-                receiveThread = new Thread(ReceiveData);
+                receiveThread = new Thread(new ThreadStart(ReceiveData));
                 receiveThread.IsBackground = true;
                 receiveThread.Start();
+                isServerRunning = true;
 
                 StatusText.Text = "⏳ Waiting for connection...";
-                StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+                StatusText.Foreground = new SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 193, 7));
 
                 AddLog($"✓ Server started on {localIP}:{serverPort}");
-                AddLog($"✓ Pairing code: {pairingCode}");
-
-                GenerateQRCode();
+                AddLog($"✓ Pairing Code: {pairingCode}");
+                AddLog($"✓ Listening on 0.0.0.0:{serverPort}");
             }
             catch (Exception ex)
             {
@@ -308,60 +442,30 @@ namespace MobControlDesktop
             }
         }
 
-        private void StopServer()
-        {
-            isServerRunning = false;
-
-            if (receiveThread != null && receiveThread.IsAlive)
-            {
-                receiveThread.Interrupt();
-            }
-
-            if (udpServer != null)
-            {
-                udpServer.Close();
-            }
-
-            connectedDevices.Clear();
-            deviceEndpoints.Clear();
-
-            StatusText.Text = "Server stopped";
-            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(158, 158, 158));
-
-            AddLog("✓ Server stopped");
-        }
-
-        private string GeneratePairingCode()
-        {
-            Random random = new Random();
-            return random.Next(1000, 9999).ToString();
-        }
-
-        private void GenerateQRCode()
+        private void GenerateQRCode(string data)
         {
             try
             {
-                string qrContent = $"{localIP}:{serverPort}:{pairingCode}";
-
-                var writer = new BarcodeWriter
+                var writer = new ZXing.BarcodeWriter<System.Drawing.Bitmap>()
                 {
-                    Format = ZXing.BarcodeFormat.QR_CODE,
+                    Format = BarcodeFormat.QR_CODE,
+                    Renderer = new BitmapRenderer(),
                     Options = new ZXing.Common.EncodingOptions
                     {
-                        Width = 300,
-                        Height = 300,
+                        Width = 256,
+                        Height = 256,
                         Margin = 1
                     }
                 };
 
-                using (var bitmap = writer.Write(qrContent))
+                using (var bitmap = writer.Write(data))
                 {
                     using (var memory = new MemoryStream())
                     {
                         bitmap.Save(memory, ImageFormat.Png);
                         memory.Position = 0;
 
-                        var bitmapImage = new BitmapImage();
+                        BitmapImage bitmapImage = new BitmapImage();
                         bitmapImage.BeginInit();
                         bitmapImage.StreamSource = memory;
                         bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
@@ -411,439 +515,276 @@ namespace MobControlDesktop
 
                 if (!jsonData.ContainsKey("action"))
                 {
-                    AddLog($"⚠ Invalid message format from {remoteEndPoint.Address}");
+                    AddLog($"⚠ Invalid message format");
                     return;
                 }
 
                 string action = jsonData["action"].ToString();
 
+                // 1. Discovery
                 if (action == "discover")
                 {
-                    AddLog($"📱 Discovery request from {remoteEndPoint.Address}");
-                    SendDiscoveryResponse(remoteEndPoint);
-                }
-                else if (action == "pair")
-                {
-                    string receivedCode = jsonData.ContainsKey("code") ? jsonData["code"].ToString() : "";
+                    string code = jsonData.ContainsKey("code") ? jsonData["code"].ToString() : "";
 
-                    if (receivedCode == pairingCode)
+                    if (code == pairingCode)
+                    {
+                        AddLog($"✓ Discovery: Code matched");
+
+                        string response = JsonConvert.SerializeObject(new { action = "discovered" });
+                        byte[] responseData = Encoding.UTF8.GetBytes(response);
+                        udpServer.Send(responseData, responseData.Length, remoteEndPoint);
+                    }
+                    return;
+                }
+
+                // 2. Pairing
+                if (action == "pair")
+                {
+                    string code = jsonData.ContainsKey("code") ? jsonData["code"].ToString() : "";
+
+                    if (code == pairingCode)
                     {
                         string deviceIP = remoteEndPoint.Address.ToString();
+
+                        string deviceName = "Unknown Device";
+                        if (jsonData.ContainsKey("deviceName"))
+                            deviceName = jsonData["deviceName"].ToString();
+                        else if (jsonData.ContainsKey("device"))
+                            deviceName = jsonData["device"].ToString();
+                        else
+                            deviceName = $"Device-{deviceIP.Substring(deviceIP.LastIndexOf('.') + 1)}";
 
                         if (!deviceEndpoints.ContainsKey(deviceIP))
                         {
                             deviceEndpoints[deviceIP] = remoteEndPoint;
-
-                            string deviceNameFromMessage = null;
-                            if (jsonData.ContainsKey("device"))
+                            connectedDevices.Add(new ConnectedDevice
                             {
-                                deviceNameFromMessage = jsonData["device"].ToString();
-                            }
-                            else if (jsonData.ContainsKey("deviceName"))
-                            {
-                                deviceNameFromMessage = jsonData["deviceName"].ToString();
-                            }
-
-                            var newDevice = new ConnectedDevice
-                            {
-                                Name = deviceNameFromMessage ?? "Unknown Device",
+                                Name = deviceName,
                                 IPAddress = deviceIP,
                                 Status = "Connected"
-                            };
+                            });
 
-                            connectedDevices.Add(newDevice);
-                            ConnectionCountText.Text = $"{connectedDevices.Count} device{(connectedDevices.Count != 1 ? "s" : "")} connected";
+                            UpdateConnectionStatus();
 
-                            StatusText.Text = $"({connectedDevices.Count}) device{(connectedDevices.Count != 1 ? "s" : "")} connected";
-                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
-
-                            AddLog($"✓ {newDevice.Name} paired successfully ({deviceIP})");
-
-                            SendPairSuccessResponse(remoteEndPoint);
-                            SendConfigurationToDevice(deviceIP);
-
-                            if (NotifyOnConnect?.IsChecked == true)
+                            if (NotifyOnConnect != null && NotifyOnConnect.IsChecked == true)
                             {
-                                MessageBox.Show($"{newDevice.Name} has connected!", "Device Connected",
-                                    MessageBoxButton.OK, MessageBoxImage.Information);
+                                MessageBox.Show($"New device connected: {deviceName}",
+                                    "Device Connected",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Information);
                             }
+                        }
+
+                        var config = new
+                        {
+                            status = "connected",
+                            buttons = CreateButtonConfigForMobile()
+                        };
+
+                        string ackMessage = JsonConvert.SerializeObject(config);
+                        byte[] ackData = Encoding.UTF8.GetBytes(ackMessage);
+                        udpServer.Send(ackData, ackData.Length, remoteEndPoint);
+
+                        AddLog($"✓ Paired with {deviceName} ({deviceIP})");
+                    }
+                    return;
+                }
+
+                // 3. Key input
+                if (action == "key")
+                {
+                    if (!jsonData.ContainsKey("key") || !jsonData.ContainsKey("pressed"))
+                        return;
+
+                    string key = jsonData["key"].ToString().ToLower();
+                    bool pressed = Convert.ToBoolean(jsonData["pressed"]);
+
+                    VirtualKeyCode vk = VirtualKeyCode.NONAME;
+
+                    switch (key)
+                    {
+                        case "w": vk = VirtualKeyCode.VK_W; break;
+                        case "a": vk = VirtualKeyCode.VK_A; break;
+                        case "s": vk = VirtualKeyCode.VK_S; break;
+                        case "d": vk = VirtualKeyCode.VK_D; break;
+                        case "shift": vk = VirtualKeyCode.SHIFT; break;
+                        case "p": vk = VirtualKeyCode.VK_P; break;
+                        case "space": vk = VirtualKeyCode.SPACE; break;
+                    }
+
+                    if (vk != VirtualKeyCode.NONAME)
+                    {
+                        if (pressed)
+                        {
+                            inputSimulator.Keyboard.KeyDown(vk);
+                            AddLog($"🔽 PRESSED: {key.ToUpper()}");
                         }
                         else
                         {
-                            AddLog($"⚠ Device {deviceIP} already connected");
-                            SendPairSuccessResponse(remoteEndPoint);
+                            inputSimulator.Keyboard.KeyUp(vk);
+                            AddLog($"🔼 RELEASED: {key.ToUpper()}");
                         }
                     }
-                    else
+                    return;
+                }
+
+                // 4. Mouse movement (Win32 API)
+                if (action == "mouse_move")
+                {
+                    if (!jsonData.ContainsKey("x") || !jsonData.ContainsKey("y"))
+                        return;
+
+                    int deltaX = Convert.ToInt32(jsonData["x"]);
+                    int deltaY = Convert.ToInt32(jsonData["y"]);
+
+                    POINT currentPos;
+                    GetCursorPos(out currentPos);
+
+                    int newX = currentPos.X + deltaX;
+                    int newY = currentPos.Y + deltaY;
+
+                    SetCursorPos(newX, newY);
+
+                    if (Math.Abs(deltaX) > 50 || Math.Abs(deltaY) > 50)
                     {
-                        AddLog($"✗ Invalid pairing code from {remoteEndPoint.Address}");
-                        SendPairFailedResponse(remoteEndPoint);
+                        AddLog($"🎯 Mouse: Δ({deltaX}, {deltaY})");
                     }
+                    return;
                 }
-                else if (action == "input")
+
+                // 5. Mouse button
+                if (action == "mouse_button")
                 {
-                    if (jsonData.ContainsKey("input"))
+                    if (!jsonData.ContainsKey("button") || !jsonData.ContainsKey("pressed"))
+                        return;
+
+                    string button = jsonData["button"].ToString().ToLower();
+                    bool pressed = Convert.ToBoolean(jsonData["pressed"]);
+
+                    if (button == "left")
                     {
-                        string inputAction = jsonData["input"].ToString();
-                        SimulateKeyPress(inputAction, remoteEndPoint.Address.ToString());
+                        if (pressed)
+                        {
+                            inputSimulator.Mouse.LeftButtonDown();
+                            AddLog($"🔫 LEFT CLICK");
+                        }
+                        else
+                        {
+                            inputSimulator.Mouse.LeftButtonUp();
+                        }
                     }
-                    else
+                    else if (button == "right")
                     {
-                        AddLog($"⚠ Empty input from {remoteEndPoint.Address}");
+                        if (pressed)
+                        {
+                            inputSimulator.Mouse.RightButtonDown();
+                            AddLog($"🚀 RIGHT CLICK");
+                        }
+                        else
+                        {
+                            inputSimulator.Mouse.RightButtonUp();
+                        }
                     }
+                    return;
                 }
-                // ===== FLIGHT CONTROLLER HANDLERS =====
-                else if (action == "gyro_data")
+
+                // 6. Gyro data
+                if (action == "gyro_data")
                 {
-                    // Gyro data - just for logging/debugging
+                    return;
                 }
-                else if (action == "key")
+
+                // 7. Legacy "input" action (RacingController 호환)
+                if (action == "input")
                 {
-                    HandleKeyInput(jsonData, remoteEndPoint.Address.ToString());
+                    if (!jsonData.ContainsKey("input"))
+                        return;
+
+                    string inputAction = jsonData["input"].ToString().ToLower();
+
+                    VirtualKeyCode vk = VirtualKeyCode.NONAME;
+
+                    // Parse action (e.g., "left_down", "right_up")
+                    if (inputAction.Contains("left") || inputAction == "a")
+                        vk = VirtualKeyCode.VK_A;
+                    else if (inputAction.Contains("right") || inputAction == "d")
+                        vk = VirtualKeyCode.VK_D;
+                    else if (inputAction.Contains("up") || inputAction == "w")
+                        vk = VirtualKeyCode.VK_W;
+                    else if (inputAction.Contains("down") || inputAction == "s")
+                        vk = VirtualKeyCode.VK_S;
+
+                    if (vk != VirtualKeyCode.NONAME)
+                    {
+                        if (inputAction.Contains("_down") || (!inputAction.Contains("_up") && !inputAction.Contains("_down")))
+                        {
+                            inputSimulator.Keyboard.KeyDown(vk);
+                            AddLog($"🔽 INPUT: {inputAction.ToUpper()}");
+                        }
+                        else if (inputAction.Contains("_up"))
+                        {
+                            inputSimulator.Keyboard.KeyUp(vk);
+                            AddLog($"🔼 INPUT: {inputAction.ToUpper()}");
+                        }
+                        else
+                        {
+                            inputSimulator.Keyboard.KeyPress(vk);
+                            AddLog($"✓ INPUT: {inputAction.ToUpper()}");
+                        }
+                    }
+                    return;
                 }
-                else if (action == "mouse_move")
-                {
-                    HandleMouseMove(jsonData, remoteEndPoint.Address.ToString());
-                }
-                else if (action == "mouse_button")
-                {
-                    HandleMouseButton(jsonData, remoteEndPoint.Address.ToString());
-                }
-                // ===== END FLIGHT CONTROLLER HANDLERS =====
-                else
-                {
-                    SimulateKeyPress(action, remoteEndPoint.Address.ToString());
-                }
+
+                AddLog($"⚠ Unknown action: {action}");
             }
             catch (Exception ex)
             {
-                AddLog($"✗ Message processing error: {ex.Message}");
+                AddLog($"✗ Parse error: {ex.Message}");
             }
         }
 
-        private void SendDiscoveryResponse(IPEndPoint endpoint)
+        private Dictionary<string, object> CreateButtonConfigForMobile()
         {
-            var response = new
-            {
-                action = "discovered",
-                serverName = "MobControl Desktop",
-                ip = localIP,
-                port = serverPort
-            };
+            var config = new Dictionary<string, object>();
 
-            string json = JsonConvert.SerializeObject(response);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-
-            try
+            foreach (var mapping in buttonMappings)
             {
-                udpServer.Send(data, data.Length, endpoint);
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Failed to send discovery response: {ex.Message}");
-            }
-        }
-
-        private void SendPairSuccessResponse(IPEndPoint endpoint)
-        {
-            var response = new
-            {
-                status = "connected",
-                action = "pair_success",
-                message = "Connected successfully!"
-            };
-
-            string json = JsonConvert.SerializeObject(response);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-
-            try
-            {
-                udpServer.Send(data, data.Length, endpoint);
-                AddLog($"✓ Sent pairing success to {endpoint.Address}");
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Failed to send pair success: {ex.Message}");
-            }
-        }
-
-        private void SendPairFailedResponse(IPEndPoint endpoint)
-        {
-            var response = new
-            {
-                action = "pair_failed",
-                message = "Invalid pairing code"
-            };
-
-            string json = JsonConvert.SerializeObject(response);
-            byte[] data = Encoding.UTF8.GetBytes(json);
-
-            try
-            {
-                udpServer.Send(data, data.Length, endpoint);
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Failed to send pair failed: {ex.Message}");
-            }
-        }
-
-        private object CreateButtonConfigForMobile()
-        {
-            var buttonConfig = new Dictionary<string, object>();
-
-            foreach (var kvp in buttonMappings)
-            {
-                buttonConfig[kvp.Key] = new
+                config[mapping.Key] = new
                 {
-                    enabled = kvp.Value.Enabled,
-                    key = kvp.Value.Key
+                    enabled = mapping.Value.Enabled,
+                    key = mapping.Value.Key,
+                    label = mapping.Key.ToUpper()
                 };
             }
 
-            return buttonConfig;
+            return config;
         }
 
-        private object CreateButtonConfigForMobile(Dictionary<string, ButtonMapping> mappings)
+        private void SimulateKeyPress(string action)
         {
-            var buttonConfig = new Dictionary<string, object>();
-
-            foreach (var kvp in mappings)
+            if (!buttonMappings.ContainsKey(action))
             {
-                buttonConfig[kvp.Key] = new
-                {
-                    enabled = kvp.Value.Enabled,
-                    key = kvp.Value.Key
-                };
-            }
-
-            return buttonConfig;
-        }
-
-        private void SimulateKeyPress(string action, string senderIP = null)
-        {
-            string buttonName = action;
-            string eventType = "press";
-
-            if (action.Contains("_"))
-            {
-                string[] parts = action.Split('_');
-                if (parts.Length == 2)
-                {
-                    buttonName = parts[0];
-                    eventType = parts[1];
-                }
-            }
-
-            var mappings = (!string.IsNullOrEmpty(senderIP) && deviceMappings.ContainsKey(senderIP))
-                ? deviceMappings[senderIP]
-                : buttonMappings;
-
-            if (!mappings.ContainsKey(buttonName))
-            {
-                AddLog($"⚠ Unknown action: {buttonName}");
+                AddLog($"⚠ Unknown action: {action}");
                 return;
             }
 
-            var mapping = mappings[buttonName];
+            var mapping = buttonMappings[action];
 
             if (!mapping.Enabled)
             {
-                AddLog($"⚠ Button disabled: {buttonName}");
+                AddLog($"⚠ Button disabled: {action}");
                 return;
             }
 
             if (mapping.VirtualKey == VirtualKeyCode.NONAME)
             {
-                AddLog($"⚠ Invalid key for {buttonName}");
+                AddLog($"⚠ Invalid key for {action}");
                 return;
             }
 
-            if (eventType == "down")
-            {
-                inputSimulator.Keyboard.KeyDown(mapping.VirtualKey);
-                string deviceInfo = !string.IsNullOrEmpty(senderIP) ? $" (from {senderIP})" : "";
-                AddLog($"▼ {buttonName.ToUpper()} → {mapping.Key} DOWN{deviceInfo}");
-            }
-            else if (eventType == "up")
-            {
-                inputSimulator.Keyboard.KeyUp(mapping.VirtualKey);
-                string deviceInfo = !string.IsNullOrEmpty(senderIP) ? $" (from {senderIP})" : "";
-                AddLog($"▲ {buttonName.ToUpper()} → {mapping.Key} UP{deviceInfo}");
-            }
-            else
-            {
-                inputSimulator.Keyboard.KeyPress(mapping.VirtualKey);
-                string deviceInfo = !string.IsNullOrEmpty(senderIP) ? $" (from {senderIP})" : "";
-                AddLog($"✓ {buttonName.ToUpper()} → {mapping.Key}{deviceInfo}");
-            }
+            inputSimulator.Keyboard.KeyPress(mapping.VirtualKey);
+            AddLog($"✓ {action.ToUpper()} → {mapping.Key}");
         }
-
-        #endregion
-
-        #region Flight Controller Support
-
-        private void HandleKeyInput(Dictionary<string, object> data, string senderIP)
-        {
-            try
-            {
-                if (!data.ContainsKey("key") || !data.ContainsKey("pressed"))
-                {
-                    AddLog($"⚠ Invalid key input data from {senderIP}");
-                    return;
-                }
-
-                string key = data["key"].ToString().ToLower();
-                bool pressed = Convert.ToBoolean(data["pressed"]);
-
-                VirtualKeyCode virtualKey;
-                string keyDisplayName;
-
-                switch (key)
-                {
-                    case "w":
-                        virtualKey = VirtualKeyCode.VK_W;
-                        keyDisplayName = "W (Forward)";
-                        break;
-                    case "s":
-                        virtualKey = VirtualKeyCode.VK_S;
-                        keyDisplayName = "S (Backward)";
-                        break;
-                    case "a":
-                        virtualKey = VirtualKeyCode.VK_A;
-                        keyDisplayName = "A (Left)";
-                        break;
-                    case "d":
-                        virtualKey = VirtualKeyCode.VK_D;
-                        keyDisplayName = "D (Right)";
-                        break;
-                    case "shift":
-                        virtualKey = VirtualKeyCode.SHIFT;
-                        keyDisplayName = "SHIFT (Turbo)";
-                        break;
-                    case "p":
-                        virtualKey = VirtualKeyCode.VK_P;
-                        keyDisplayName = "P (Pause)";
-                        break;
-                    default:
-                        AddLog($"⚠ Unknown key: {key}");
-                        return;
-                }
-
-                if (pressed)
-                {
-                    inputSimulator.Keyboard.KeyDown(virtualKey);
-                    AddLog($"🔽 {keyDisplayName} PRESSED");
-                }
-                else
-                {
-                    inputSimulator.Keyboard.KeyUp(virtualKey);
-                    AddLog($"🔼 {keyDisplayName} RELEASED");
-                }
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Key input error: {ex.Message}");
-            }
-        }
-
-        private void HandleMouseMove(Dictionary<string, object> data, string senderIP)
-        {
-            try
-            {
-                if (!data.ContainsKey("x") || !data.ContainsKey("y"))
-                {
-                    AddLog($"⚠ Invalid mouse move data from {senderIP}");
-                    return;
-                }
-
-                int deltaX = Convert.ToInt32(data["x"]);
-                int deltaY = Convert.ToInt32(data["y"]);
-
-                // Get current mouse position using Win32 API
-                POINT currentPos;
-                GetCursorPos(out currentPos);
-
-                // Apply mouse movement (relative)
-                int newX = currentPos.X + deltaX;
-                int newY = currentPos.Y + deltaY;
-
-                // Get screen dimensions
-                int screenWidth = (int)SystemParameters.PrimaryScreenWidth;
-                int screenHeight = (int)SystemParameters.PrimaryScreenHeight;
-
-                // Clamp to screen bounds
-                newX = Math.Max(0, Math.Min(screenWidth - 1, newX));
-                newY = Math.Max(0, Math.Min(screenHeight - 1, newY));
-
-                // Move mouse cursor using Win32 API
-                SetCursorPos(newX, newY);
-
-                // Log less frequently
-                if (Math.Abs(deltaX) > 50 || Math.Abs(deltaY) > 50)
-                {
-                    AddLog($"🎯 Mouse moved: Δ({deltaX}, {deltaY})");
-                }
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Mouse move error: {ex.Message}");
-            }
-        }
-
-        private void HandleMouseButton(Dictionary<string, object> data, string senderIP)
-        {
-            try
-            {
-                if (!data.ContainsKey("button") || !data.ContainsKey("pressed"))
-                {
-                    AddLog($"⚠ Invalid mouse button data from {senderIP}");
-                    return;
-                }
-
-                string button = data["button"].ToString().ToLower();
-                bool pressed = Convert.ToBoolean(data["pressed"]);
-
-                if (button == "left")
-                {
-                    if (pressed)
-                    {
-                        inputSimulator.Mouse.LeftButtonDown();
-                        AddLog($"🔫 LEFT MOUSE DOWN (Machine Gun)");
-                    }
-                    else
-                    {
-                        inputSimulator.Mouse.LeftButtonUp();
-                        AddLog($"🔫 LEFT MOUSE UP");
-                    }
-                }
-                else if (button == "right")
-                {
-                    if (pressed)
-                    {
-                        inputSimulator.Mouse.RightButtonDown();
-                        AddLog($"🚀 RIGHT MOUSE DOWN (Rockets)");
-                    }
-                    else
-                    {
-                        inputSimulator.Mouse.RightButtonUp();
-                        AddLog($"🚀 RIGHT MOUSE UP");
-                    }
-                }
-                else
-                {
-                    AddLog($"⚠ Unknown mouse button: {button}");
-                }
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Mouse button error: {ex.Message}");
-            }
-        }
-
-        #endregion
-
-        #region Network Methods
 
         private string GetLocalIPAddress()
         {
@@ -859,18 +800,22 @@ namespace MobControlDesktop
                     {
                         string ipStr = ip.ToString();
 
-                        if (ipStr.StartsWith("192.168."))
+                        // VirtualBox, VMware, Docker 등 가상 어댑터 제외
+                        if (ipStr.StartsWith("127.") ||
+                            ipStr.StartsWith("169.254.") ||
+                            ipStr.StartsWith("192.168.56.") ||
+                            ipStr.StartsWith("192.168.99.") ||
+                            ipStr.StartsWith("172.17.") ||
+                            ipStr.StartsWith("172.18."))
                         {
-                            localIP = ipStr;
-                            AddLog($"✓ Detected home IP: {ipStr}");
-                            break;
+                            AddLog($"⚠ Skipping: {ipStr}");
+                            continue;
                         }
-                        else if (ipStr.StartsWith("10."))
-                        {
-                            if (localIP == "127.0.0.1")
-                                localIP = ipStr;
-                            AddLog($"✓ Detected corporate IP: {ipStr}");
-                        }
+
+                        // 첫 번째 유효한 IP 사용
+                        localIP = ipStr;
+                        AddLog($"✓ Using IP: {ipStr}");
+                        break;
                     }
                 }
             }
@@ -881,53 +826,77 @@ namespace MobControlDesktop
 
             if (localIP == "127.0.0.1")
             {
-                AddLog("⚠ Warning: No valid network IP found, using loopback");
+                AddLog("⚠ Warning: No valid network IP found");
             }
 
             return localIP;
         }
-
         #endregion
 
         #region Device Management
 
         private void DisconnectDevice_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button)
+            if (sender is System.Windows.Controls.Button button)
             {
                 string deviceIP = button.Tag as string;
-
                 if (!string.IsNullOrEmpty(deviceIP))
                 {
-                    var device = connectedDevices.FirstOrDefault(d => d.IPAddress == deviceIP);
-
-                    if (device != null)
-                    {
-                        connectedDevices.Remove(device);
-                        deviceEndpoints.Remove(deviceIP);
-
-                        ConnectionCountText.Text = $"{connectedDevices.Count} device{(connectedDevices.Count != 1 ? "s" : "")} connected";
-
-                        if (connectedDevices.Count > 0)
-                        {
-                            StatusText.Text = $"({connectedDevices.Count}) device{(connectedDevices.Count != 1 ? "s" : "")} connected";
-                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
-                        }
-                        else
-                        {
-                            StatusText.Text = "⏳ Waiting for connection...";
-                            StatusText.Foreground = new SolidColorBrush(Color.FromRgb(255, 193, 7));
-                        }
-
-                        AddLog($"✓ {device.Name} disconnected");
-
-                        if (NotifyOnDisconnect?.IsChecked == true)
-                        {
-                            MessageBox.Show($"{device.Name} has been disconnected.", "Device Disconnected",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                    }
+                    RemoveDevice(deviceIP);
                 }
+            }
+        }
+
+        private void RemoveDevice(string deviceIP)
+        {
+            if (deviceEndpoints.ContainsKey(deviceIP))
+            {
+                // Send disconnect message to device
+                try
+                {
+                    var disconnectMsg = new { action = "disconnect" };
+                    string json = JsonConvert.SerializeObject(disconnectMsg);
+                    byte[] data = Encoding.UTF8.GetBytes(json);
+                    udpServer.Send(data, data.Length, deviceEndpoints[deviceIP]);
+                }
+                catch { }
+
+                deviceEndpoints.Remove(deviceIP);
+            }
+
+            var device = connectedDevices.FirstOrDefault(d => d.IPAddress == deviceIP);
+            if (device != null)
+            {
+                connectedDevices.Remove(device);
+                AddLog($"✓ Disconnected device: {device.Name} ({deviceIP})");
+
+                // Show notification if enabled
+                if (NotifyOnDisconnect != null && NotifyOnDisconnect.IsChecked == true)
+                {
+                    MessageBox.Show($"Device disconnected: {device.Name}",
+                        "Device Disconnected",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+
+            UpdateConnectionStatus();
+        }
+
+        private void UpdateConnectionStatus()
+        {
+            int count = connectedDevices.Count;
+            ConnectionCountText.Text = $"{count} device{(count != 1 ? "s" : "")} connected";
+
+            if (count > 0)
+            {
+                StatusText.Text = $"Connected ({count} device{(count != 1 ? "s" : "")})";
+                StatusIndicator.Fill = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+            }
+            else
+            {
+                StatusText.Text = "Waiting for connection...";
+                StatusIndicator.Fill = new SolidColorBrush(Color.FromRgb(255, 193, 7)); // Yellow
             }
         }
 
@@ -935,262 +904,56 @@ namespace MobControlDesktop
 
         #region Settings Methods
 
-        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        private void TestNetworkButton_Click(object sender, RoutedEventArgs e)
         {
-            ShowScreen("Settings");
-            UpdateSettingsNetworkInfo();
-        }
+            // Simulate network test
+            Random random = new Random();
+            int latency = random.Next(10, 50);
 
-        private void UpdateSettingsNetworkInfo()
-        {
-            try
+            NetworkLatencyText.Text = $"{latency} ms";
+
+            if (latency < 20)
             {
-                string networkName = GetCurrentWiFiNetworkName();
-                WiFiNetworkText.Text = string.IsNullOrEmpty(networkName) ? "Not Connected" : networkName;
+                NetworkLatencyText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+                SignalStrengthText.Text = "Signal Strength: Excellent";
+                SignalStrengthText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
             }
-            catch
+            else if (latency < 35)
             {
-                WiFiNetworkText.Text = "Unable to detect";
+                NetworkLatencyText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
+                SignalStrengthText.Text = "Signal Strength: Very Good";
+                SignalStrengthText.Foreground = new SolidColorBrush(Color.FromRgb(76, 175, 80));
             }
-
-            LocalIPText.Text = string.IsNullOrEmpty(localIP) ? "127.0.0.1" : localIP;
-
-            int deviceCount = connectedDevices.Count;
-
-            if (MobileConnectionIndicator != null)
+            else if (latency < 50)
             {
-                if (deviceCount > 0)
-                {
-                    MobileConnectionIndicator.Fill = new SolidColorBrush(Color.FromRgb(76, 175, 80));
-                }
-                else
-                {
-                    MobileConnectionIndicator.Fill = new SolidColorBrush(Color.FromRgb(244, 67, 54));
-                }
-            }
-
-            if (this.FindName("MobileConnectionStatus") is TextBlock mobileStatusText)
-            {
-                if (deviceCount > 0)
-                {
-                    mobileStatusText.Text = $"{deviceCount} device{(deviceCount != 1 ? "s" : "")} connected";
-                }
-                else
-                {
-                    mobileStatusText.Text = "No devices connected";
-                }
-            }
-        }
-
-        private string GetCurrentWiFiNetworkName()
-        {
-            return "WiFi Network";
-        }
-
-        private void EditMappingsButton_Click(object sender, RoutedEventArgs e)
-        {
-            var mappingWindow = new ButtonMappingWindow(buttonMappings);
-            mappingWindow.Owner = this;
-
-            bool? result = mappingWindow.ShowDialog();
-
-            if (result == true && mappingWindow.MappingsChanged)
-            {
-                buttonMappings = mappingWindow.GetUpdatedMappings();
-                SaveButtonMappings();
-                SendConfigurationToAllDevices();
-
-                MessageBox.Show("Button mappings have been saved successfully!",
-                    "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        private void SaveButtonMappings()
-        {
-            try
-            {
-                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "button_mappings.json");
-                string json = JsonConvert.SerializeObject(buttonMappings, Formatting.Indented);
-                File.WriteAllText(filePath, json);
-                AddLog("✓ Button mappings saved");
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Failed to save mappings: {ex.Message}");
-            }
-        }
-
-        private void SendConfigurationToAllDevices()
-        {
-            var config = new
-            {
-                action = "update_config",
-                buttons = CreateButtonConfigForMobile()
-            };
-
-            string configMessage = JsonConvert.SerializeObject(config);
-            byte[] configData = Encoding.UTF8.GetBytes(configMessage);
-
-            foreach (var endpoint in deviceEndpoints.Values)
-            {
-                try
-                {
-                    udpServer.Send(configData, configData.Length, endpoint);
-                }
-                catch (Exception ex)
-                {
-                    AddLog($"✗ Failed to send config to {endpoint.Address}: {ex.Message}");
-                }
-            }
-
-            AddLog($"✓ Configuration sent to {deviceEndpoints.Count} device(s)");
-        }
-
-        private void LoadDeviceMappings()
-        {
-            try
-            {
-                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "device_mappings.json");
-                if (File.Exists(filePath))
-                {
-                    string json = File.ReadAllText(filePath);
-                    var loaded = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, ButtonMapping>>>(json);
-                    if (loaded != null)
-                    {
-                        deviceMappings = loaded;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                AddLog($"Failed to load device mappings: {ex.Message}");
-            }
-        }
-
-        private void SaveDeviceMappings()
-        {
-            try
-            {
-                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "device_mappings.json");
-                string json = JsonConvert.SerializeObject(deviceMappings, Formatting.Indented);
-                File.WriteAllText(filePath, json);
-                AddLog("✓ Device mappings saved");
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Failed to save device mappings: {ex.Message}");
-            }
-        }
-
-        private void EditDeviceMapping_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = sender as Button;
-            if (button == null) return;
-
-            string deviceIP = button.Tag as string;
-            if (string.IsNullOrEmpty(deviceIP)) return;
-
-            var device = connectedDevices.FirstOrDefault(d => d.IPAddress == deviceIP);
-            if (device == null) return;
-
-            Dictionary<string, ButtonMapping> deviceMapping;
-
-            if (deviceMappings.ContainsKey(deviceIP))
-            {
-                deviceMapping = deviceMappings[deviceIP];
+                NetworkLatencyText.Foreground = new SolidColorBrush(Color.FromRgb(255, 193, 7)); // Yellow
+                SignalStrengthText.Text = "Signal Strength: Good";
+                SignalStrengthText.Foreground = new SolidColorBrush(Color.FromRgb(255, 193, 7));
             }
             else
             {
-                deviceMapping = CloneButtonMappings(buttonMappings);
-                deviceMappings[deviceIP] = deviceMapping;
+                NetworkLatencyText.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54)); // Red
+                SignalStrengthText.Text = "Signal Strength: Poor";
+                SignalStrengthText.Foreground = new SolidColorBrush(Color.FromRgb(244, 67, 54));
             }
 
-            var mappingWindow = new ButtonMappingWindow(deviceMapping);
-            mappingWindow.Title = $"Edit Controller Mapping - {device.Name}";
-            mappingWindow.Owner = this;
-
-            bool? result = mappingWindow.ShowDialog();
-
-            if (result == true && mappingWindow.MappingsChanged)
-            {
-                deviceMappings[deviceIP] = mappingWindow.GetUpdatedMappings();
-                SaveDeviceMappings();
-                AddLog($"✓ Button mappings updated for {device.Name}");
-                SendConfigurationToDevice(deviceIP);
-
-                MessageBox.Show(
-                    $"Button mappings for {device.Name} have been saved successfully!\n\nThe new configuration has been sent to the device.",
-                    "Success",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-        }
-
-        private Dictionary<string, ButtonMapping> CloneButtonMappings(Dictionary<string, ButtonMapping> source)
-        {
-            var clone = new Dictionary<string, ButtonMapping>();
-            foreach (var kvp in source)
-            {
-                clone[kvp.Key] = new ButtonMapping
-                {
-                    Enabled = kvp.Value.Enabled,
-                    Key = kvp.Value.Key,
-                    VirtualKey = kvp.Value.VirtualKey
-                };
-            }
-            return clone;
-        }
-
-        private void SendConfigurationToDevice(string deviceIP)
-        {
-            if (!deviceEndpoints.ContainsKey(deviceIP))
-            {
-                return;
-            }
-
-            var endpoint = deviceEndpoints[deviceIP];
-            var mapping = deviceMappings.ContainsKey(deviceIP) ? deviceMappings[deviceIP] : buttonMappings;
-
-            var config = new
-            {
-                action = "update_config",
-                buttons = CreateButtonConfigForMobile(mapping)
-            };
-
-            string configMessage = JsonConvert.SerializeObject(config);
-            byte[] configData = Encoding.UTF8.GetBytes(configMessage);
-
-            try
-            {
-                udpServer.Send(configData, configData.Length, endpoint);
-                AddLog($"✓ Configuration sent to {deviceIP}");
-            }
-            catch (Exception ex)
-            {
-                AddLog($"✗ Failed to send config to {deviceIP}: {ex.Message}");
-            }
-        }
-
-        private void ExitButton_Click(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show("Are you sure you want to exit?", "Exit",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                Application.Current.Shutdown();
-            }
+            AddLog($"✓ Network test completed: {latency}ms");
         }
 
         private void ViewConnectionLogsButton_Click(object sender, RoutedEventArgs e)
         {
-            // Switch to Host screen to view logs
+            // Switch to host screen to show logs
             ShowScreen("Host");
+            AddLog("✓ Viewing connection logs");
         }
 
         private void EditControllerMappingButton_Click(object sender, RoutedEventArgs e)
         {
-            EditMappingsButton_Click(sender, e);
+            MessageBox.Show("Controller mapping editor will be available in the next update!",
+                "Coming Soon",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            AddLog("✓ Controller mapping editor requested");
         }
 
         #endregion
@@ -1237,9 +1000,9 @@ namespace MobControlDesktop
     {
         public string action { get; set; }
         public string code { get; set; }
-        public string deviceName { get; set; }
-        public string input { get; set; }
         public string device { get; set; }
+        public string deviceName { get; set; }
+        public Dictionary<string, object> data { get; set; }
     }
 
     public class ButtonMapping

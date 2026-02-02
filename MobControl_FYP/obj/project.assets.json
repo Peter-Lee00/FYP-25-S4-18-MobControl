@@ -11,7 +11,7 @@
           "lib/netstandard2.0/WindowsInput.dll": {}
         }
       },
-      "Microsoft.Win32.SystemEvents/10.0.2": {
+      "Microsoft.Win32.SystemEvents/9.0.10": {
         "type": "package",
         "compile": {
           "lib/net8.0/Microsoft.Win32.SystemEvents.dll": {
@@ -46,19 +46,16 @@
           }
         }
       },
-      "System.Drawing.Common/10.0.2": {
+      "System.Drawing.Common/9.0.10": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Win32.SystemEvents": "10.0.2"
+          "Microsoft.Win32.SystemEvents": "9.0.10"
         },
         "compile": {
           "lib/net8.0/System.Drawing.Common.dll": {
             "related": ".pdb;.xml"
           },
           "lib/net8.0/System.Private.Windows.Core.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/System.Private.Windows.GdiPlus.dll": {
             "related": ".xml"
           }
         },
@@ -67,9 +64,6 @@
             "related": ".pdb;.xml"
           },
           "lib/net8.0/System.Private.Windows.Core.dll": {
-            "related": ".xml"
-          },
-          "lib/net8.0/System.Private.Windows.GdiPlus.dll": {
             "related": ".xml"
           }
         },
@@ -122,22 +116,21 @@
         "lib/netstandard2.0/WindowsInput.dll"
       ]
     },
-    "Microsoft.Win32.SystemEvents/10.0.2": {
-      "sha512": "1G4BdeFwc8E95MpwtR7pO4rEh2YCG/o5gqcOszdQRGrWX1ayHTZtho3xPuYZTbBxKb/3kQHjL3b4nQeNGvbM9g==",
+    "Microsoft.Win32.SystemEvents/9.0.10": {
+      "sha512": "P1CEtsxar/RhfoH3r1vc9ra28LLVYphpcFBxyRIEMM/jP3qh4j9TU4sWH2RUhMZX+GbFxZ+zz1oSP2n9MwjshA==",
       "type": "package",
-      "path": "microsoft.win32.systemevents/10.0.2",
+      "path": "microsoft.win32.systemevents/9.0.10",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
+        "LICENSE.TXT",
         "PACKAGE.md",
         "THIRD-PARTY-NOTICES.TXT",
         "buildTransitive/net461/Microsoft.Win32.SystemEvents.targets",
         "buildTransitive/net462/_._",
         "buildTransitive/net8.0/_._",
         "buildTransitive/netcoreapp2.0/Microsoft.Win32.SystemEvents.targets",
-        "lib/net10.0/Microsoft.Win32.SystemEvents.dll",
-        "lib/net10.0/Microsoft.Win32.SystemEvents.xml",
         "lib/net462/Microsoft.Win32.SystemEvents.dll",
         "lib/net462/Microsoft.Win32.SystemEvents.xml",
         "lib/net8.0/Microsoft.Win32.SystemEvents.dll",
@@ -146,10 +139,8 @@
         "lib/net9.0/Microsoft.Win32.SystemEvents.xml",
         "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll",
         "lib/netstandard2.0/Microsoft.Win32.SystemEvents.xml",
-        "microsoft.win32.systemevents.10.0.2.nupkg.sha512",
+        "microsoft.win32.systemevents.9.0.10.nupkg.sha512",
         "microsoft.win32.systemevents.nuspec",
-        "runtimes/win/lib/net10.0/Microsoft.Win32.SystemEvents.dll",
-        "runtimes/win/lib/net10.0/Microsoft.Win32.SystemEvents.xml",
         "runtimes/win/lib/net8.0/Microsoft.Win32.SystemEvents.dll",
         "runtimes/win/lib/net8.0/Microsoft.Win32.SystemEvents.xml",
         "runtimes/win/lib/net9.0/Microsoft.Win32.SystemEvents.dll",
@@ -187,10 +178,10 @@
         "packageIcon.png"
       ]
     },
-    "System.Drawing.Common/10.0.2": {
-      "sha512": "nCq8jeGD4vWaUjX3nGaDMKYqfFPposw2f4KCFnuY5Rt3NhK6zMZ/c0a52a3TZK/nnkCJfyQMwb+POKwAnZexZw==",
+    "System.Drawing.Common/9.0.10": {
+      "sha512": "FDakPhIcxHnhslLiz4ZQ+ALpHRpCU3zOep9Mcq+4hL23XwQrzmgJNYvf1tH4kJ/V36wO/ZhRr8nOfiz26P3wKg==",
       "type": "package",
-      "path": "system.drawing.common/10.0.2",
+      "path": "system.drawing.common/9.0.10",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -204,13 +195,6 @@
         "buildTransitive/netcoreapp2.0/System.Drawing.Common.targets",
         "lib/MonoAndroid10/_._",
         "lib/MonoTouch10/_._",
-        "lib/net10.0/System.Drawing.Common.dll",
-        "lib/net10.0/System.Drawing.Common.pdb",
-        "lib/net10.0/System.Drawing.Common.xml",
-        "lib/net10.0/System.Private.Windows.Core.dll",
-        "lib/net10.0/System.Private.Windows.Core.xml",
-        "lib/net10.0/System.Private.Windows.GdiPlus.dll",
-        "lib/net10.0/System.Private.Windows.GdiPlus.xml",
         "lib/net462/System.Drawing.Common.dll",
         "lib/net462/System.Drawing.Common.pdb",
         "lib/net462/System.Drawing.Common.xml",
@@ -219,15 +203,11 @@
         "lib/net8.0/System.Drawing.Common.xml",
         "lib/net8.0/System.Private.Windows.Core.dll",
         "lib/net8.0/System.Private.Windows.Core.xml",
-        "lib/net8.0/System.Private.Windows.GdiPlus.dll",
-        "lib/net8.0/System.Private.Windows.GdiPlus.xml",
         "lib/net9.0/System.Drawing.Common.dll",
         "lib/net9.0/System.Drawing.Common.pdb",
         "lib/net9.0/System.Drawing.Common.xml",
         "lib/net9.0/System.Private.Windows.Core.dll",
         "lib/net9.0/System.Private.Windows.Core.xml",
-        "lib/net9.0/System.Private.Windows.GdiPlus.dll",
-        "lib/net9.0/System.Private.Windows.GdiPlus.xml",
         "lib/netstandard2.0/System.Drawing.Common.dll",
         "lib/netstandard2.0/System.Drawing.Common.pdb",
         "lib/netstandard2.0/System.Drawing.Common.xml",
@@ -235,7 +215,7 @@
         "lib/xamarinmac20/_._",
         "lib/xamarintvos10/_._",
         "lib/xamarinwatchos10/_._",
-        "system.drawing.common.10.0.2.nupkg.sha512",
+        "system.drawing.common.9.0.10.nupkg.sha512",
         "system.drawing.common.nuspec",
         "useSharedDesignerContext.txt"
       ]
@@ -361,7 +341,7 @@
     "net8.0-windows7.0": [
       "InputSimulatorCore >= 1.0.5",
       "Newtonsoft.Json >= 13.0.4",
-      "System.Drawing.Common >= 10.0.2",
+      "System.Drawing.Common >= 9.0.10",
       "ZXing.Net >= 0.16.11",
       "ZXing.Net.Bindings.Windows.Compatibility >= 0.16.14"
     ]
@@ -426,7 +406,7 @@
           },
           "System.Drawing.Common": {
             "target": "Package",
-            "version": "[10.0.2, )"
+            "version": "[9.0.10, )"
           },
           "ZXing.Net": {
             "target": "Package",

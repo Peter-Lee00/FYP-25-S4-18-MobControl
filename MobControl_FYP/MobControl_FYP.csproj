@@ -6,20 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <PackageIcon>mobile-game (2).png</PackageIcon>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\..\..\Downloads\mobile-game (2).png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="InputSimulatorCore" Version="1.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.10" />
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.14" />
   </ItemGroup>

@@ -284,4 +284,52 @@
         android:layout_height="0dp"
         android:visibility="gone"/>
 
+
+    <!-- Joystick Container -->
+    <RelativeLayout
+        android:id="@+id/joystickContainer"
+        android:layout_width="420dp"
+        android:layout_height="500dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp">
+
+        <!-- Mouse Click Buttons at BOTTOM of Container (below joystick) -->
+        <LinearLayout
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="9dp"
+            android:background="#2a2a2a"
+            android:elevation="8dp"
+            android:orientation="horizontal"
+            android:padding="4dp">
+
+            <Button
+                android:id="@+id/leftClickButton"
+                android:layout_width="60dp"
+                android:layout_height="35dp"
+                android:layout_marginEnd="4dp"
+                android:background="#FF5722"
+                android:text="L"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/rightClickButton"
+                android:layout_width="60dp"
+                android:layout_height="35dp"
+                android:background="#FF5722"
+                android:text="R"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Joystick will be added here by code at center -->
+    </RelativeLayout>
+
 </RelativeLayout>

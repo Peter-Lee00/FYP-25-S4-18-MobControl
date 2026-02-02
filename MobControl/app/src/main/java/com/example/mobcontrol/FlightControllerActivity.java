@@ -1,5 +1,6 @@
 package com.example.mobcontrol;
-
+import java.util.List;
+import java.util.Map;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +18,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -31,9 +33,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import androidx.appcompat.app.AlertDialog;
 
 public class FlightControllerActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -94,6 +98,16 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
     private static final int SEND_INTERVAL_MS = 50; // 20 Hz
     private long lastSendTime = 0;
 
+    // PWM control
+    private Handler pwmHandler = new Handler();
+    private Runnable pwmRunnable;
+    private boolean isPWMActive = false;
+
+    private static final int PWM_CYCLE_MS = 100;  // 100ms
+
+    // gyro
+    private static final float MAX_TILT = 45.0f;   // Max tilt
+    private static final float DEADZONE = 8.0f;        // Deadzone
     private boolean isCalibrating = false;
 
     @Override
@@ -153,10 +167,124 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
 
         setupUI();
         connectToServer();
+        applyCustomLayout();  //for saving layout
 
         statusText.setText("Connecting to " + serverIP + "...");
     }
+    private void startPWMControl() {
+        isPWMActive = true;
+        pwmRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isPWMActive && isConnected) {
+                    processPWMCycle();
+                }
+                pwmHandler.postDelayed(this, PWM_CYCLE_MS);
+            }
+        };
+        pwmHandler.post(pwmRunnable);
+    }
 
+    private void processPWMCycle() {
+        // Process Pitch (W/S keys)
+        float pitchIntensity = calculateIntensity(currentPitch);
+        if (Math.abs(currentPitch) > DEADZONE) {
+            if (currentPitch < 0) {
+                // Forward tilt → W key
+                pulsateKey("w", pitchIntensity);
+            } else {
+                // Backward tilt → S key
+                pulsateKey("s", pitchIntensity);
+            }
+        } else {
+            // In deadzone - release both
+            if (isWPressed) {
+                sendKeyPress("w", false);
+                isWPressed = false;
+            }
+            if (isSPressed) {
+                sendKeyPress("s", false);
+                isSPressed = false;
+            }
+        }
+
+        // Process Roll (A/D keys)
+        float rollIntensity = calculateIntensity(currentRoll);
+        if (Math.abs(currentRoll) > DEADZONE) {
+            if (currentRoll < 0) {
+                // Left tilt → A key
+                pulsateKey("a", rollIntensity);
+            } else {
+                // Right tilt → D key
+                pulsateKey("d", rollIntensity);
+            }
+        } else {
+            // In deadzone - release both
+            if (isAPressed) {
+                sendKeyPress("a", false);
+                isAPressed = false;
+            }
+            if (isDPressed) {
+                sendKeyPress("d", false);
+                isDPressed = false;
+            }
+        }
+    }
+
+    private float calculateIntensity(float angle) {
+        // Remove deadzone from angle
+        float absAngle = Math.abs(angle) - DEADZONE;
+        if (absAngle < 0) return 0;
+
+        // Normalize to 0.0 ~ 1.0 based on MAX_TILT
+        float intensity = absAngle / (MAX_TILT - DEADZONE);
+
+        // Clamp to 0.0 ~ 1.0
+        return Math.max(0.0f, Math.min(1.0f, intensity));
+    }
+
+    private void pulsateKey(String key, float intensity) {
+        // Determine if key should be pressed based on intensity
+        boolean shouldBePressed;
+
+        if (intensity < 0.15f) {
+            // Very weak - OFF
+            shouldBePressed = false;
+        } else if (intensity < 0.4f) {
+            // Weak - 30% duty cycle
+            long cyclePosition = System.currentTimeMillis() % PWM_CYCLE_MS;
+            shouldBePressed = cyclePosition < (PWM_CYCLE_MS * 0.3f);
+        } else if (intensity < 0.7f) {
+            // Medium - 60% duty cycle
+            long cyclePosition = System.currentTimeMillis() % PWM_CYCLE_MS;
+            shouldBePressed = cyclePosition < (PWM_CYCLE_MS * 0.6f);
+        } else {
+            // Strong - always ON
+            shouldBePressed = true;
+        }
+
+        // Check current state
+        boolean currentlyPressed = false;
+        switch (key) {
+            case "w": currentlyPressed = isWPressed; break;
+            case "s": currentlyPressed = isSPressed; break;
+            case "a": currentlyPressed = isAPressed; break;
+            case "d": currentlyPressed = isDPressed; break;
+        }
+
+        // Only send if state changed
+        if (shouldBePressed != currentlyPressed) {
+            sendKeyPress(key, shouldBePressed);
+
+            // Update state
+            switch (key) {
+                case "w": isWPressed = shouldBePressed; break;
+                case "s": isSPressed = shouldBePressed; break;
+                case "a": isAPressed = shouldBePressed; break;
+                case "d": isDPressed = shouldBePressed; break;
+            }
+        }
+    }
     private void setupUI() {
         // Machine Gun (Left mouse)
         machineGunButton.setOnTouchListener((v, event) -> {
@@ -271,6 +399,8 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
         if (rotationSensor != null) {
             sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_GAME);
         }
+        applyCustomLayout();
+
     }
 
     @Override
@@ -316,7 +446,7 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
             }
 
             // Update WASD key states based on tilt
-            updateKeyStates();
+            // updateKeyStates();
 
             // Update UI
             updateSensorDisplay();
@@ -333,7 +463,7 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-    private void updateKeyStates() {
+    /*private void updateKeyStates() {
         // W key - forward tilt (use hysteresis)
         if (!isWPressed) {
             // Not pressed - check if we should activate
@@ -387,7 +517,7 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
                 sendKeyPress("d", false);
             }
         }
-    }
+    }*/
 
     private void updateSensorDisplay() {
         mainHandler.post(() -> {
@@ -499,14 +629,6 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
         startActivityForResult(intent, 100);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK) {
-            finish();
-        }
-    }
-
     private void goToHome() {
         Intent intent = new Intent(FlightControllerActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -514,9 +636,17 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
         finish();
     }
 
+    // Opening options
     private void openOptions() {
-        Intent intent = new Intent(FlightControllerActivity.this, OptionsActivity.class);
+        Intent intent = new Intent(this, OptionsActivity.class);
         startActivity(intent);
+    }
+
+    private void applyCustomLayout() {
+        LayoutConfig.applyButtonLayout(this, machineGunButton, "flight_controller", "machineGunButton");
+        LayoutConfig.applyButtonLayout(this, rocketButton, "flight_controller", "rocketButton");
+        LayoutConfig.applyButtonLayout(this, turboButton, "flight_controller", "turboButton");
+        LayoutConfig.applyButtonLayout(this, pauseButton, "flight_controller", "pauseButton");
     }
 
     private void vibrateShort() {
@@ -546,6 +676,8 @@ public class FlightControllerActivity extends AppCompatActivity implements Senso
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isPWMActive = false;
+        pwmHandler.removeCallbacks(pwmRunnable);
 
         // Release all keys
         if (isWPressed) sendKeyPress("w", false);

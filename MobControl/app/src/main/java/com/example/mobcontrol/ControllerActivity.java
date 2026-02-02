@@ -43,6 +43,16 @@ public class ControllerActivity extends AppCompatActivity {
     private View rightJoystick;
     private View rightJoystickHandle;
 
+    // Smooth mouse movement fields
+    private float velocityX = 0;
+    private float velocityY = 0;
+    private static final float ACCELERATION = 0.3f;
+    private static final float MAX_SPEED = 15.0f;
+    private static final float DEADZONE = 0.1f;
+    private Handler mouseHandler = new Handler();
+    private static final int MOUSE_INTERVAL_MS = 16;  // 60fps
+    private boolean isMouseActive = false;
+
     // Action buttons (ABXY)
     private Button actionAButton, actionBButton, actionXButton, actionYButton;
 
@@ -137,40 +147,69 @@ public class ControllerActivity extends AppCompatActivity {
             return true;
         });
 
-        // Right Joystick for mouse
+        // Right Joystick for smooth mouse
         rightJoystick = findViewById(R.id.right_joystick);
         rightJoystickHandle = rightJoystick.findViewById(R.id.right_joystick_handle);
+
+        Runnable mouseRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isMouseActive) {
+                    sendSmoothMouseMovement();
+                    mouseHandler.postDelayed(this, MOUSE_INTERVAL_MS);
+                }
+            }
+        };
+
         rightJoystick.setOnTouchListener((v, event) -> {
             float centerX = v.getWidth() / 2f;
             float centerY = v.getHeight() / 2f;
 
-            float deltaX = event.getX() - centerX;
-            float deltaY = event.getY() - centerY;
-
-            float radius = v.getWidth() / 2f;
-
-            float distance = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            if (distance > radius) {
-                deltaX = deltaX / distance * radius;
-                deltaY = deltaY / distance * radius;
-            }
-
-            rightJoystickHandle.setX(centerX + deltaX - rightJoystickHandle.getWidth() / 2f);
-            rightJoystickHandle.setY(centerY + deltaY - rightJoystickHandle.getHeight() / 2f);
-
-            float x = deltaX / radius;
-            float y = -deltaY / radius;
-
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                case MotionEvent.ACTION_MOVE:
-                    sendMouseInput(x, y);
+                    isMouseActive = true;
+                    mouseHandler.post(mouseRunnable);
                     break;
+
+                case MotionEvent.ACTION_MOVE:
+                    float deltaX = event.getX() - centerX;
+                    float deltaY = event.getY() - centerY;
+                    float radius = v.getWidth() / 2f;
+
+                    float distance = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    if (distance > radius) {
+                        deltaX = deltaX / distance * radius;
+                        deltaY = deltaY / distance * radius;
+                    }
+
+                    rightJoystickHandle.setX(centerX + deltaX - rightJoystickHandle.getWidth() / 2f);
+                    rightJoystickHandle.setY(centerY + deltaY - rightJoystickHandle.getHeight() / 2f);
+
+                    // Calculate joystick position (-1.0 to 1.0)
+                    float joyX = deltaX / radius;
+                    float joyY = deltaY / radius;
+
+                    // Apply deadzone
+                    if (Math.abs(joyX) < DEADZONE) joyX = 0;
+                    if (Math.abs(joyY) < DEADZONE) joyY = 0;
+
+                    // Target velocity
+                    float targetVelocityX = joyX * MAX_SPEED;
+                    float targetVelocityY = joyY * MAX_SPEED;
+
+                    // Smooth acceleration
+                    velocityX += (targetVelocityX - velocityX) * ACCELERATION;
+                    velocityY += (targetVelocityY - velocityY) * ACCELERATION;
+                    break;
+
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    isMouseActive = false;
+                    mouseHandler.removeCallbacks(mouseRunnable);
+                    velocityX = 0;
+                    velocityY = 0;
                     rightJoystickHandle.setX(centerX - rightJoystickHandle.getWidth() / 2f);
                     rightJoystickHandle.setY(centerY - rightJoystickHandle.getHeight() / 2f);
-                    sendMouseInput(0f, 0f);
                     break;
             }
 
@@ -250,17 +289,25 @@ public class ControllerActivity extends AppCompatActivity {
         });
     }
 
-    private void sendMouseInput(float x, float y) {
+    private void sendSmoothMouseMovement() {
         if (!isConnected) return;
+
+        // Apply exponential curve for better control
+        float curvedVelocityX = Math.signum(velocityX) * (float)Math.pow(Math.abs(velocityX) / MAX_SPEED, 1.5) * MAX_SPEED;
+        float curvedVelocityY = Math.signum(velocityY) * (float)Math.pow(Math.abs(velocityY) / MAX_SPEED, 1.5) * MAX_SPEED;
+
+        int mouseX = Math.round(curvedVelocityX);
+        int mouseY = Math.round(curvedVelocityY);
+
+        if (mouseX == 0 && mouseY == 0) return;
 
         executorService.execute(() -> {
             try {
                 Map<String, Object> message = new HashMap<>();
-                message.put("action", "mouse");
-                message.put("x", x);
-                message.put("y", y);
-                String jsonMessage = gson.toJson(message);
-                sendMessage(jsonMessage);
+                message.put("action", "mouse_move");
+                message.put("x", mouseX);
+                message.put("y", mouseY);
+                sendMessage(gson.toJson(message));
             } catch (Exception e) {
                 e.printStackTrace();
             }

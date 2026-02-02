@@ -1,7 +1,13 @@
 package com.example.mobcontrol;
-
+import java.util.List;
+import java.util.Map;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -20,13 +26,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.app.AlertDialog;
 import com.google.gson.Gson;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,6 +54,9 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
     private ImageButton menuButton;
     private ImageButton homeButton;
     private ImageButton optionsButton;
+    private JoystickView joystickView;  // Mouse control
+    private Button leftClickButton;
+    private Button rightClickButton;
 
     private String serverIP;
     private int serverPort;
@@ -69,9 +79,17 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
     private boolean gyroAvailable = false;
 
     // Gyro settings
-    private static final float DEADZONE = 2.0f;  // 2 degrees fir dead zone
-    private static final float MAX_ANGLE = 45.0f;  // Max degrees
+    private static final float DEADZONE = 8.0f;  // 8° deadzone - more stable
+    private static final float MAX_ANGLE = 30.0f;  // Reduced for faster response
     private static final float LANDSCAPE_OFFSET = -90.0f;  // Default point for horizontal
+    private static final int PWM_CYCLE_MS = 100;  // PWM cycle
+
+    // PWM control
+    private Handler pwmHandler = new Handler(Looper.getMainLooper());
+    private Runnable pwmRunnable;
+    private boolean isPWMActive = false;
+    private boolean isLeftPressed = false;
+    private boolean isRightPressed = false;
     private float currentRoll = 0.0f;
     private String lastSteeringState = "center";  // "left", "center", "right"
 
@@ -108,6 +126,8 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
         menuButton = findViewById(R.id.menuButton);
         homeButton = findViewById(R.id.homeButton);
         optionsButton = findViewById(R.id.optionsButton);
+        leftClickButton = findViewById(R.id.leftClickButton);
+        rightClickButton = findViewById(R.id.rightClickButton);
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         executorService = Executors.newSingleThreadExecutor();
@@ -134,11 +154,28 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
         setupImageButton(homeButton, this::goToHome);
         setupImageButton(optionsButton, this::openOptions);
 
+        // Setup mouse click buttons
+        if (leftClickButton != null) setupMouseButton(leftClickButton, "left");
+        if (rightClickButton != null) setupMouseButton(rightClickButton, "right");
+
         // Initialize Gyroscope
         initializeGyroscope();
 
+        // Create and add joystick for mouse control
+        RelativeLayout joystickContainer = findViewById(R.id.joystickContainer);
+        if (joystickContainer != null) {
+            joystickView = new JoystickView(this);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400, 400);
+            params.addRule(RelativeLayout.CENTER_IN_PARENT);
+            joystickView.setLayoutParams(params);
+            joystickContainer.addView(joystickView);
+        }
+
         // Connect to server
         connectToServer();
+        // Start PWM steering control
+        startPWMControl();
+        applyCustomLayout();
     }
 
     private void initializeGyroscope() {
@@ -168,6 +205,7 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
             // SENSOR_DELAY_FASTEST for maximum responsiveness
             sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
         }
+        applyCustomLayout();
     }
 
     @Override
@@ -217,7 +255,7 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
             updateGyroUI();
 
             // Process steering input (Roll only용)
-            processSteeringInput();
+            // processSteeringInput(); // Replaced by PWM
         }
     }
 
@@ -371,18 +409,19 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
         startActivityForResult(intent, 100);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK) {
-            finish();
-        }
-    }
-
     private void openOptions() {
-        Intent intent = new Intent(RacingControllerActivity.this, OptionsActivity.class);
+        Intent intent = new Intent(this, OptionsActivity.class);
         startActivity(intent);
     }
+
+    private void applyCustomLayout() {
+        LayoutConfig.applyButtonLayout(this, brakeButton, "racing_controller", "brakeButton");
+        LayoutConfig.applyButtonLayout(this, acceleratorButton, "racing_controller", "acceleratorButton");
+        LayoutConfig.applyButtonLayout(this, leftClickButton, "racing_controller", "leftClickButton");
+        LayoutConfig.applyButtonLayout(this, rightClickButton, "racing_controller", "rightClickButton");
+    }
+
+
 
     private void goToHome() {
         Intent intent = new Intent(RacingControllerActivity.this, MainActivity.class);
@@ -436,6 +475,119 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
         });
     }
 
+
+    // ========================================
+    // PWM Steering Control
+    // ========================================
+
+    private void startPWMControl() {
+        isPWMActive = true;
+        pwmRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isPWMActive && isConnected) {
+                    processPWMSteering();
+                }
+                pwmHandler.postDelayed(this, PWM_CYCLE_MS);
+            }
+        };
+        pwmHandler.post(pwmRunnable);
+    }
+
+    private void processPWMSteering() {
+        float rollIntensity = calculateSteeringIntensity(currentRoll);
+
+        if (Math.abs(currentRoll) > DEADZONE) {
+            if (currentRoll < 0) {
+                // Left steering
+                pulsateSteeringKey("a", rollIntensity);
+                if (isRightPressed) {
+                    sendKeyPress("d", false);
+                    isRightPressed = false;
+                }
+            } else {
+                // Right steering
+                pulsateSteeringKey("d", rollIntensity);
+                if (isLeftPressed) {
+                    sendKeyPress("a", false);
+                    isLeftPressed = false;
+                }
+            }
+        } else {
+            // In deadzone - release both
+            if (isLeftPressed) {
+                sendKeyPress("a", false);
+                isLeftPressed = false;
+            }
+            if (isRightPressed) {
+                sendKeyPress("d", false);
+                isRightPressed = false;
+            }
+        }
+    }
+
+    private float calculateSteeringIntensity(float angle) {
+        float absAngle = Math.abs(angle) - DEADZONE;
+        if (absAngle < 0) return 0;
+
+        float intensity = absAngle / (MAX_ANGLE - DEADZONE);
+        return Math.max(0.0f, Math.min(1.0f, intensity));
+    }
+
+    private void pulsateSteeringKey(String key, float intensity) {
+        boolean shouldBePressed;
+
+        // Racing-tuned PWM curve - stronger response at high angles
+        if (intensity < 0.15f) {
+            // Very weak - OFF
+            shouldBePressed = false;
+        } else if (intensity < 0.35f) {
+            // Slight turn - 50% duty cycle (increased from 40%)
+            long cyclePosition = System.currentTimeMillis() % PWM_CYCLE_MS;
+            shouldBePressed = cyclePosition < (PWM_CYCLE_MS * 0.5f);
+        } else if (intensity < 0.65f) {
+            // Medium turn - 80% duty cycle (increased from 70%)
+            long cyclePosition = System.currentTimeMillis() % PWM_CYCLE_MS;
+            shouldBePressed = cyclePosition < (PWM_CYCLE_MS * 0.8f);
+        } else if (intensity < 0.85f) {
+            // Strong turn - 95% duty cycle (almost always ON)
+            long cyclePosition = System.currentTimeMillis() % PWM_CYCLE_MS;
+            shouldBePressed = cyclePosition < (PWM_CYCLE_MS * 0.95f);
+        } else {
+            // Maximum turn - always ON
+            shouldBePressed = true;
+        }
+
+        boolean currentlyPressed = key.equals("a") ? isLeftPressed : isRightPressed;
+
+        if (shouldBePressed != currentlyPressed) {
+            sendKeyPress(key, shouldBePressed);
+
+            if (key.equals("a")) {
+                isLeftPressed = shouldBePressed;
+            } else {
+                isRightPressed = shouldBePressed;
+            }
+        }
+    }
+
+    private void sendKeyPress(String key, boolean pressed) {
+        if (!isConnected) return;
+
+        executorService.execute(() -> {
+            try {
+                Map<String, Object> message = new HashMap<>();
+                message.put("action", "key");
+                message.put("key", key);
+                message.put("pressed", pressed);
+
+                sendMessage(gson.toJson(message));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     private void sendMessage(String message) {
         try {
             byte[] data = message.getBytes();
@@ -446,6 +598,46 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
             e.printStackTrace();
         }
     }
+
+    private void setupMouseButton(Button button, String mouseButton) {
+        button.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    button.setAlpha(0.7f);
+                    button.setScaleX(0.95f);
+                    button.setScaleY(0.95f);
+                    sendMouseButton(mouseButton, true);
+                    vibrateShort();
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    button.setAlpha(1.0f);
+                    button.setScaleX(1.0f);
+                    button.setScaleY(1.0f);
+                    sendMouseButton(mouseButton, false);
+                    return true;
+            }
+            return false;
+        });
+    }
+
+    private void sendMouseButton(String button, boolean pressed) {
+        if (!isConnected) return;
+
+        executorService.execute(() -> {
+            try {
+                Map<String, Object> message = new HashMap<>();
+                message.put("action", "mouse_button");
+                message.put("button", button);
+                message.put("pressed", pressed);
+
+                sendMessage(gson.toJson(message));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 
     private void vibrateShort() {
         if (!preferences.getBoolean("vibration_enabled", true)) {
@@ -479,6 +671,12 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
     protected void onDestroy() {
         super.onDestroy();
 
+        // Stop PWM
+        isPWMActive = false;
+        if (pwmHandler != null && pwmRunnable != null) {
+            pwmHandler.removeCallbacks(pwmRunnable);
+        }
+
         // Release all keys before closing
         if (isConnected) {
             sendInput("a_up");
@@ -495,6 +693,169 @@ public class RacingControllerActivity extends AppCompatActivity implements Senso
         }
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
+        }
+    }
+    // ========================================
+    // Mouse Joystick View
+    // ========================================
+
+    private class JoystickView extends View {
+        private Paint basePaint, handlePaint, arrowPaint;
+        private float centerX, centerY;
+        private float handleX, handleY;
+        private float baseRadius = 140;
+        private float handleRadius = 50;
+        private boolean isTouching = false;
+        
+        // Smooth mouse movement
+        private float velocityX = 0;
+        private float velocityY = 0;
+        private static final float ACCELERATION = 0.3f;
+        private static final float MAX_SPEED = 15.0f;
+        private static final float DEADZONE = 0.1f;
+
+        private Handler sendHandler = new Handler();
+        private static final int SEND_INTERVAL_MS = 16;  // 60fps
+
+        private Runnable sendRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isTouching) {
+                    sendMouseMovement();
+                    sendHandler.postDelayed(this, SEND_INTERVAL_MS);
+                }
+            }
+        };
+
+        public JoystickView(Context context) {
+            super(context);
+
+            basePaint = new Paint();
+            basePaint.setColor(Color.parseColor("#424242"));
+            basePaint.setStyle(Paint.Style.FILL);
+            basePaint.setAlpha(180);
+
+            handlePaint = new Paint();
+            handlePaint.setColor(Color.parseColor("#2196F3"));
+            handlePaint.setStyle(Paint.Style.FILL);
+            handlePaint.setAntiAlias(true);
+
+            arrowPaint = new Paint();
+            arrowPaint.setColor(Color.parseColor("#90CAF9"));
+            arrowPaint.setStyle(Paint.Style.STROKE);
+            arrowPaint.setStrokeWidth(3f);
+            arrowPaint.setAntiAlias(true);
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            centerX = w / 2f;
+            centerY = h / 2f;
+            handleX = centerX;
+            handleY = centerY;
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            canvas.drawCircle(centerX, centerY, baseRadius, basePaint);
+            canvas.drawLine(centerX - 20, centerY, centerX + 20, centerY, arrowPaint);
+            canvas.drawLine(centerX, centerY - 20, centerX, centerY + 20, arrowPaint);
+            canvas.drawCircle(handleX, handleY, handleRadius, handlePaint);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    isTouching = true;
+                    updateHandle(event.getX(), event.getY());
+
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        sendHandler.post(sendRunnable);
+                        RacingControllerActivity.this.vibrateShort();
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    isTouching = false;
+                    sendHandler.removeCallbacks(sendRunnable);
+                    velocityX = 0;
+                    velocityY = 0;
+                    resetHandle();
+                    return true;
+            }
+            return super.onTouchEvent(event);
+        }
+
+        private void updateHandle(float x, float y) {
+            float dx = x - centerX;
+            float dy = y - centerY;
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < baseRadius - handleRadius) {
+                handleX = x;
+                handleY = y;
+            } else {
+                float angle = (float) Math.atan2(dy, dx);
+                handleX = centerX + (float) Math.cos(angle) * (baseRadius - handleRadius);
+                handleY = centerY + (float) Math.sin(angle) * (baseRadius - handleRadius);
+            }
+
+            invalidate();
+        }
+
+        private void resetHandle() {
+            handleX = centerX;
+            handleY = centerY;
+            invalidate();
+        }
+
+        private void sendMouseMovement() {
+            if (!RacingControllerActivity.this.isConnected) return;
+
+            // Calculate joystick position (-1.0 to 1.0)
+            float joyX = (handleX - centerX) / (baseRadius - handleRadius);
+            float joyY = (handleY - centerY) / (baseRadius - handleRadius);
+
+            // Apply deadzone
+            if (Math.abs(joyX) < DEADZONE) joyX = 0;
+            if (Math.abs(joyY) < DEADZONE) joyY = 0;
+
+            // Acceleration-based movement (like a real mouse)
+            float targetVelocityX = joyX * MAX_SPEED;
+            float targetVelocityY = joyY * MAX_SPEED;
+
+            // Smooth acceleration/deceleration
+            velocityX += (targetVelocityX - velocityX) * ACCELERATION;
+            velocityY += (targetVelocityY - velocityY) * ACCELERATION;
+
+            // Apply exponential curve for better control
+            float curvedVelocityX = Math.signum(velocityX) * (float)Math.pow(Math.abs(velocityX) / MAX_SPEED, 1.5) * MAX_SPEED;
+            float curvedVelocityY = Math.signum(velocityY) * (float)Math.pow(Math.abs(velocityY) / MAX_SPEED, 1.5) * MAX_SPEED;
+
+            int mouseX = Math.round(curvedVelocityX);
+            int mouseY = Math.round(curvedVelocityY);
+
+            // Only send if there's meaningful movement
+            if (mouseX == 0 && mouseY == 0) return;
+
+            RacingControllerActivity.this.executorService.execute(() -> {
+                try {
+                    Map<String, Object> message = new HashMap<>();
+                    message.put("action", "mouse_move");
+                    message.put("x", mouseX);
+                    message.put("y", mouseY);
+
+                    RacingControllerActivity.this.sendMessage(RacingControllerActivity.this.gson.toJson(message));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
     }
 }

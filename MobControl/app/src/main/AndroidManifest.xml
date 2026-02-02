@@ -2,22 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Network permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
-
-    <!-- Vibration permission -->
     <uses-permission android:name="android.permission.VIBRATE" />
-
-    <!-- Camera permission for QR scanning -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Gyroscope feature (optional - app will work without it) -->
-    <uses-feature
-        android:name="android.hardware.sensor.gyroscope"
-        android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.gyroscope" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -27,58 +20,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MobControl">
 
-        <!-- Main Activity -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
+        <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Standard Controller Activity -->
         <activity
-            android:name=".ControllerActivity"
+            android:name=".EditLayoutActivity"
             android:exported="false"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize" />
+            android:screenOrientation="landscape" />
 
-        <!-- Racing Controller Activity (with Gyroscope) -->
-        <activity
-            android:name=".RacingControllerActivity"
-            android:exported="false"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize" />
 
-        <!-- Layout Selection Activity -->
-        <activity
-            android:name=".LayoutSelectionActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+        <activity android:name=".ControllerActivity" android:exported="false" android:screenOrientation="landscape" android:configChanges="orientation|screenSize" />
+        <activity android:name=".RacingControllerActivity" android:exported="false" android:screenOrientation="landscape" android:configChanges="orientation|screenSize" />
+        <activity android:name=".LayoutSelectionActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".OptionsActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".FlightControllerActivity" android:exported="false" android:screenOrientation="landscape" android:configChanges="orientation|screenSize" />
 
-        <!-- Options Activity -->
-        <activity
-            android:name=".OptionsActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-
-        <!-- Flight Controller Activity -->
-        <activity
-            android:name=".FlightControllerActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize"
-            android:exported="false" />
-
-        <!-- ZXing QR Code Scanner  -->
-        <activity
-            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="portrait"
-            android:stateNotNeeded="true"
-            android:theme="@style/zxing_CaptureTheme"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            tools:replace="android:screenOrientation" />
+        <activity android:name="com.journeyapps.barcodescanner.CaptureActivity" android:screenOrientation="portrait" android:stateNotNeeded="true" android:theme="@style/zxing_CaptureTheme" android:windowSoftInputMode="stateAlwaysHidden" tools:replace="android:screenOrientation" />
 
     </application>
 

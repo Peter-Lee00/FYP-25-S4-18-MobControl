@@ -1,11 +1,14 @@
 package com.example.mobcontrol;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.format.Formatter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -57,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
         scanQRButton.setOnClickListener(v -> requestCameraPermission());
 
-        // 4-digit input
         connectButton.setOnClickListener(v -> {
             String code = manualCodeInput.getText().toString().trim();
 
@@ -70,90 +72,231 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // ==========================================
+    // NEW UDP DISCOVERY SYSTEM
+    // ==========================================
+
     private void searchForDesktop(String code) {
         showProgressDialog("Searching for Desktop...");
 
         executorService.execute(() -> {
+            DatagramSocket socket = null;
             try {
-                DatagramSocket socket = new DatagramSocket();
-                socket.setSoTimeout(5000);
+                socket = new DatagramSocket();
+                socket.setBroadcast(true);
+                socket.setSoTimeout(2000); // 2 seconds per attempt
 
-                Map<String, String> discoveryMsg = new HashMap<>();
-                discoveryMsg.put("action", "discover");
-                discoveryMsg.put("code", code);
-                String message = gson.toJson(discoveryMsg);
+                // Discovery message
+                Map<String, String> msg = new HashMap<>();
+                msg.put("action", "discover");
+                msg.put("code", code);
+                String json = gson.toJson(msg);
+                byte[] sendData = json.getBytes();
 
-                byte[] sendData = message.getBytes();
+                android.util.Log.d("UDP", "=== NEW UDP DISCOVERY ===");
+                android.util.Log.d("UDP", "Code: " + code);
+                android.util.Log.d("UDP", "Message: " + json);
 
-                String[] ipsToTry = {
-                        "10.0.2.2",           // Emulator → Host PC
-                        "192.168.1.255",      // Local broadcast
-                        "255.255.255.255"     // Global broadcast
+                // Calculate local network broadcast
+                String localBroadcast = calculateBroadcastAddress();
+                android.util.Log.d("UDP", "Local broadcast: " + localBroadcast);
+
+                // Try both local and global broadcast
+                String[] broadcasts = {
+                        localBroadcast,
+                        "255.255.255.255"
                 };
 
-                boolean found = false;
-                String desktopIP = null;
+                String foundIP = null;
 
-                for (String ip : ipsToTry) {
+                for (String broadcast : broadcasts) {
+                    if (broadcast == null) continue;
+
                     try {
-                        InetAddress address = InetAddress.getByName(ip);
-                        DatagramPacket sendPacket = new DatagramPacket(
-                                sendData,
-                                sendData.length,
-                                address,
-                                DEFAULT_PORT
-                        );
+                        android.util.Log.d("UDP", "Trying: " + broadcast + ":" + DEFAULT_PORT);
 
-                        socket.send(sendPacket);
+                        InetAddress addr = InetAddress.getByName(broadcast);
+                        DatagramPacket packet = new DatagramPacket(sendData, sendData.length, addr, DEFAULT_PORT);
 
-                        byte[] receiveData = new byte[1024];
-                        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                        socket.send(packet);
+                        android.util.Log.d("UDP", "✓ Sent to " + broadcast);
 
-                        try {
-                            socket.receive(receivePacket);
+                        // Wait for response
+                        byte[] recvData = new byte[1024];
+                        DatagramPacket recvPacket = new DatagramPacket(recvData, recvData.length);
 
-                            String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                            Map<String, Object> jsonResponse = gson.fromJson(response, Map.class);
+                        socket.receive(recvPacket);
 
-                            if ("discovered".equals(jsonResponse.get("action"))) {
-                                desktopIP = receivePacket.getAddress().getHostAddress();
-                                found = true;
-                                break;
-                            }
-                        } catch (Exception e) {
-                            continue;
+                        String response = new String(recvPacket.getData(), 0, recvPacket.getLength());
+                        android.util.Log.d("UDP", "✓ Response: " + response);
+
+                        Map<String, Object> respJson = gson.fromJson(response, Map.class);
+
+                        // Accept both "discovered" and "found"
+                        if ("discovered".equals(respJson.get("action")) ||
+                                "found".equals(respJson.get("status"))) {
+                            foundIP = recvPacket.getAddress().getHostAddress();
+                            android.util.Log.d("UDP", "✓✓✓ FOUND: " + foundIP);
+                            break;
                         }
+
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        android.util.Log.w("UDP", broadcast + " - " + e.getMessage());
                     }
                 }
 
-                socket.close();
+                final String desktopIP = foundIP;
 
-                if (found && desktopIP != null) {
-                    String finalIP = desktopIP;
-                    mainHandler.post(() -> {
-                        dismissProgressDialog();
-                        connectToDesktop(finalIP, DEFAULT_PORT, code);
-                    });
-                } else {
-                    throw new Exception("Desktop not found");
-                }
-
-            } catch (Exception e) {
                 mainHandler.post(() -> {
                     dismissProgressDialog();
-                    Toast.makeText(this,
-                            "Desktop not found. Check:\n" +
-                                    "1. Desktop app is running\n" +
-                                    "2. Correct 4-digit code\n" +
-                                    "3. Firewall allows UDP 7777",
-                            Toast.LENGTH_LONG).show();
+
+                    if (desktopIP != null) {
+                        Toast.makeText(this, "✓ Connected to " + desktopIP, Toast.LENGTH_SHORT).show();
+                        connectToDesktop(desktopIP, DEFAULT_PORT, code);
+                    } else {
+                        showError();
+                    }
                 });
+
+            } catch (Exception e) {
+                android.util.Log.e("UDP", "ERROR: " + e.getMessage());
                 e.printStackTrace();
+
+                mainHandler.post(() -> {
+                    dismissProgressDialog();
+                    showError();
+                });
+
+            } finally {
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
             }
         });
     }
+
+    private String calculateBroadcastAddress() {
+        try {
+            WifiManager wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wifi != null) {
+                int ipInt = wifi.getConnectionInfo().getIpAddress();
+                if (ipInt != 0) {
+                    String ip = Formatter.formatIpAddress(ipInt);
+                    android.util.Log.d("UDP", "My IP: " + ip);
+
+                    // Calculate .255 broadcast
+                    String[] parts = ip.split("\\.");
+                    if (parts.length == 4) {
+                        return parts[0] + "." + parts[1] + "." + parts[2] + ".255";
+                    }
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("UDP", "Broadcast calc error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private void showError() {
+        Toast.makeText(this,
+                "Desktop not found\n\n" +
+                        "Check:\n" +
+                        "• Desktop app running?\n" +
+                        "• Same WiFi network?\n" +
+                        "• Correct code?\n" +
+                        "• Firewall off?",
+                Toast.LENGTH_LONG).show();
+    }
+
+    // ==========================================
+    // QR CODE SCANNER
+    // ==========================================
+
+    private void requestCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    CAMERA_PERMISSION_CODE);
+        } else {
+            startQRScanner();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startQRScanner();
+            } else {
+                Toast.makeText(this, "Camera permission required", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void startQRScanner() {
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.setPrompt("Scan QR code from Desktop");
+        integrator.setBeepEnabled(true);
+        integrator.setOrientationLocked(false);
+        integrator.initiateScan();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null && result.getContents() != null) {
+            // QR format: "IP:PORT:CODE"
+            String qr = result.getContents();
+            android.util.Log.d("QR", "Scanned: " + qr);
+
+            String[] parts = qr.split(":");
+
+            if (parts.length == 3) {
+                try {
+                    String ip = parts[0];
+                    int port = Integer.parseInt(parts[1]);
+                    String code = parts[2];
+
+                    android.util.Log.d("QR", "IP: " + ip + ", Port: " + port + ", Code: " + code);
+                    Toast.makeText(this, "QR: " + ip + ":" + port, Toast.LENGTH_SHORT).show();
+
+                    // Direct connect
+                    connectToDesktop(ip, port, code);
+
+                } catch (Exception e) {
+                    Toast.makeText(this, "Invalid QR format", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Invalid QR code", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    // ==========================================
+    // CONNECT TO DESKTOP
+    // ==========================================
+
+    private void connectToDesktop(String ip, int port, String code) {
+        android.util.Log.d("UDP", "Connecting to: " + ip + ":" + port);
+        Toast.makeText(this, "Connected! Choose layout", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, LayoutSelectionActivity.class);
+        intent.putExtra("IP", ip);
+        intent.putExtra("PORT", port);
+        intent.putExtra("CODE", code);
+        intent.putExtra("DEVICE_NAME", android.os.Build.MODEL);
+        startActivity(intent);
+        finish();
+    }
+
+    // ==========================================
+    // HELPERS
+    // ==========================================
 
     private void showProgressDialog(String message) {
         mainHandler.post(() -> {
@@ -169,158 +312,6 @@ public class MainActivity extends AppCompatActivity {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-    }
-
-    private void requestCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{Manifest.permission.CAMERA},
-                    CAMERA_PERMISSION_CODE
-            );
-        } else {
-            startQRScanner();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startQRScanner();
-            } else {
-                Toast.makeText(this, "Camera permission required for QR scanning", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void startQRScanner() {
-        IntentIntegrator integrator = new IntentIntegrator(this);
-        integrator.setPrompt("Scan QR code from Desktop");
-        integrator.setBeepEnabled(true);
-        integrator.setOrientationLocked(false);
-        integrator.initiateScan();
-    }
-
-    // QR code Sacan Method
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null && result.getContents() != null) {
-            // QR format: "192.168.1.100:7777:1234"
-            String qrContent = result.getContents();
-            Toast.makeText(this, "QR: " + qrContent, Toast.LENGTH_LONG).show();
-
-            String[] parts = qrContent.split(":");
-            if (parts.length == 3) {
-                String ip = parts[0]; // ex : 192.168.1.100
-                int port = DEFAULT_PORT;
-                try {
-                    // get port
-                    port = Integer.parseInt(parts[1]);
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
-                // get code
-                String code = parts[2];
-
-                Toast.makeText(this,
-                        "Parsed:\nIP: " + ip + "\nPort: " + port + "\nCode: " + code,
-                        Toast.LENGTH_LONG).show();
-
-                // Verify connection before proceeding
-                verifyAndConnect(ip, port, code);
-            } else {
-                Toast.makeText(this, "Invalid QR code format", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    private void verifyAndConnect(String ip, int port, String code) {
-        showProgressDialog("Verifying connection...");
-
-        executorService.execute(() -> {
-            try {
-                DatagramSocket socket = new DatagramSocket();
-                socket.setSoTimeout(3000); // 3 second timeout
-
-                // Send a discovery message to verify the server is reachable
-                Map<String, String> discoveryMsg = new HashMap<>();
-                discoveryMsg.put("action", "discover");
-                discoveryMsg.put("code", code);
-                String message = gson.toJson(discoveryMsg);
-
-                byte[] sendData = message.getBytes();
-                InetAddress address = InetAddress.getByName(ip);
-                DatagramPacket sendPacket = new DatagramPacket(
-                        sendData,
-                        sendData.length,
-                        address,
-                        port
-                );
-
-                socket.send(sendPacket);
-
-                // Wait for response
-                byte[] receiveData = new byte[1024];
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-
-                socket.receive(receivePacket);
-
-                String response = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                Map<String, Object> jsonResponse = gson.fromJson(response, Map.class);
-
-                socket.close();
-
-                if ("discovered".equals(jsonResponse.get("action"))) {
-                    // Server is reachable, proceed to connect
-                    mainHandler.post(() -> {
-                        dismissProgressDialog();
-                        connectToDesktop(ip, port, code);
-                    });
-                } else {
-                    throw new Exception("Invalid response from server");
-                }
-
-            } catch (Exception e) {
-                mainHandler.post(() -> {
-                    dismissProgressDialog();
-                    String errorMsg = e.getMessage();
-                    if (errorMsg != null && errorMsg.contains("timed out")) {
-                        Toast.makeText(this,
-                                "Cannot reach desktop at " + ip + "\n\n" +
-                                        "Check:\n" +
-                                        "1. Desktop app is running\n" +
-                                        "2. Same WiFi network\n" +
-                                        "3. Firewall allows UDP " + port,
-                                Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(this,
-                                "Connection verification failed: " + errorMsg,
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-                e.printStackTrace();
-            }
-        });
-    }
-
-    private void connectToDesktop(String ip, int port, String code) {
-        Toast.makeText(this, "Connected! Choose your layout", Toast.LENGTH_SHORT).show();
-
-        // When the connection is successful, move to LayoutSelectionActivity
-        Intent intent = new Intent(this, LayoutSelectionActivity.class);
-        intent.putExtra("IP", ip);
-        intent.putExtra("PORT", port);
-        intent.putExtra("CODE", code);
-        intent.putExtra("DEVICE_NAME", android.os.Build.MODEL);
-        startActivity(intent);
-        finish(); // Close MainActivity
     }
 
     @Override

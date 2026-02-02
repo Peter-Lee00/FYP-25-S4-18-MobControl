@@ -58,12 +58,11 @@ public class OptionsActivity extends AppCompatActivity {
 
         // Quit button
         quitButton.setOnClickListener(v -> {
-            finishAffinity(); // Close all activities and exit app
+            finishAffinity();
         });
 
         // Back button
         backButton.setOnClickListener(v -> {
-            // Add visual feedback
             backButton.setAlpha(0.6f);
             backButton.postDelayed(() -> backButton.setAlpha(1.0f), 100);
             finish();
