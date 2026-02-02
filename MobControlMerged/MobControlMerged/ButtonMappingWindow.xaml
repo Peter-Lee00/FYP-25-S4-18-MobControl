@@ -1,0 +1,378 @@
+﻿<Window x:Class="MobControlDesktop.ButtonMappingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Controller Mapping" 
+        Height="600"
+        Width="750"
+        Background="#1E1E1E"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        KeyDown="Window_KeyDown">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" 
+                   Text="Controller Button Mapping" 
+                   FontSize="24" 
+                   FontWeight="Bold"
+                   Foreground="White"
+                   Margin="0,0,0,10"/>
+
+        <TextBlock Grid.Row="1"
+                   Text="Click 'Press Key' button and press any keyboard key to map it"
+                   FontSize="12"
+                   Foreground="#AAAAAA"
+                   Margin="0,0,0,20"/>
+
+        <!-- Mapping Grid -->
+        <Border Grid.Row="2"
+                Background="#2C2C2C"
+                BorderBrush="#444444"
+                BorderThickness="1"
+                CornerRadius="5"
+                Padding="15">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <DataGrid x:Name="MappingDataGrid"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserReorderColumns="False"
+                          CanUserSortColumns="False"
+                          Background="#2C2C2C"
+                          BorderThickness="0"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="#444444"
+                          RowBackground="#2C2C2C"
+                          AlternatingRowBackground="#333333"
+                          HeadersVisibility="Column"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow">
+
+                    <!-- DataGrid Style -->
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#424242"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                            <Setter Property="BorderBrush" Value="#555555"/>
+                        </Style>
+
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#424242"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="#2C2C2C"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#383838"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#424242"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Resources>
+
+                    <!-- Columns -->
+                    <DataGrid.Columns>
+                        <!-- Enabled Checkbox -->
+                        <DataGridCheckBoxColumn Header="Enabled" 
+                                                Binding="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"
+                                                Width="80"/>
+
+                        <!-- Button Name -->
+                        <DataGridTextColumn Header="Button" 
+                                            Binding="{Binding ButtonName}" 
+                                            IsReadOnly="True"
+                                            Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="#90CAF9"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <!-- Current Mapped Key Display -->
+                        <DataGridTextColumn Header="Current Key" 
+                                            Binding="{Binding SelectedKey.KeyName}" 
+                                            IsReadOnly="True"
+                                            Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="#4CAF50"/>
+                                    <Setter Property="FontSize" Value="14"/>
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <!-- Press Key Button -->
+                        <DataGridTemplateColumn Header="Change Key" Width="130">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="⌨️ Press Key"
+                                            Background="#2196F3"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            Padding="10,6"
+                                            FontSize="12"
+                                            FontWeight="Bold"
+                                            Cursor="Hand"
+                                            Tag="{Binding}"
+                                            Click="PressKeyButton_Click">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="4">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                  VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#42A5F5"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Description -->
+                        <DataGridTextColumn Header="Description" 
+                                            Binding="{Binding Description}" 
+                                            IsReadOnly="True"
+                                            Width="*">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#AAAAAA"/>
+                                    <Setter Property="FontSize" Value="11"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="3" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Test Mode Toggle -->
+            <CheckBox x:Name="TestModeCheckBox"
+                      Grid.Column="0"
+                      Content="Test Mode (shows which keys are pressed)"
+                      FontSize="12"
+                      Foreground="#AAAAAA"
+                      VerticalAlignment="Center"
+                      Checked="TestModeCheckBox_Checked"
+                      Unchecked="TestModeCheckBox_Unchecked"/>
+
+            <!-- Reset Button -->
+            <Button x:Name="ResetButton"
+                    Grid.Column="1"
+                    Content="Reset to Default"
+                    Background="#757575"
+                    Foreground="White"
+                    FontSize="14"
+                    Width="140"
+                    Height="40"
+                    Margin="0,0,10,0"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="ResetButton_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#9E9E9E"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Cancel Button -->
+            <Button x:Name="CancelButton"
+                    Grid.Column="2"
+                    Content="Cancel"
+                    Background="#757575"
+                    Foreground="White"
+                    FontSize="14"
+                    Width="100"
+                    Height="40"
+                    Margin="0,0,10,0"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="CancelButton_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#9E9E9E"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Save Button -->
+            <Button x:Name="SaveButton"
+                    Grid.Column="3"
+                    Content="Save"
+                    Background="#4CAF50"
+                    Foreground="White"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Width="100"
+                    Height="40"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="SaveButton_Click">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="5">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#66BB6A"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+
+        <!-- Test Mode Indicator (Hidden by default) -->
+        <Border Grid.Row="0"
+                x:Name="TestModeIndicator"
+                Background="#FFC107"
+                CornerRadius="5"
+                Padding="10,5"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Visibility="Collapsed">
+            <TextBlock Text="🎮 TEST MODE ACTIVE"
+                       FontSize="11"
+                       FontWeight="Bold"
+                       Foreground="#212121"/>
+        </Border>
+
+        <!-- Key Capture Overlay (Hidden by default) -->
+        <Border Grid.RowSpan="4"
+                x:Name="KeyCaptureOverlay"
+                Background="#DD000000"
+                Visibility="Collapsed">
+            <StackPanel VerticalAlignment="Center" 
+                        HorizontalAlignment="Center">
+                <TextBlock Text="Press any key..."
+                           FontSize="32"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,20"/>
+                <TextBlock x:Name="KeyCaptureButtonName"
+                           Text="Mapping for: UP"
+                           FontSize="18"
+                           Foreground="#90CAF9"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,40"/>
+                <Button Content="Cancel"
+                        Background="#757575"
+                        Foreground="White"
+                        FontSize="14"
+                        Width="120"
+                        Height="40"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="CancelKeyCapture_Click">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                                CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#9E9E9E"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

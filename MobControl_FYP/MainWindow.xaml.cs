@@ -60,7 +60,7 @@ namespace MobControlDesktop
         public MainWindow()
         {
             InitializeComponent();
-            inputSimulator = new InputSimulator();
+           
             connectedDevices = new ObservableCollection<ConnectedDevice>();
             deviceEndpoints = new Dictionary<string, IPEndPoint>();
             ConnectedDevicesList.ItemsSource = connectedDevices;
