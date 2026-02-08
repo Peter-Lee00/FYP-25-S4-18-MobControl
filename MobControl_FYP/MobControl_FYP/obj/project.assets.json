@@ -347,23 +347,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Tengri\\.nuget\\packages\\": {},
+    "C:\\Users\\Peter\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
+      "projectUniqueName": "C:\\Users\\Peter\\FYP\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
       "projectName": "MobControl_FYP",
-      "projectPath": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
-      "packagesPath": "C:\\Users\\Tengri\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP\\obj\\",
+      "projectPath": "C:\\Users\\Peter\\FYP\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
+      "packagesPath": "C:\\Users\\Peter\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Peter\\FYP\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Tengri\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Peter\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -390,7 +390,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0-windows7.0": {
@@ -436,7 +436,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

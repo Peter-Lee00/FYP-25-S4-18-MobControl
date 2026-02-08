@@ -1,158 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/controller_background"
-    android:padding="24dp">
-
-    <!-- Back Button with Icon -->
-    <ImageButton
-        android:id="@+id/backButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/back_button_bg"
-        android:src="@drawable/ic_back"
-        android:scaleType="centerInside"
-        android:padding="0dp"/>
+    android:orientation="vertical"
+    android:background="#673AB7"
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/titleText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Layouts"
+        android:text="Select Controller Layout"
         android:textSize="24sp"
         android:textColor="#FFFFFF"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
 
-    <ScrollView
+    <Button
+        android:id="@+id/createNewLayoutButton"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/titleText"
-        android:layout_marginTop="32dp">
+        android:layout_height="wrap_content"
+        android:text="➕ Create New Layout"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:background="#4CAF50"
+        android:layout_marginBottom="16dp"
+        android:padding="16dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+    <ListView
+        android:id="@+id/layoutListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+        android:divider="#E0E0E0"
+        android:dividerHeight="1dp" />
 
-            <!-- Racing 1 Layout -->
-            <LinearLayout
-                android:id="@+id/racing1Layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/shoulder_button_bg"
-                android:padding="12dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <ImageView
-                    android:id="@+id/racing1Preview"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:scaleType="fitCenter"
-                    android:background="#30000000"
-                    android:padding="8dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="🏎️ Racing Controller"
-                    android:textSize="16sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:gravity="center"/>
-            </LinearLayout>
-
-            <!-- Racing 2 Layout -->
-            <LinearLayout
-                android:id="@+id/racing2Layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/shoulder_button_bg"
-                android:padding="12dp"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <ImageView
-                    android:id="@+id/racing2Preview"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:scaleType="fitCenter"
-                    android:background="#30000000"
-                    android:padding="8dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="✈️ Flight Controller"
-                    android:textSize="16sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:gravity="center"/>
-            </LinearLayout>
-
-            <!-- Game Controller Layout -->
-            <LinearLayout
-                android:id="@+id/gameControllerLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/shoulder_button_bg"
-                android:padding="12dp"
-                android:layout_marginBottom="32dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <ImageView
-                    android:id="@+id/gameControllerPreview"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:scaleType="fitCenter"
-                    android:background="#30000000"
-                    android:padding="8dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Game Controller"
-                    android:textSize="16sp"
-                    android:textColor="#FFFFFF"
-                    android:textStyle="bold"
-                    android:gravity="center"/>
-            </LinearLayout>
-
-            <!-- Custom Layouts Header -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Custom Layouts"
-                android:textSize="18sp"
-                android:textColor="#BBBBBB"
-                android:layout_marginBottom="16dp"
-                android:layout_gravity="center_horizontal"/>
-
-            <!-- New Custom Layout Button -->
-            <Button
-                android:id="@+id/newLayoutButton"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="+ New Custom Layout"
-                android:textSize="16sp"
-                android:textColor="#FFFFFF"
-                android:background="@drawable/shoulder_button_bg"/>
-        </LinearLayout>
-    </ScrollView>
-
-</RelativeLayout>
+</LinearLayout>

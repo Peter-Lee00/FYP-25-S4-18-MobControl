@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 socket = new DatagramSocket();
                 socket.setBroadcast(true);
-                socket.setSoTimeout(2000); // 2 seconds per attempt
+                socket.setSoTimeout(3000); // 3 seconds timeout
 
                 // Discovery message
                 Map<String, String> msg = new HashMap<>();
@@ -93,33 +93,24 @@ public class MainActivity extends AppCompatActivity {
                 String json = gson.toJson(msg);
                 byte[] sendData = json.getBytes();
 
-                android.util.Log.d("UDP", "=== NEW UDP DISCOVERY ===");
+                android.util.Log.d("UDP", "=== UDP DISCOVERY ===");
                 android.util.Log.d("UDP", "Code: " + code);
                 android.util.Log.d("UDP", "Message: " + json);
 
-                // Calculate local network broadcast
-                String localBroadcast = calculateBroadcastAddress();
-                android.util.Log.d("UDP", "Local broadcast: " + localBroadcast);
-
-                // Try both local and global broadcast
-                String[] broadcasts = {
-                        localBroadcast,
-                        "255.255.255.255"
-                };
-
                 String foundIP = null;
 
-                for (String broadcast : broadcasts) {
-                    if (broadcast == null) continue;
+                // Try multiple times
+                for (int attempt = 0; attempt < 3 && foundIP == null; attempt++) {
+                    android.util.Log.d("UDP", "Attempt " + (attempt + 1) + "/3");
 
                     try {
-                        android.util.Log.d("UDP", "Trying: " + broadcast + ":" + DEFAULT_PORT);
+                        // Send to broadcast
+                        InetAddress broadcastAddr = InetAddress.getByName("255.255.255.255");
+                        DatagramPacket sendPacket = new DatagramPacket(
+                                sendData, sendData.length, broadcastAddr, DEFAULT_PORT);
 
-                        InetAddress addr = InetAddress.getByName(broadcast);
-                        DatagramPacket packet = new DatagramPacket(sendData, sendData.length, addr, DEFAULT_PORT);
-
-                        socket.send(packet);
-                        android.util.Log.d("UDP", "✓ Sent to " + broadcast);
+                        socket.send(sendPacket);
+                        android.util.Log.d("UDP", "✓ Sent to 255.255.255.255:7777");
 
                         // Wait for response
                         byte[] recvData = new byte[1024];
@@ -132,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Map<String, Object> respJson = gson.fromJson(response, Map.class);
 
-                        // Accept both "discovered" and "found"
+                        // Check response
                         if ("discovered".equals(respJson.get("action")) ||
                                 "found".equals(respJson.get("status"))) {
                             foundIP = recvPacket.getAddress().getHostAddress();
@@ -140,8 +131,16 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
 
+                    } catch (java.net.SocketTimeoutException e) {
+                        android.util.Log.w("UDP", "Timeout on attempt " + (attempt + 1));
+                        // Continue to next attempt
                     } catch (Exception e) {
-                        android.util.Log.w("UDP", broadcast + " - " + e.getMessage());
+                        android.util.Log.w("UDP", "Error: " + e.getMessage());
+                    }
+
+                    // Small delay between attempts
+                    if (foundIP == null && attempt < 2) {
+                        Thread.sleep(500);
                     }
                 }
 
@@ -151,20 +150,20 @@ public class MainActivity extends AppCompatActivity {
                     dismissProgressDialog();
 
                     if (desktopIP != null) {
-                        Toast.makeText(this, "✓ Connected to " + desktopIP, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "✓ Found Desktop: " + desktopIP, Toast.LENGTH_SHORT).show();
                         connectToDesktop(desktopIP, DEFAULT_PORT, code);
                     } else {
-                        showError();
+                        showConnectionError();
                     }
                 });
 
             } catch (Exception e) {
-                android.util.Log.e("UDP", "ERROR: " + e.getMessage());
+                android.util.Log.e("UDP", "FATAL ERROR: " + e.getMessage());
                 e.printStackTrace();
 
                 mainHandler.post(() -> {
                     dismissProgressDialog();
-                    showError();
+                    showConnectionError();
                 });
 
             } finally {
@@ -173,6 +172,31 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void showConnectionError() {
+        new AlertDialog.Builder(this)
+                .setTitle("Connection Failed")
+                .setMessage(
+                        "Could not find Desktop PC\n\n" +
+                                "Checklist:\n" +
+                                "✓ Desktop app running?\n" +
+                                "✓ Same WiFi network?\n" +
+                                "✓ Firewall disabled?\n" +
+                                "✓ Correct 4-digit code?\n\n" +
+                                "Try:\n" +
+                                "• Restart Desktop app\n" +
+                                "• Check WiFi connection\n" +
+                                "• Use QR code instead"
+                )
+                .setPositiveButton("Retry", (d, w) -> {
+                    String code = manualCodeInput.getText().toString().trim();
+                    if (!code.isEmpty()) {
+                        searchForDesktop(code);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private String calculateBroadcastAddress() {
@@ -247,26 +271,39 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
         if (result != null && result.getContents() != null) {
-            // QR format: "IP:PORT:CODE"
             String qr = result.getContents();
             android.util.Log.d("QR", "Scanned: " + qr);
 
             String[] parts = qr.split(":");
 
-            if (parts.length == 3) {
+            if (parts.length >= 3) {
                 try {
                     String ip = parts[0];
                     int port = Integer.parseInt(parts[1]);
                     String code = parts[2];
 
                     android.util.Log.d("QR", "IP: " + ip + ", Port: " + port + ", Code: " + code);
-                    Toast.makeText(this, "QR: " + ip + ":" + port, Toast.LENGTH_SHORT).show();
 
-                    // Direct connect
-                    connectToDesktop(ip, port, code);
+                    // Show confirmation
+                    new AlertDialog.Builder(this)
+                            .setTitle("QR Code Scanned")
+                            .setMessage(
+                                    "Desktop PC Found!\n\n" +
+                                            "IP: " + ip + "\n" +
+                                            "Port: " + port + "\n" +
+                                            "Code: " + code
+                            )
+                            .setPositiveButton("Connect", (d, w) -> {
+                                // ✅ Send pairing message first
+                                sendPairingMessage(ip, port, code);
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
 
                 } catch (Exception e) {
+                    android.util.Log.e("QR", "Parse error: " + e.getMessage());
                     Toast.makeText(this, "Invalid QR format", Toast.LENGTH_SHORT).show();
                 }
             } else {
@@ -275,6 +312,74 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    // ==========================================
+    // PAIRING MESSAGE (for QR connection)
+    // ==========================================
+
+    private void sendPairingMessage(String ip, int port, String code) {
+        showProgressDialog("Pairing with Desktop...");
+
+        executorService.execute(() -> {
+            DatagramSocket socket = null;
+            try {
+                socket = new DatagramSocket();
+                socket.setSoTimeout(3000);
+
+                InetAddress serverAddress = InetAddress.getByName(ip);
+
+                // Pairing message - FIXED FORMAT for Desktop compatibility
+                Map<String, String> pairingMsg = new HashMap<>();
+                pairingMsg.put("action", "pair");           // ✅ Changed: "type":"pairing" → "action":"pair"
+                pairingMsg.put("code", code);
+                pairingMsg.put("deviceName", android.os.Build.MODEL);  // ✅ Changed: device_name → deviceName
+
+                String json = gson.toJson(pairingMsg);
+                byte[] sendData = json.getBytes();
+
+                DatagramPacket sendPacket = new DatagramPacket(
+                        sendData, sendData.length, serverAddress, port);
+
+                socket.send(sendPacket);
+
+                android.util.Log.d("QR", "✅ Pairing message sent to " + ip + ":" + port);
+                android.util.Log.d("QR", "   Message: " + json);
+
+                // Wait for response (optional but recommended)
+                byte[] recvData = new byte[1024];
+                DatagramPacket recvPacket = new DatagramPacket(recvData, recvData.length);
+
+                try {
+                    socket.receive(recvPacket);
+                    String response = new String(recvPacket.getData(), 0, recvPacket.getLength());
+                    android.util.Log.d("QR", "✅ Server response: " + response);
+                } catch (java.net.SocketTimeoutException e) {
+                    android.util.Log.w("QR", "⚠️ No response from server (but pairing sent)");
+                }
+
+                mainHandler.post(() -> {
+                    dismissProgressDialog();
+                    Toast.makeText(this, "✅ Paired successfully!", Toast.LENGTH_SHORT).show();
+                    connectToDesktop(ip, port, code);
+                });
+
+            } catch (Exception e) {
+                android.util.Log.e("QR", "❌ Pairing error: " + e.getMessage());
+                e.printStackTrace();
+
+                mainHandler.post(() -> {
+                    dismissProgressDialog();
+                    Toast.makeText(this, "Pairing failed: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                });
+
+            } finally {
+                if (socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
+            }
+        });
     }
 
     // ==========================================

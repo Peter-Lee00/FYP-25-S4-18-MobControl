@@ -14,121 +14,105 @@ public class LayoutConfig {
 
     private static final String PREFS_NAME = "LayoutConfigs";
     private static final String KEY_LAYOUTS = "layouts";
+    private static Gson gson = new Gson();
 
-    // Button configuration - PUBLIC
-    public static class ButtonConfig {
-        public float x;
-        public float y;
-        public float width;
-        public float height;
-
-        public ButtonConfig() {}
-
-        public ButtonConfig(float x, float y, float width, float height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-    }
-
-    public static void saveButtonConfig(Context context, String controllerId, String buttonId, ButtonConfig config) {
+    // Save layout
+    public static void saveLayoutData(Context context, LayoutData layout) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
 
-        Map<String, Map<String, ButtonConfig>> allLayouts = loadAllLayouts(context);
-        Map<String, ButtonConfig> controllerLayout = allLayouts.get(controllerId);
-        if (controllerLayout == null) {
-            controllerLayout = new HashMap<>();
-            allLayouts.put(controllerId, controllerLayout);
-        }
-
-        controllerLayout.put(buttonId, config);
-        String json = gson.toJson(allLayouts);
-        prefs.edit().putString(KEY_LAYOUTS, json).apply();
-    }
-
-    public static ButtonConfig loadButtonConfig(Context context, String controllerId, String buttonId) {
-        Map<String, Map<String, ButtonConfig>> allLayouts = loadAllLayouts(context);
-        Map<String, ButtonConfig> controllerLayout = allLayouts.get(controllerId);
-
-        if (controllerLayout != null) {
-            return controllerLayout.get(buttonId);
-        }
-        return null;
-    }
-
-    public static void saveControllerLayout(Context context, String controllerId, Map<String, ButtonConfig> layout) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
-
-        Map<String, Map<String, ButtonConfig>> allLayouts = loadAllLayouts(context);
-        allLayouts.put(controllerId, layout);
+        Map<String, LayoutData> allLayouts = loadAllLayouts(context);
+        allLayouts.put(layout.name, layout);
 
         String json = gson.toJson(allLayouts);
         prefs.edit().putString(KEY_LAYOUTS, json).apply();
     }
 
-    public static Map<String, ButtonConfig> loadControllerLayout(Context context, String controllerId) {
-        Map<String, Map<String, ButtonConfig>> allLayouts = loadAllLayouts(context);
-        return allLayouts.get(controllerId);
-    }
+    // Load specific layout
+    public static LayoutData loadLayoutData(Context context, String layoutName) {
+        Map<String, LayoutData> allLayouts = loadAllLayouts(context);
 
-    public static void resetControllerLayout(Context context, String controllerId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
+        LayoutData layout = allLayouts.get(layoutName);
 
-        Map<String, Map<String, ButtonConfig>> allLayouts = loadAllLayouts(context);
-        allLayouts.remove(controllerId);
-
-        String json = gson.toJson(allLayouts);
-        prefs.edit().putString(KEY_LAYOUTS, json).apply();
-    }
-
-    // NEW: Get all saved layouts for a controller type
-    public static List<String> getLayoutNamesForController(Context context, String baseControllerId) {
-        Map<String, Map<String, ButtonConfig>> allLayouts = loadAllLayouts(context);
-        List<String> layoutNames = new ArrayList<>();
-
-        // Add default layout
-        layoutNames.add("Default");
-
-        // Find all custom layouts
-        for (String layoutId : allLayouts.keySet()) {
-            if (layoutId.startsWith(baseControllerId + "_")) {
-                String customName = layoutId.substring(baseControllerId.length() + 1);
-                layoutNames.add(customName);
+        // If not found, return default preset
+        if (layout == null) {
+            switch (layoutName) {
+                case "Racing":
+                    return LayoutData.createRacingPreset();
+                case "Flight":
+                    return LayoutData.createFlightPreset();
+                case "Game":
+                    return LayoutData.createGamePreset();
+                default:
+                    return LayoutData.createRacingPreset();
             }
         }
 
-        return layoutNames;
+        return layout;
     }
 
-    private static Map<String, Map<String, ButtonConfig>> loadAllLayouts(Context context) {
+    // Load all layouts
+    private static Map<String, LayoutData> loadAllLayouts(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_LAYOUTS, "{}");
 
-        Gson gson = new Gson();
-        Type type = new TypeToken<Map<String, Map<String, ButtonConfig>>>(){}.getType();
-        Map<String, Map<String, ButtonConfig>> layouts = gson.fromJson(json, type);
+        Type type = new TypeToken<Map<String, LayoutData>>(){}.getType();
+        Map<String, LayoutData> layouts = gson.fromJson(json, type);
 
         return layouts != null ? layouts : new HashMap<>();
     }
 
-    public static void applyButtonLayout(Context context, android.view.View button, String controllerId, String buttonId) {
-        ButtonConfig config = loadButtonConfig(context, controllerId, buttonId);
-        if (config != null && button != null) {
-            android.view.ViewGroup.LayoutParams params = button.getLayoutParams();
+    // Get all layout names
+    public static List<String> getAllLayoutNames(Context context) {
+        List<String> names = new ArrayList<>();
 
-            if (params instanceof android.widget.RelativeLayout.LayoutParams) {
-                android.widget.RelativeLayout.LayoutParams relParams =
-                        (android.widget.RelativeLayout.LayoutParams) params;
-                relParams.leftMargin = (int) config.x;
-                relParams.topMargin = (int) config.y;
-                relParams.width = (int) config.width;
-                relParams.height = (int) config.height;
-                button.setLayoutParams(relParams);
+        // Add default presets
+        names.add("Racing");
+        names.add("Flight");
+        names.add("Game");
+
+        // Add custom layouts
+        Map<String, LayoutData> allLayouts = loadAllLayouts(context);
+        for (String name : allLayouts.keySet()) {
+            if (!names.contains(name)) {
+                names.add(name);
             }
+        }
+
+        return names;
+    }
+
+    // Delete layout
+    public static void deleteLayout(Context context, String layoutName) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+        Map<String, LayoutData> allLayouts = loadAllLayouts(context);
+        allLayouts.remove(layoutName);
+
+        String json = gson.toJson(allLayouts);
+        prefs.edit().putString(KEY_LAYOUTS, json).apply();
+    }
+
+    // Duplicate layout
+    public static void duplicateLayout(Context context, String originalName, String newName) {
+        LayoutData original = loadLayoutData(context, originalName);
+        if (original != null) {
+            LayoutData duplicate = gson.fromJson(gson.toJson(original), LayoutData.class);
+            duplicate.name = newName;
+            saveLayoutData(context, duplicate);
+        }
+    }
+
+    // Initialize default layouts (first run)
+    public static void initializeDefaults(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean initialized = prefs.getBoolean("initialized", false);
+
+        if (!initialized) {
+            saveLayoutData(context, LayoutData.createRacingPreset());
+            saveLayoutData(context, LayoutData.createFlightPreset());
+            saveLayoutData(context, LayoutData.createGamePreset());
+
+            prefs.edit().putBoolean("initialized", true).apply();
         }
     }
 }

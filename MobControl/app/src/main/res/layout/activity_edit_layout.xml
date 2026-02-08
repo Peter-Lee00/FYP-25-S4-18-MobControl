@@ -2,44 +2,59 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2a2a2a">
+    android:background="#424242">
 
-    <!-- Full Screen Edit Container -->
+    <!-- ✅ Gyro Bar Preview (실제 UniversalController와 동일) -->
+    <RelativeLayout
+        android:id="@+id/gyroBarPreview"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_alignParentTop="true"
+        android:background="#2a2a2a"
+        android:elevation="4dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="0.0°"
+            android:textColor="#888888"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:text="GYRO PREVIEW"
+            android:textColor="#888888"
+            android:textSize="10sp"
+            android:textStyle="bold"/>
+    </RelativeLayout>
+
+    <!-- Edit Container (gyroBar 아래) -->
     <RelativeLayout
         android:id="@+id/editContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#2a2a2a">
+        android:layout_below="@id/gyroBarPreview"
+        android:background="#424242" />
 
-        <!-- Buttons will be added programmatically here -->
-
-        <!-- Top Instruction (Small) -->
-        <TextView
-            android:id="@+id/instructionText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="8dp"
-            android:text="Drag • Tap to resize • Long press to delete"
-            android:textSize="11sp"
-            android:textColor="#AAAAAA"
-            android:background="#AA000000"
-            android:padding="8dp"
-            android:alpha="0.7" />
-    </RelativeLayout>
-
-    <!-- Floating Action Menu Button (Bottom Right) -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <!-- ✅ Floating Menu Button (오른쪽 상단에 고정, elevation으로 위에 띄움) -->
+    <ImageButton
         android:id="@+id/fabMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:src="@android:drawable/ic_menu_more"
-        android:backgroundTint="#2196F3"
-        android:elevation="6dp" />
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="44dp"
+        android:layout_marginRight="16dp"
+        android:background="@android:drawable/ic_menu_edit"
+        android:backgroundTint="#FF9800"
+        android:scaleType="center"
+        android:contentDescription="Menu"
+        android:elevation="20dp"/>
 
 </RelativeLayout>
