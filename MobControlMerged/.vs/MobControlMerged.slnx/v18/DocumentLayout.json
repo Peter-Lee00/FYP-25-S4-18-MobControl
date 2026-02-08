@@ -1,10 +1,18 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Tengri\\Desktop\\Mobconrol\\MobControlMerged\\",
+  "WorkspaceRootPath": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0BE1AB85-AF0C-4EBC-AFB2-E63497A8306A}|MobControlMerged\\MobControlMerged.csproj|c:\\users\\tengri\\desktop\\mobconrol\\mobcontrolmerged\\mobcontrolmerged\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0BE1AB85-AF0C-4EBC-AFB2-E63497A8306A}|MobControlMerged\\MobControlMerged.csproj|solutionrelative:mobcontrolmerged\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|c:\\users\\user\\documents\\github\\fyp-25-s4-18-mobcontrol\\mobcontrolmerged\\mobcontrolmerged\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|solutionrelative:mobcontrolmerged\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|c:\\users\\user\\documents\\github\\fyp-25-s4-18-mobcontrol\\mobcontrolmerged\\mobcontrolmerged\\mobcontrolmerged.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|solutionrelative:mobcontrolmerged\\mobcontrolmerged.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|c:\\users\\user\\documents\\github\\fyp-25-s4-18-mobcontrol\\mobcontrolmerged\\mobcontrolmerged\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|solutionrelative:mobcontrolmerged\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
@@ -16,8 +24,8 @@
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Tengri\\AppData\\Local\\Temp\\86a3a445-9db3-4613-8456-943313979c2d_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\ButtonMappingWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0BE1AB85-AF0C-4EBC-AFB2-E63497A8306A}|MobControlMerged\\MobControlMerged.csproj|c:\\users\\tengri\\desktop\\mobconrol\\mobcontrolmerged\\mobcontrolmerged\\buttonmappingwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0BE1AB85-AF0C-4EBC-AFB2-E63497A8306A}|MobControlMerged\\MobControlMerged.csproj|solutionrelative:mobcontrolmerged\\buttonmappingwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|c:\\users\\user\\documents\\github\\fyp-25-s4-18-mobcontrol\\mobcontrolmerged\\mobcontrolmerged\\buttonmappingwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{992F554A-140A-8A7F-1E06-BE9CAD857E18}|MobControlMerged\\MobControlMerged.csproj|solutionrelative:mobcontrolmerged\\buttonmappingwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,29 +35,52 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
-              "RelativeToolTip": "..\\..\\..\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAGMAAAAAAAAAAAAAABkAAAAeAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-02T10:43:33.962Z",
+              "Title": "MobControlMerged.csproj",
+              "DocumentMoniker": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\MobControlMerged.csproj",
+              "RelativeDocumentMoniker": "MobControlMerged\\MobControlMerged.csproj",
+              "ToolTip": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\MobControlMerged.csproj",
+              "RelativeToolTip": "MobControlMerged\\MobControlMerged.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-02-07T19:13:09.213Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "MobControlMerged\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\MainWindow.xaml",
+              "RelativeToolTip": "MobControlMerged\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-07T18:54:16.433Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAGMAAAAAAAAAAAAAABkAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T10:43:33.962Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "ButtonMappingWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\Tengri\\AppData\\Local\\Temp\\86a3a445-9db3-4613-8456-943313979c2d_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\ButtonMappingWindow.xaml.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\86a3a445-9db3-4613-8456-943313979c2d_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\ButtonMappingWindow.xaml.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Tengri\\AppData\\Local\\Temp\\86a3a445-9db3-4613-8456-943313979c2d_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\ButtonMappingWindow.xaml.cs",
               "ToolTip": "C:\\Users\\Tengri\\AppData\\Local\\Temp\\86a3a445-9db3-4613-8456-943313979c2d_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\ButtonMappingWindow.xaml.cs [Read Only]",
-              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\86a3a445-9db3-4613-8456-943313979c2d_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\ButtonMappingWindow.xaml.cs [Read Only]",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\Tengri\\AppData\\Local\\Temp\\86a3a445-9db3-4613-8456-943313979c2d_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\ButtonMappingWindow.xaml.cs [Read Only]",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-02T09:06:11.059Z",
@@ -57,12 +88,12 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "C:\\Users\\Tengri\\AppData\\Local\\Temp\\3de89eba-6387-47fc-af34-0094fa930f0f_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "..\\..\\..\\AppData\\Local\\Temp\\3de89eba-6387-47fc-af34-0094fa930f0f_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Tengri\\AppData\\Local\\Temp\\3de89eba-6387-47fc-af34-0094fa930f0f_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\MainWindow.xaml.cs",
               "ToolTip": "C:\\Users\\Tengri\\AppData\\Local\\Temp\\3de89eba-6387-47fc-af34-0094fa930f0f_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\MainWindow.xaml.cs [Read Only]",
-              "RelativeToolTip": "..\\..\\..\\AppData\\Local\\Temp\\3de89eba-6387-47fc-af34-0094fa930f0f_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\MainWindow.xaml.cs [Read Only]",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\Tengri\\AppData\\Local\\Temp\\3de89eba-6387-47fc-af34-0094fa930f0f_DesktopTengri.zip.DesktopTengri.zip\\MobControlDesktopTest\\MobControlDesktopTest\\MainWindow.xaml.cs [Read Only]",
               "ViewState": "AgIAAEQFAAAAAAAAAAAAAE4FAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-02T09:05:55.66Z",
@@ -70,29 +101,27 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "ButtonMappingWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Tengri\\Desktop\\Mobconrol\\MobControlMerged\\MobControlMerged\\ButtonMappingWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\ButtonMappingWindow.xaml.cs",
               "RelativeDocumentMoniker": "MobControlMerged\\ButtonMappingWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\Tengri\\Desktop\\Mobconrol\\MobControlMerged\\MobControlMerged\\ButtonMappingWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\ButtonMappingWindow.xaml.cs",
               "RelativeToolTip": "MobControlMerged\\ButtonMappingWindow.xaml.cs",
               "ViewState": "AgIAADIAAAAAAAAAAAAwwAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T19:04:26.783Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-01T19:04:26.783Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Tengri\\Desktop\\Mobconrol\\MobControlMerged\\MobControlMerged\\MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "MobControlMerged\\MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\Tengri\\Desktop\\Mobconrol\\MobControlMerged\\MobControlMerged\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\user\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControlMerged\\MobControlMerged\\MainWindow.xaml.cs",
               "RelativeToolTip": "MobControlMerged\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAJ4DAAAAAAAAAAD4v68DAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKUDAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T19:04:24.787Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-01T19:04:24.787Z"
             }
           ]
         }

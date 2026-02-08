@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="6644213d-04e3-4719-99db-524514bce6bc" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/DesignTimeBuild/.dtbcache.v2" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/DesignTimeBuild/.dtbcache.v2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/FileContentIndex/3e813662-b353-43d0-a38c-519932aeea9e.vsidx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/FileContentIndex/528f269a-44a9-406c-8b38-ebd877c30a5e.vsidx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/FileContentIndex/eb62eabf-9645-4a6f-a759-1eccbeb187c5.vsidx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/.futdcache.v2" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/.futdcache.v2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/.suo" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/.suo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/DocumentLayout.backup.json" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/DocumentLayout.backup.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/DocumentLayout.json" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged.slnx/v18/DocumentLayout.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged/CopilotIndices/18.0.988.22099/CodeChunks.db" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged/CopilotIndices/18.0.988.22099/CodeChunks.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged/CopilotIndices/18.0.988.22099/SemanticSymbols.db" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/MobControlMerged/CopilotIndices/18.0.988.22099/SemanticSymbols.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/ProjectEvaluation/mobcontrolmerged.metadata.v10.bin" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/ProjectEvaluation/mobcontrolmerged.metadata.v10.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/ProjectEvaluation/mobcontrolmerged.projects.v10.bin" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/ProjectEvaluation/mobcontrolmerged.projects.v10.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/.vs/ProjectEvaluation/mobcontrolmerged.strings.v10.bin" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/.vs/ProjectEvaluation/mobcontrolmerged.strings.v10.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/MainWindow.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/MainWindow.xaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/MobControlMerged.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/MobControlMerged.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/bin/Debug/net8.0-windows/MobControlMerged.dll" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/bin/Debug/net8.0-windows/MobControlMerged.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/bin/Debug/net8.0-windows/MobControlMerged.exe" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/bin/Debug/net8.0-windows/MobControlMerged.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/bin/Debug/net8.0-windows/MobControlMerged.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/bin/Debug/net8.0-windows/MobControlMerged.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MainWindow.baml" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MainWindow.baml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MainWindow.g.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MainWindow.g.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MainWindow.g.i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MainWindow.g.i.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.AssemblyInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.AssemblyInfoInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.AssemblyInfoInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.csproj.FileListAbsolute.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.designer.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.designer.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.designer.runtimeconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.designer.runtimeconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.dll" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.g.resources" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.g.resources" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.genruntimeconfig.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.genruntimeconfig.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged_MarkupCompile.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged_MarkupCompile.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged_MarkupCompile.i.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/MobControlMerged_MarkupCompile.i.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/apphost.exe" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/apphost.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/ref/MobControlMerged.dll" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/ref/MobControlMerged.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/refint/MobControlMerged.dll" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/Debug/net8.0-windows/refint/MobControlMerged.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/MobControlMerged.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/MobControlMerged.csproj.nuget.dgspec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/MobControlMerged.csproj.nuget.g.props" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/MobControlMerged.csproj.nuget.g.props" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/project.assets.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/MobControlMerged/MobControlMerged/obj/project.nuget.cache" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="39N5L5onHUOeqHc9dUtbSShvWYH" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-975db3bf15a3-31b6be0877a2-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.18034.82" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6644213d-04e3-4719-99db-524514bce6bc" name="Changes" comment="" />
+      <created>1770523629842</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1770523629842</updated>
+    </task>
+    <servers />
+  </component>
+</project>

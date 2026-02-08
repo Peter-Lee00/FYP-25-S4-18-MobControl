@@ -15,4 +15,9 @@
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.14" />
   </ItemGroup>
 
+  <!-- Ensure your background image is embedded as a WPF Resource -->
+  <ItemGroup>
+    <Resource Include="img\bg.jpg" />
+  </ItemGroup>
+
 </Project>

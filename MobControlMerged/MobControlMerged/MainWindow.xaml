@@ -4,208 +4,175 @@
         Title="MobControl Desktop" 
         Height="700"
         Width="900"
-        Background="#1E1E1E"
+        Background="Transparent"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen">
 
-    <Grid>
-        <!-- Main Menu Screen -->
-        <Grid x:Name="MainMenuScreen" Visibility="Visible">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Window.Resources>
+        <!-- Centered menu button -->
+        <Style x:Key="NeonMenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#00FFF0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="RootGrid" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="8"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="8"/>
+                            </Grid.RowDefinitions>
 
-            <!-- Title -->
-            <TextBlock Grid.Row="1" 
-                       Text="Mob Control" 
-                       FontSize="48" 
-                       FontWeight="Bold"
-                       Foreground="White"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,60"/>
+                            <!-- Top separator -->
+                            <Rectangle x:Name="TopLine"
+                                       Grid.Row="0"
+                                       Height="2"
+                                       Width="180"
+                                       Fill="#D81B60"
+                                       HorizontalAlignment="Center"
+                                       Opacity="0.85"/>
 
-            <!-- Buttons Container -->
-            <StackPanel Grid.Row="2" 
-                        HorizontalAlignment="Center" 
-                        Width="300">
+                            <!-- Main content -->
+                            <Border Grid.Row="1" Background="Transparent">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  RecognizesAccessKey="True"/>
+                            </Border>
 
-                <!-- Host Button -->
-                <Button x:Name="HostButton"
-                        Content="Host"
-                        Background="#4CAF50"
-                        Foreground="White"
-                        FontSize="20"
-                        FontWeight="Bold"
-                        Height="60"
-                        Margin="0,0,0,20"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Click="HostButton_Click">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}"
-                                                CornerRadius="8">
-                                            <ContentPresenter HorizontalAlignment="Center"
-                                                              VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#66BB6A"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
+                            <!-- Bottom separator -->
+                            <Rectangle x:Name="BottomLine"
+                                       Grid.Row="2"
+                                       Height="2"
+                                       Width="180"
+                                       Fill="#D81B60"
+                                       HorizontalAlignment="Center"
+                                       Opacity="0.85"/>
 
-                <!-- Settings Button -->
-                <Button x:Name="SettingsButton"
-                        Content="Settings"
-                        Background="#2196F3"
-                        Foreground="White"
-                        FontSize="20"
-                        FontWeight="Bold"
-                        Height="60"
-                        Margin="0,0,0,20"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Click="SettingsButton_Click">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}"
-                                                CornerRadius="8">
-                                            <ContentPresenter HorizontalAlignment="Center"
-                                                              VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#42A5F5"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
+                            <!-- soft cyan glow -->
+                            <Border Grid.RowSpan="3" Background="Transparent">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#00FFF0" BlurRadius="12" ShadowDepth="0" Opacity="0.15"/>
+                                </Border.Effect>
+                            </Border>
+                        </Grid>
 
-                <!-- Exit Button -->
-                <Button x:Name="ExitButton"
-                        Content="Exit"
-                        Background="#757575"
-                        Foreground="White"
-                        FontSize="20"
-                        FontWeight="Bold"
-                        Height="60"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Click="ExitButton_Click">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border Background="{TemplateBinding Background}"
-                                                CornerRadius="8">
-                                            <ContentPresenter HorizontalAlignment="Center"
-                                                              VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#9E9E9E"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </StackPanel>
-
-            <!-- Dark Mode Toggle -->
-            <Button x:Name="DarkModeToggle"
-                    Grid.Row="3"
-                    Content="🌙 Dark Mode"
-                    Background="#424242"
-                    Foreground="White"
-                    FontSize="12"
-                    Width="120"
-                    Height="35"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Margin="0,0,30,30"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    Click="DarkModeToggle_Click">
-                <Button.Style>
-                    <Style TargetType="Button">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="5">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
+                        <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#616161"/>
+                                <Setter TargetName="TopLine" Property="Fill" Value="#FF4081"/>
+                                <Setter TargetName="BottomLine" Property="Fill" Value="#FF4081"/>
+                                <Setter Property="Foreground" Value="#A7FFEC"/>
+                                <Setter TargetName="RootGrid" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.03" ScaleY="1.03"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="RootGrid" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.995" ScaleY="0.995"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Background layer (image centered, whole image visible) -->
+        <Grid x:Name="BackgroundLayer" Panel.ZIndex="0" ClipToBounds="True">
+            <!-- High-quality centered image that preserves whole image -->
+            <Image Source="pack://application:,,,/img/bg.jpg"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   SnapsToDevicePixels="True"/>
+            <!-- Semi-transparent overlay for contrast -->
+            <Rectangle Fill="#70000000"/>
         </Grid>
 
-        <!-- Host Screen -->
-        <Grid x:Name="HostScreen" Visibility="Collapsed">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="400"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Left Panel - QR Code and Server Info -->
-            <Grid Grid.Column="0" Margin="20">
+        <!-- Main content above background -->
+        <Grid Panel.ZIndex="1">
+            <!-- Main Menu Screen -->
+            <Grid x:Name="MainMenuScreen" Visibility="Visible">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*" MinHeight="120"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Back Button -->
-                <Button Grid.Row="0"
-                        x:Name="BackButton"
-                        Content="← Back"
+                <!-- Title -->
+                <TextBlock Grid.Row="1" 
+                           Text="Mob Control" 
+                           FontSize="48" 
+                           FontWeight="Bold"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,60"/>
+
+                <!-- Buttons Container -->
+                <StackPanel Grid.Row="2" 
+                            HorizontalAlignment="Center" 
+                            Width="300"
+                            Margin="0,0,0,0">
+
+                    <!-- Host Button -->
+                    <Button x:Name="HostButton"
+                            Content="Host"
+                            Width="220"
+                            Height="48"
+                            Margin="0,0,0,18"
+                            Style="{StaticResource NeonMenuButtonStyle}"
+                            Click="HostButton_Click"/>
+
+                    <!-- Settings Button -->
+                    <Button x:Name="SettingsButton"
+                            Content="Settings"
+                            Width="220"
+                            Height="48"
+                            Margin="0,0,0,18"
+                            Style="{StaticResource NeonMenuButtonStyle}"
+                            Click="SettingsButton_Click"/>
+
+                    <!-- Exit Button -->
+                    <Button x:Name="ExitButton"
+                            Content="Exit"
+                            Width="220"
+                            Height="48"
+                            Margin="0,0,0,0"
+                            Style="{StaticResource NeonMenuButtonStyle}"
+                            Click="ExitButton_Click"/>
+                </StackPanel>
+
+                <!-- Dark Mode Toggle -->
+                <Button x:Name="DarkModeToggle"
+                        Grid.Row="3"
+                        Content="🌙 Dark Mode"
                         Background="#424242"
                         Foreground="White"
-                        FontSize="14"
-                        Width="100"
+                        FontSize="12"
+                        Width="120"
                         Height="35"
-                        HorizontalAlignment="Left"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,30,30"
                         BorderThickness="0"
                         Cursor="Hand"
-                        Margin="0,0,0,15"
-                        Click="BackButton_Click">
+                        Click="DarkModeToggle_Click">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Template">
@@ -219,300 +186,356 @@
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#616161"/>
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
                     </Button.Style>
                 </Button>
+            </Grid>
 
-                <!-- Title -->
-                <TextBlock Grid.Row="1" 
-                           x:Name="HostTitle"
-                           Text="Host Server" 
-                           FontSize="28" 
-                           FontWeight="Bold"
-                           Foreground="White"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,20"/>
+            <!-- Host Screen -->
+            <Grid x:Name="HostScreen" Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="400"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- QR Code -->
-                <Border Grid.Row="2" 
-                        Background="White" 
-                        BorderBrush="#4CAF50" 
-                        BorderThickness="3"
-                        CornerRadius="8"
-                        Width="220" 
-                        Height="220"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,15">
-                    <Image x:Name="QRCodeImage" 
-                           Stretch="Uniform"
-                           Margin="10"/>
-                </Border>
+                <!-- Left Panel - QR Code and Server Info -->
+                <Grid Grid.Column="0" Margin="20">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*" MinHeight="120"/>
+                    </Grid.RowDefinitions>
 
-                <!-- Pairing Code -->
-                <StackPanel Grid.Row="3" 
-                            Orientation="Vertical" 
-                            HorizontalAlignment="Center"
-                            Margin="0,0,0,10">
-                    <TextBlock x:Name="PairingCodeLabel"
-                               Text="Pairing Code" 
-                               FontSize="13" 
-                               Foreground="#AAAAAA"
-                               HorizontalAlignment="Center"/>
-                    <TextBlock x:Name="PairingCodeText" 
-                               Text="0000" 
-                               FontSize="32" 
+                    <!-- Back Button -->
+                    <Button Grid.Row="0"
+                            x:Name="BackButton"
+                            Content="← Back"
+                            Background="#424242"
+                            Foreground="White"
+                            FontSize="14"
+                            Width="100"
+                            Height="35"
+                            HorizontalAlignment="Left"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            Margin="0,0,0,15"
+                            Click="BackButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="5">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Title -->
+                    <TextBlock Grid.Row="1" 
+                               x:Name="HostTitle"
+                               Text="Host Server" 
+                               FontSize="28" 
                                FontWeight="Bold"
-                               Foreground="#FFEB3B"
+                               Foreground="White"
                                HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
-                </StackPanel>
+                               Margin="0,0,0,20"/>
 
-                <!-- IP Address -->
-                <TextBlock Grid.Row="4" 
-                           x:Name="IPAddressText"
-                           Text="IP: 0.0.0.0:7777" 
-                           FontSize="13" 
-                           Foreground="#90CAF9"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,15"/>
+                    <!-- QR Code -->
+                    <Border Grid.Row="2" 
+                            Background="White" 
+                            BorderBrush="#4CAF50" 
+                            BorderThickness="3"
+                            CornerRadius="8"
+                            Width="220" 
+                            Height="220"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,15">
+                        <Image x:Name="QRCodeImage" 
+                               Stretch="Uniform"
+                               Margin="10"/>
+                    </Border>
 
-                <!-- Status -->
-                <Border Grid.Row="5" 
-                        x:Name="StatusBorder"
-                        Background="#2C2C2C" 
-                        BorderBrush="#444444" 
-                        BorderThickness="1"
-                        CornerRadius="5"
-                        Padding="12,10"
-                        Margin="0,0,0,15">
-                    <StackPanel Orientation="Horizontal" 
-                                HorizontalAlignment="Center">
-                        <Ellipse x:Name="StatusIndicator" 
-                                 Width="11" 
-                                 Height="11" 
-                                 Fill="#FFC107"
-                                 Margin="0,0,8,0"/>
-                        <TextBlock x:Name="StatusText" 
-                                   Text="Waiting for connection..." 
+                    <!-- Pairing Code -->
+                    <StackPanel Grid.Row="3" 
+                                Orientation="Vertical" 
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,10">
+                        <TextBlock x:Name="PairingCodeLabel"
+                                   Text="Pairing Code" 
                                    FontSize="13" 
-                                   Foreground="White"/>
+                                   Foreground="#AAAAAA"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="PairingCodeText" 
+                                   Text="0000" 
+                                   FontSize="32" 
+                                   FontWeight="Bold"
+                                   Foreground="#FFEB3B"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,5,0,0"/>
                     </StackPanel>
-                </Border>
 
-                <!-- Input Log -->
-                <Border Grid.Row="6"
-                        x:Name="LogBorder"
-                        Background="#2C2C2C" 
+                    <!-- IP Address -->
+                    <TextBlock Grid.Row="4" 
+                               x:Name="IPAddressText"
+                               Text="IP: 0.0.0.0:7777" 
+                               FontSize="13" 
+                               Foreground="#90CAF9"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,15"/>
+
+                    <!-- Status -->
+                    <Border Grid.Row="5" 
+                            x:Name="StatusBorder"
+                            Background="#2C2C2C" 
+                            BorderBrush="#444444" 
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="12,10"
+                            Margin="0,0,0,15">
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Center">
+                            <Ellipse x:Name="StatusIndicator" 
+                                     Width="11" 
+                                     Height="11" 
+                                     Fill="#FFC107"
+                                     Margin="0,0,8,0"/>
+                            <TextBlock x:Name="StatusText" 
+                                       Text="Waiting for connection..." 
+                                       FontSize="13" 
+                                       Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Input Log -->
+                    <Border Grid.Row="6"
+                            x:Name="LogBorder"
+                            Background="#2C2C2C" 
+                            BorderBrush="#444444" 
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       x:Name="LogTitle"
+                                       Text="Input Log" 
+                                       FontSize="13" 
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       Margin="0,0,0,8"/>
+
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto">
+                                <TextBlock x:Name="LogText" 
+                                           FontSize="10" 
+                                           Foreground="#00FF00"
+                                           FontFamily="Consolas"
+                                           TextWrapping="Wrap"/>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Right Panel - Connected Users -->
+                <Border Grid.Column="1" 
+                        x:Name="ConnectedDevicesBorder"
+                        Background="#252525" 
                         BorderBrush="#444444" 
-                        BorderThickness="1"
-                        CornerRadius="5"
-                        Padding="12">
+                        BorderThickness="1,0,0,0"
+                        Padding="25">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0"
-                                   x:Name="LogTitle"
-                                   Text="Input Log" 
-                                   FontSize="13" 
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   Margin="0,0,0,8"/>
+                        <!-- Header -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock x:Name="ConnectedDevicesTitle"
+                                       Text="Connected Devices" 
+                                       FontSize="22" 
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       Margin="0,0,0,10"/>
+                            <TextBlock x:Name="ConnectionCountText"
+                                       Text="0 devices connected" 
+                                       FontSize="13" 
+                                       Foreground="#AAAAAA"/>
+                        </StackPanel>
 
-                        <ScrollViewer Grid.Row="1"
+                        <!-- Connected Users List -->
+                        <ScrollViewer Grid.Row="1" 
                                       VerticalScrollBarVisibility="Auto">
-                            <TextBlock x:Name="LogText" 
-                                       FontSize="10" 
-                                       Foreground="#00FF00"
-                                       FontFamily="Consolas"
-                                       TextWrapping="Wrap"/>
+                            <ItemsControl x:Name="ConnectedDevicesList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#2C2C2C" 
+                                                BorderBrush="#444444" 
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="15"
+                                                Margin="0,0,0,12">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Device Name -->
+                                                <TextBlock Grid.Row="0"
+                                                           Text="{Binding Name}" 
+                                                           FontSize="16" 
+                                                           FontWeight="Bold"
+                                                           Foreground="White"
+                                                           Margin="0,0,0,8"/>
+
+                                                <!-- Device IP -->
+                                                <TextBlock Grid.Row="1"
+                                                           FontSize="12" 
+                                                           Foreground="#90CAF9"
+                                                           Margin="0,0,0,12">
+                                                    <Run Text="IP: "/>
+                                                    <Run Text="{Binding IPAddress}"/>
+                                                </TextBlock>
+
+                                                <!-- Connection Status -->
+                                                <StackPanel Grid.Row="2" 
+                                                            Orientation="Horizontal" 
+                                                            VerticalAlignment="Center"
+                                                            Margin="0,0,0,10">
+                                                    <Ellipse Width="8" 
+                                                             Height="8" 
+                                                             Fill="#4CAF50"
+                                                             Margin="0,0,8,0"/>
+                                                    <TextBlock Text="{Binding Status}" 
+                                                               FontSize="11" 
+                                                               Foreground="#AAAAAA"/>
+                                                </StackPanel>
+
+                                                <!-- Action Buttons -->
+                                                <Grid Grid.Row="3">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Edit Mapping Button -->
+                                                    <Button Grid.Column="0"
+                                                            Content="⚙️ Edit"
+                                                            Background="#2196F3"
+                                                            Foreground="White"
+                                                            FontSize="11"
+                                                            Padding="12,6"
+                                                            Margin="0,0,5,0"
+                                                            BorderThickness="0"
+                                                            Cursor="Hand"
+                                                            Tag="{Binding IPAddress}"
+                                                            Click="EditDeviceMapping_Click">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border Background="{TemplateBinding Background}"
+                                                                                    CornerRadius="4">
+                                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                                  VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#42A5F5"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+
+                                                    <!-- Disconnect Button -->
+                                                    <Button Grid.Column="1"
+                                                            Content="Disconnect"
+                                                            Background="#F44336"
+                                                            Foreground="White"
+                                                            FontSize="11"
+                                                            Padding="12,6"
+                                                            Margin="5,0,0,0"
+                                                            BorderThickness="0"
+                                                            Cursor="Hand"
+                                                            Tag="{Binding IPAddress}"
+                                                            Click="DisconnectDevice_Click">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border Background="{TemplateBinding Background}"
+                                                                                    CornerRadius="4">
+                                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                                  VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter Property="Background" Value="#EF5350"/>
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </ScrollViewer>
                     </Grid>
                 </Border>
             </Grid>
 
-            <!-- Right Panel - Connected Users -->
-            <Border Grid.Column="1" 
-                    x:Name="ConnectedDevicesBorder"
-                    Background="#252525" 
-                    BorderBrush="#444444" 
-                    BorderThickness="1,0,0,0"
-                    Padding="25">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+            <!-- Settings Screen -->
+            <Grid x:Name="SettingsScreen" Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Border x:Name="SettingsBorder"
+                Background="#2C2C2C" 
+                BorderBrush="#444444" 
+                BorderThickness="1"
+                Margin="40">
+                        <Grid Margin="30">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                    <!-- Header -->
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock x:Name="ConnectedDevicesTitle"
-                                   Text="Connected Devices" 
-                                   FontSize="22" 
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   Margin="0,0,0,10"/>
-                        <TextBlock x:Name="ConnectionCountText"
-                                   Text="0 devices connected" 
-                                   FontSize="13" 
-                                   Foreground="#AAAAAA"/>
-                    </StackPanel>
-
-                    <!-- Connected Users List -->
-                    <ScrollViewer Grid.Row="1" 
-                                  VerticalScrollBarVisibility="Auto">
-                        <ItemsControl x:Name="ConnectedDevicesList">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="#2C2C2C" 
-                                            BorderBrush="#444444" 
-                                            BorderThickness="1"
-                                            CornerRadius="8"
-                                            Padding="15"
-                                            Margin="0,0,0,12">
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-
-                                            <!-- Device Name -->
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{Binding Name}" 
-                                                       FontSize="16" 
-                                                       FontWeight="Bold"
-                                                       Foreground="White"
-                                                       Margin="0,0,0,8"/>
-
-                                            <!-- Device IP -->
-                                            <TextBlock Grid.Row="1"
-                                                       FontSize="12" 
-                                                       Foreground="#90CAF9"
-                                                       Margin="0,0,0,12">
-                                                <Run Text="IP: "/>
-                                                <Run Text="{Binding IPAddress}"/>
-                                            </TextBlock>
-
-                                            <!-- Connection Status -->
-                                            <StackPanel Grid.Row="2" 
-                                                        Orientation="Horizontal" 
-                                                        VerticalAlignment="Center"
-                                                        Margin="0,0,0,10">
-                                                <Ellipse Width="8" 
-                                                         Height="8" 
-                                                         Fill="#4CAF50"
-                                                         Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding Status}" 
-                                                           FontSize="11" 
-                                                           Foreground="#AAAAAA"/>
-                                            </StackPanel>
-
-                                            <!-- Action Buttons -->
-                                            <Grid Grid.Row="3">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <!-- Edit Mapping Button -->
-                                                <Button Grid.Column="0"
-                                                        Content="⚙️ Edit"
-                                                        Background="#2196F3"
-                                                        Foreground="White"
-                                                        FontSize="11"
-                                                        Padding="12,6"
-                                                        Margin="0,0,5,0"
-                                                        BorderThickness="0"
-                                                        Cursor="Hand"
-                                                        Tag="{Binding IPAddress}"
-                                                        Click="EditDeviceMapping_Click">
-                                                    <Button.Style>
-                                                        <Style TargetType="Button">
-                                                            <Setter Property="Template">
-                                                                <Setter.Value>
-                                                                    <ControlTemplate TargetType="Button">
-                                                                        <Border Background="{TemplateBinding Background}"
-                                                                                CornerRadius="4">
-                                                                            <ContentPresenter HorizontalAlignment="Center"
-                                                                                              VerticalAlignment="Center"/>
-                                                                        </Border>
-                                                                    </ControlTemplate>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                            <Style.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Background" Value="#42A5F5"/>
-                                                                </Trigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Button.Style>
-                                                </Button>
-
-                                                <!-- Disconnect Button -->
-                                                <Button Grid.Column="1"
-                                                        Content="Disconnect"
-                                                        Background="#F44336"
-                                                        Foreground="White"
-                                                        FontSize="11"
-                                                        Padding="12,6"
-                                                        Margin="5,0,0,0"
-                                                        BorderThickness="0"
-                                                        Cursor="Hand"
-                                                        Tag="{Binding IPAddress}"
-                                                        Click="DisconnectDevice_Click">
-                                                    <Button.Style>
-                                                        <Style TargetType="Button">
-                                                            <Setter Property="Template">
-                                                                <Setter.Value>
-                                                                    <ControlTemplate TargetType="Button">
-                                                                        <Border Background="{TemplateBinding Background}"
-                                                                                CornerRadius="4">
-                                                                            <ContentPresenter HorizontalAlignment="Center"
-                                                                                              VerticalAlignment="Center"/>
-                                                                        </Border>
-                                                                    </ControlTemplate>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                            <Style.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Background" Value="#EF5350"/>
-                                                                </Trigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Button.Style>
-                                                </Button>
-                                            </Grid>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-        </Grid>
-
-        <!-- Settings Screen -->
-        <Grid x:Name="SettingsScreen" Visibility="Collapsed">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Border x:Name="SettingsBorder"
-            Background="#2C2C2C" 
-            BorderBrush="#444444" 
-            BorderThickness="1"
-            Margin="40">
-                    <Grid Margin="30">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Header -->
-                        <TextBlock Grid.Row="0"
+                            <!-- Header -->
+                            <TextBlock Grid.Row="0"
                        x:Name="SettingsTitle"
                        Text="Settings" 
                        FontSize="20" 
@@ -520,117 +543,117 @@
                        Foreground="White"
                        Margin="0,0,0,30"/>
 
-                        <!-- Settings Options -->
-                        <StackPanel Grid.Row="1" 
-                        VerticalAlignment="Top" 
-                        HorizontalAlignment="Center">
+                            <!-- Settings Options -->
+                            <StackPanel Grid.Row="1" 
+                            VerticalAlignment="Top" 
+                            HorizontalAlignment="Center">
 
-                            <!-- Network Information Section -->
-                            <Border Background="#383838"
+                                <!-- Network Information Section -->
+                                <Border Background="#383838"
                         BorderBrush="#555555"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20"
                         Margin="0,0,0,30"
                         Width="400">
-                                <StackPanel>
-                                    <TextBlock Text="Network Information"
+                                    <StackPanel>
+                                        <TextBlock Text="Network Information"
                                    FontSize="16"
                                    FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,0,0,15"/>
 
-                                    <!-- WiFi Network Name -->
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <TextBlock Text="📡 WiFi Network:"
+                                        <!-- WiFi Network Name -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <TextBlock Text="📡 WiFi Network:"
                                        FontSize="13"
                                        Foreground="#AAAAAA"
                                        Width="140"/>
-                                        <TextBlock x:Name="WiFiNetworkText"
+                                            <TextBlock x:Name="WiFiNetworkText"
                                        Text="Not Connected"
                                        FontSize="13"
                                        Foreground="White"
                                        FontWeight="Bold"/>
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <!-- Local IP Address -->
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <TextBlock Text="💻 Local IP:"
+                                        <!-- Local IP Address -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                            <TextBlock Text="💻 Local IP:"
                                        FontSize="13"
                                        Foreground="#AAAAAA"
                                        Width="140"/>
-                                        <TextBlock x:Name="LocalIPText"
+                                            <TextBlock x:Name="LocalIPText"
                                        Text="127.0.0.1"
                                        FontSize="13"
                                        Foreground="#90CAF9"
                                        FontWeight="Bold"/>
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <Separator Background="#555555" Margin="0,10,0,15"/>
+                                        <Separator Background="#555555" Margin="0,10,0,15"/>
 
-                                    <!-- Mobile Connection Status -->
-                                    <TextBlock Text="Mobile Connection Status"
+                                        <!-- Mobile Connection Status -->
+                                        <TextBlock Text="Mobile Connection Status"
                                    FontSize="14"
                                    FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,0,0,12"/>
 
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                        <Ellipse x:Name="MobileConnectionIndicator"
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                            <Ellipse x:Name="MobileConnectionIndicator"
                                      Width="12"
                                      Height="12"
                                      Fill="#757575"
                                      Margin="0,0,10,0"/>
-                                        <TextBlock x:Name="MobileConnectionText"
+                                            <TextBlock x:Name="MobileConnectionText"
                                        Text="No devices connected"
                                        FontSize="13"
                                        Foreground="#AAAAAA"/>
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <!-- Connected Devices Count -->
-                                    <TextBlock x:Name="ConnectedDevicesCountText"
+                                        <!-- Connected Devices Count -->
+                                        <TextBlock x:Name="ConnectedDevicesCountText"
                                    Text="0 mobile devices connected"
                                    FontSize="12"
                                    Foreground="#757575"
                                    Margin="22,5,0,0"/>
-                                </StackPanel>
-                            </Border>
+                                    </StackPanel>
+                                </Border>
 
-                            <!-- Notification Settings -->
-                            <Border Background="#383838"
+                                <!-- Notification Settings -->
+                                <Border Background="#383838"
                         BorderBrush="#555555"
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="20"
                         Margin="0,0,0,30"
                         Width="400">
-                                <StackPanel>
-                                    <TextBlock Text="Notifications"
+                                    <StackPanel>
+                                        <TextBlock Text="Notifications"
                                    FontSize="16"
                                    FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,0,0,15"/>
 
-                                    <CheckBox x:Name="NotifyOnConnect"
+                                        <CheckBox x:Name="NotifyOnConnect"
                                   Content="Notify when device connects"
                                   FontSize="13"
                                   Foreground="#CCCCCC"
                                   Margin="0,0,0,12"
                                   IsChecked="False"/>
 
-                                    <CheckBox x:Name="NotifyOnDisconnect"
+                                        <CheckBox x:Name="NotifyOnDisconnect"
                                   Content="Notify when device disconnects"
                                   FontSize="13"
                                   Foreground="#CCCCCC"
                                   Margin="0,0,0,0"
                                   IsChecked="False"/>
-                                </StackPanel>
-                            </Border>
+                                    </StackPanel>
+                                </Border>
 
-                            <!-- Action Buttons -->
-                            <StackPanel Width="400">
-                                <!-- View Connection Logs Button -->
-                                <Button x:Name="ViewConnectionLogsButton"
+                                <!-- Action Buttons -->
+                                <StackPanel Width="400">
+                                    <!-- View Connection Logs Button -->
+                                    <Button x:Name="ViewConnectionLogsButton"
                             Content="📋 View Connection Logs"
                             Background="#424242"
                             Foreground="White"
@@ -640,30 +663,30 @@
                             BorderThickness="0"
                             Cursor="Hand"
                             Click="ViewConnectionLogsButton_Click">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="{TemplateBinding Background}"
-                                                    CornerRadius="5">
-                                                            <ContentPresenter HorizontalAlignment="Center"
-                                                                  VerticalAlignment="Center"/>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#616161"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="5">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#616161"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
 
-                                <!-- Edit Controller Mapping Button -->
-                                <Button x:Name="EditControllerMappingButton"
+                                    <!-- Edit Controller Mapping Button -->
+                                    <Button x:Name="EditControllerMappingButton"
                             Content="🎮 Edit Controller Mapping"
                             Background="#424242"
                             Foreground="White"
@@ -673,32 +696,32 @@
                             BorderThickness="0"
                             Cursor="Hand"
                             Click="EditControllerMappingButton_Click">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="{TemplateBinding Background}"
-                                                    CornerRadius="5">
-                                                            <ContentPresenter HorizontalAlignment="Center"
-                                                                  VerticalAlignment="Center"/>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="#616161"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="5">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#616161"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
 
-                        <!-- Back Button -->
-                        <Button Grid.Row="2"
+                            <!-- Back Button -->
+                            <Button Grid.Row="2"
                     x:Name="SettingsBackButton"
                     Content="Back"
                     Background="#424242"
@@ -732,9 +755,10 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                    </Grid>
-                </Border>
-            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
