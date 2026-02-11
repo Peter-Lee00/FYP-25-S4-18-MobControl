@@ -2,15 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#673AB7">
+    android:background="@drawable/gaming_background">
 
-    <!-- Gyro Bar (상단) -->
+    <!-- Gyro Bar (네온 스타일) -->
     <RelativeLayout
         android:id="@+id/gyroBarContainer"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:layout_alignParentTop="true"
-        android:background="#2a2a2a"
+        android:background="@drawable/gyro_bar_bg"
         android:elevation="4dp"
         android:visibility="gone">
 
@@ -19,14 +19,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:background="#4CAF50"/>
+            android:background="#00E5FF"/>
 
         <View
             android:id="@+id/rightGyroBar"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:background="#4CAF50"/>
+            android:background="#00E5FF"/>
 
         <TextView
             android:id="@+id/gyroAngleText"
@@ -34,9 +34,10 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="0.0°"
-            android:textColor="#FFFFFF"
+            android:textColor="#00E5FF"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:fontFamily="monospace"/>
 
         <TextView
             android:id="@+id/gyroStatusText"
@@ -46,9 +47,11 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="8dp"
             android:text="GYRO"
-            android:textColor="#4CAF50"
+            android:textColor="#B388FF"
             android:textSize="10sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"/>
     </RelativeLayout>
 
     <!-- Main Controller Container -->
@@ -58,7 +61,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/gyroBarContainer" />
 
-    <!-- ✅ 중앙 세로 컨테이너 (gyro bar 바로 아래) -->
+    <!-- Center Control Panel (네온 스타일) -->
     <LinearLayout
         android:id="@+id/centerContainer"
         android:layout_width="wrap_content"
@@ -68,8 +71,8 @@
         android:layout_marginTop="8dp"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="8dp"
-        android:background="#80000000"
+        android:padding="12dp"
+        android:background="@drawable/center_panel_bg"
         android:elevation="10dp">
 
         <!-- Status Text -->
@@ -77,38 +80,61 @@
             android:id="@+id/statusText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Connected"
-            android:textColor="#4CAF50"
-            android:textSize="12sp"
+            android:text="CONNECTED"
+            android:textColor="#00E5FF"
+            android:textSize="11sp"
             android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"
             android:gravity="center"
             android:paddingBottom="8dp"/>
 
         <!-- Options Button -->
-        <ImageButton
+        <RelativeLayout
             android:id="@+id/menuButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="#616161"
-            android:scaleType="fitCenter"
-            android:contentDescription="Menu"
-            android:layout_marginBottom="8dp"/>
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/mini_button_bg"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="☰"
+                android:textSize="24sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+
+        </RelativeLayout>
 
         <!-- Calibrate Button -->
-        <Button
+        <RelativeLayout
             android:id="@+id/calibrateButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CALIBRATE"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:background="#FF9800"
+            android:background="@drawable/calibrate_button_bg"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CALIBRATE"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.1"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
 

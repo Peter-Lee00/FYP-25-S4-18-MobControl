@@ -2,15 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#424242">
+    android:background="@drawable/gaming_background">
 
-    <!-- ✅ Gyro Bar Preview (실제 UniversalController와 동일) -->
+    <!-- Gyro Bar Preview -->
     <RelativeLayout
         android:id="@+id/gyroBarPreview"
         android:layout_width="match_parent"
         android:layout_height="35dp"
         android:layout_alignParentTop="true"
-        android:background="#2a2a2a"
+        android:background="@drawable/gyro_bar_bg"
         android:elevation="4dp">
 
         <TextView
@@ -18,9 +18,10 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="0.0°"
-            android:textColor="#888888"
+            android:textColor="#00E5FF"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:fontFamily="monospace"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,21 +30,23 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="8dp"
             android:text="GYRO PREVIEW"
-            android:textColor="#888888"
+            android:textColor="#B388FF"
             android:textSize="10sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"/>
     </RelativeLayout>
 
-    <!-- Edit Container (gyroBar 아래) -->
+    <!-- Edit Container -->
     <RelativeLayout
         android:id="@+id/editContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/gyroBarPreview"
-        android:background="#424242" />
+        android:background="@android:color/transparent" />
 
-    <!-- ✅ Floating Menu Button (오른쪽 상단에 고정, elevation으로 위에 띄움) -->
-    <ImageButton
+    <!-- Floating Menu Button (Neon Style) -->
+    <RelativeLayout
         android:id="@+id/fabMenu"
         android:layout_width="56dp"
         android:layout_height="56dp"
@@ -51,10 +54,20 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="44dp"
         android:layout_marginRight="16dp"
-        android:background="@android:drawable/ic_menu_edit"
-        android:backgroundTint="#FF9800"
-        android:scaleType="center"
-        android:contentDescription="Menu"
-        android:elevation="20dp"/>
+        android:background="@drawable/fab_button_bg"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="☰"
+            android:textSize="28sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

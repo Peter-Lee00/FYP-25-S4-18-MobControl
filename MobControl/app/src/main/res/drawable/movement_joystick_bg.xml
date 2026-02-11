@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/movement_joystick_bg.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 외부 큰 원 -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#3a3a3a" />
+            <stroke
+                android:width="3dp"
+                android:color="#757575" />
+        </shape>
+    </item>
+
+    <!-- 내부 작은 원 (스틱) -->
+    <item
+        android:top="75dp"
+        android:bottom="75dp"
+        android:left="75dp"
+        android:right="75dp">
+        <shape android:shape="oval">
+            <solid android:color="#757575" />
+            <stroke
+                android:width="2dp"
+                android:color="#BDBDBD" />
+        </shape>
+    </item>
+
+</layer-list>

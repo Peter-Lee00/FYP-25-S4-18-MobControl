@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.RelativeLayout;
 
 
 public class EditLayoutActivity extends AppCompatActivity {
@@ -36,7 +37,7 @@ public class EditLayoutActivity extends AppCompatActivity {
     private LayoutData currentLayout;
     private Map<String, View> activeButtons = new HashMap<>();
     private View selectedButton = null;
-    private ImageButton fabMenu;
+    private RelativeLayout  fabMenu;
     private PopupWindow resizePopup;
 
     private boolean isDragging = false;
@@ -101,6 +102,13 @@ public class EditLayoutActivity extends AppCompatActivity {
         BUTTON_TEMPLATES.put("D-Pad Right", new ButtonTemplate(
                 "→", "dpad_right", "#424242", 60, 60, R.drawable.dpad_right));
 
+
+        BUTTON_TEMPLATES.put("D-Pad Combined", new ButtonTemplate(
+                "DPAD", "dpad_combined", "#424242", 180, 180, R.drawable.dpad_combined_bg));
+
+
+        BUTTON_TEMPLATES.put("Movement Joystick", new ButtonTemplate(
+                "MOVE", "movement_joystick", "#424242", 200, 200, R.drawable.movement_joystick_bg));
         // Bumpers
         BUTTON_TEMPLATES.put("LB", new ButtonTemplate(
                 "LB", "lb", "#D32F2F", 50, 50, R.drawable.button_lb));
@@ -144,8 +152,7 @@ public class EditLayoutActivity extends AppCompatActivity {
                 "R-CLICK", "mouse_right", "#FF5722", 80, 80, R.drawable.center_button_bg));
 
         // Combined Button Groups
-        BUTTON_TEMPLATES.put("ABXY Combined", new ButtonTemplate(
-                "ABXY", "abxy_combined", "#2A2A3A", 200, 200, R.drawable.abxy_combined));
+
 
         BUTTON_TEMPLATES.put("D-Pad Combined", new ButtonTemplate(
                 "D-PAD", "dpad_combined", "#2A2A3A", 180, 180, R.drawable.dpad_combined));
@@ -157,34 +164,54 @@ public class EditLayoutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_layout);
 
-        layoutName = getIntent().getStringExtra("LAYOUT_NAME");
-        boolean isNewLayout = getIntent().getBooleanExtra("IS_NEW", false);
+        // Receive Intent
+        Intent intent = getIntent();
+        String receivedLayoutName = intent.getStringExtra("LAYOUT_NAME");
+        boolean isNew = intent.getBooleanExtra("IS_NEW", false);
+        String controllerType = intent.getStringExtra("CONTROLLER_TYPE");
 
+        android.util.Log.d("EditLayout", "receivedLayoutName: " + receivedLayoutName);
+        android.util.Log.d("EditLayout", "isNew: " + isNew);
+        android.util.Log.d("EditLayout", "controllerType: " + controllerType);
+
+        // Reset
         editContainer = findViewById(R.id.editContainer);
         fabMenu = findViewById(R.id.fabMenu);
 
-        if (isNewLayout) {
+        activeButtons = new HashMap<>();
+
+        if (isNew) {
+            // Create new layout
             currentLayout = new LayoutData();
-            currentLayout.name = "New Layout";
+            currentLayout.name = receivedLayoutName;
+            currentLayout.controllerType = controllerType != null ? controllerType : "Normal Game Controller";
+            currentLayout.gyroEnabled = "Racing".equals(controllerType);
+            currentLayout.buttons = new ArrayList<>();
+
+            android.util.Log.d("EditLayout", "✓ New layout created: " + currentLayout.name);
         } else {
-            currentLayout = LayoutConfig.loadLayoutData(this, layoutName);
-        }
+            // Load Layout
+            currentLayout = LayoutConfig.loadLayoutData(this, receivedLayoutName);
 
-        String controllerType = getIntent().getStringExtra("CONTROLLER_TYPE");
-        if (controllerType != null) {
-            currentLayout.controllerType = controllerType;
+            if (currentLayout == null) {
+                Toast.makeText(this, "Layout not found", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
 
-            // if racing turn on gyro
-            if (controllerType.equals("Racing")) {
-                currentLayout.gyroEnabled = true;
+            android.util.Log.d("EditLayout", "✓ Loaded layout: " + currentLayout.name);
+
+            // Show Buttons
+            for (LayoutData.ButtonData btnData : currentLayout.buttons) {
+                View button = createButton(btnData);
+                editContainer.addView(button);
+                activeButtons.put(btnData.id, button);
             }
         }
 
-        loadButtons();
+        // Menu button
         fabMenu.setOnClickListener(v -> showMenuDialog());
     }
-
-
 
     private void loadButtons() {
         if (currentLayout == null || currentLayout.buttons == null) return;

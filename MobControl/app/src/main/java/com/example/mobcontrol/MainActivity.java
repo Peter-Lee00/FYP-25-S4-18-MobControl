@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.text.format.Formatter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,12 +31,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import android.widget.RelativeLayout;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button scanQRButton;
+    private RelativeLayout scanQRButton;
     private EditText manualCodeInput;
-    private Button connectButton;
+    private RelativeLayout  connectButton;
 
     private static final int CAMERA_PERMISSION_CODE = 100;
     private static final int DEFAULT_PORT = 7777;
@@ -58,22 +61,43 @@ public class MainActivity extends AppCompatActivity {
         mainHandler = new Handler(Looper.getMainLooper());
         gson = new Gson();
 
-        scanQRButton.setOnClickListener(v -> requestCameraPermission());
+        // Scan QR button with press effect
+        scanQRButton.setOnClickListener(v -> {
+            v.setAlpha(0.7f);
+            v.setScaleX(0.95f);
+            v.setScaleY(0.95f);
+            v.postDelayed(() -> {
+                v.setAlpha(1.0f);
+                v.setScaleX(1.0f);
+                v.setScaleY(1.0f);
+                requestCameraPermission();
+            }, 100);
+        });
 
+        // Connect button with press effect
         connectButton.setOnClickListener(v -> {
-            String code = manualCodeInput.getText().toString().trim();
+            v.setAlpha(0.7f);
+            v.setScaleX(0.95f);
+            v.setScaleY(0.95f);
+            v.postDelayed(() -> {
+                v.setAlpha(1.0f);
+                v.setScaleX(1.0f);
+                v.setScaleY(1.0f);
 
-            if (code.length() != 4 || !code.matches("\\d+")) {
-                Toast.makeText(this, "Please enter a valid 4-digit code", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                String code = manualCodeInput.getText().toString().trim();
 
-            searchForDesktop(code);
+                if (code.length() != 4 || !code.matches("\\d+")) {
+                    Toast.makeText(this, "Please enter a valid 4-digit code", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                searchForDesktop(code);
+            }, 100);
         });
     }
 
     // ==========================================
-    // NEW UDP DISCOVERY SYSTEM
+    // UDP DISCOVERY SYSTEM
     // ==========================================
 
     private void searchForDesktop(String code) {
@@ -111,6 +135,17 @@ public class MainActivity extends AppCompatActivity {
 
                         socket.send(sendPacket);
                         android.util.Log.d("UDP", "✓ Sent to 255.255.255.255:7777");
+
+                        // for android studio emulator
+                        try {
+                            InetAddress emulatorAddr = InetAddress.getByName("10.0.2.2");
+                            DatagramPacket emulatorPacket = new DatagramPacket(
+                                    sendData, sendData.length, emulatorAddr, DEFAULT_PORT);
+                            socket.send(emulatorPacket);
+                            android.util.Log.d("UDP", "✓ Sent to 10.0.2.2:7777 (Emulator)");
+                        } catch (Exception e) {
+                            android.util.Log.d("UDP", "Not emulator");
+                        }
 
                         // Wait for response
                         byte[] recvData = new byte[1024];
@@ -342,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
                         sendData, sendData.length, serverAddress, port);
 
                 socket.send(sendPacket);
+
 
                 android.util.Log.d("QR", "✅ Pairing message sent to " + ip + ":" + port);
                 android.util.Log.d("QR", "   Message: " + json);

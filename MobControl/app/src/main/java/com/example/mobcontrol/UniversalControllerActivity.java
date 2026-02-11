@@ -2,6 +2,7 @@ package com.example.mobcontrol;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -95,7 +96,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
     private float velocityX = 0;
     private float velocityY = 0;
     private static final float ACCELERATION = 0.3f;
-    private static final float MAX_SPEED = 5.0f;
+    private static final float MAX_SPEED = 2.0f;
     private static final float MOUSE_DEADZONE = 0.1f;
 
     private Handler mouseHandler = new Handler();
@@ -103,7 +104,15 @@ public class UniversalControllerActivity extends AppCompatActivity {
     private boolean isMouseActive = false;
 
     private LinearLayout centerContainer;
-    private Button calibrateButton;
+    private RelativeLayout  calibrateButton;
+
+    // Vibration
+    private android.os.Vibrator vibrator;
+    private android.content.SharedPreferences preferences;
+
+    private Handler heartbeatHandler = new Handler();
+    private static final int HEARTBEAT_INTERVAL_MS = 3000; // 3seconds
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,13 +144,17 @@ public class UniversalControllerActivity extends AppCompatActivity {
         connectToServer();
 
         // Menu button
-        ImageButton menuButton = findViewById(R.id.menuButton);
+        RelativeLayout  menuButton = findViewById(R.id.menuButton);
         menuButton.setOnClickListener(v -> showMenu());
 
         // Load layout
         currentLayout = loadLayout(layoutName);
 
-        // Gyro 초기화
+        // Vibration reset
+        vibrator = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
+        preferences = getSharedPreferences("AppSettings", MODE_PRIVATE);
+
+        // Gyro Reset
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
 
@@ -155,7 +168,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
 
             if ("Racing".equals(currentLayout.controllerType)) {
                 startPWMControl();
-                centerContainer.setVisibility(View.GONE);
+                centerContainer.setVisibility(View.VISIBLE);
             } else if ("Flight Simulator".equals(currentLayout.controllerType)) {
                 calibrateButton.setVisibility(View.VISIBLE);
                 calibrateButton.setOnClickListener(v -> calibrateGyro());
@@ -167,6 +180,48 @@ public class UniversalControllerActivity extends AppCompatActivity {
         }
 
         setupEmptySpaceMouseControl();
+
+        if (isConnected) {
+            startHeartbeat();
+        }
+    }
+
+    // Start Heartbeat to capture connection status
+    private void startHeartbeat() {
+        heartbeatHandler.postDelayed(heartbeatRunnable, HEARTBEAT_INTERVAL_MS);
+    }
+
+    // Heartbeat Runnable
+    private Runnable heartbeatRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isConnected) {
+                sendHeartbeat();
+                heartbeatHandler.postDelayed(this, HEARTBEAT_INTERVAL_MS);
+            }
+        }
+    };
+
+    // send Heartbeat message
+    private void sendHeartbeat() {
+        executorService.execute(() -> {
+            try {
+                Map<String, Object> message = new HashMap<>();
+                message.put("action", "heartbeat");
+                message.put("deviceName", deviceName);
+
+                String json = gson.toJson(message);
+                byte[] buffer = json.getBytes();
+
+                InetAddress serverAddress = InetAddress.getByName(serverIP);
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, serverPort);
+                udpSocket.send(packet);
+
+            } catch (Exception e) {
+                // Heartbeat 실패하면 연결 끊김
+                isConnected = false;
+            }
+        });
     }
 
     // for flight sim
@@ -202,6 +257,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Calibrated!", Toast.LENGTH_SHORT).show();
 
+        vibrateShort();
 
         // vibration feedabck
         android.os.Vibrator vibrator = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
@@ -226,7 +282,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
                     isMouseDragging = true;
                     velocityX = 0;
                     velocityY = 0;
-                    mouseHandler.post(smoothMouseRunnable);  // ✅ 60fps 전송 시작
+                    mouseHandler.post(smoothMouseRunnable);  // 60fps
                     return true;
 
                 case MotionEvent.ACTION_MOVE:
@@ -234,19 +290,18 @@ public class UniversalControllerActivity extends AppCompatActivity {
                         float deltaX = event.getX() - lastTouchX;
                         float deltaY = event.getY() - lastTouchY;
 
-                        // ✅ 조이스틱 위치로 변환 (-1.0 ~ 1.0)
-                        float joyX = deltaX / 100f;  // 감도 조절
+                        float joyX = deltaX / 100f;  // Sensitivity
                         float joyY = deltaY / 100f;
 
-                        // Deadzone 적용
+                        // Deadzone
                         if (Math.abs(joyX) < MOUSE_DEADZONE) joyX = 0;
                         if (Math.abs(joyY) < MOUSE_DEADZONE) joyY = 0;
 
-                        // ✅ 목표 속도 계산
+
                         float targetVelocityX = joyX * MAX_SPEED;
                         float targetVelocityY = joyY * MAX_SPEED;
 
-                        // ✅ 부드러운 가속 (lerp)
+
                         velocityX += (targetVelocityX - velocityX) * ACCELERATION;
                         velocityY += (targetVelocityY - velocityY) * ACCELERATION;
 
@@ -273,7 +328,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (isMouseActive) {
-                // 현재 속도로 마우스 이동
+
                 int mouseX = Math.round(velocityX);
                 int mouseY = Math.round(velocityY);
 
@@ -303,6 +358,24 @@ public class UniversalControllerActivity extends AppCompatActivity {
             }
         }
         return null;
+    }
+
+    // Vibration
+    private void vibrateShort() {
+        // Check Settings
+        if (!preferences.getBoolean("vibration_enabled", true)) {
+            return;
+        }
+
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+
+                vibrator.vibrate(android.os.VibrationEffect.createOneShot(
+                        25, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(25);
+            }
+        }
     }
 
 
@@ -550,10 +623,20 @@ public class UniversalControllerActivity extends AppCompatActivity {
 
         executorService.execute(() -> {
             try {
+                // Multiplayer 설정 가져오기
+                SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
+                boolean multiplayerEnabled = prefs.getBoolean("multiplayer_enabled", false);
+                int playerNumber = prefs.getInt("player_number", 1);
+
                 Map<String, Object> message = new HashMap<>();
                 message.put("action", "key");
                 message.put("key", key);
                 message.put("pressed", pressed);
+
+                // Multiplayer 활성화 시 player 번호 추가
+                if (multiplayerEnabled) {
+                    message.put("player", playerNumber);
+                }
 
                 String json = gson.toJson(message);
                 byte[] buffer = json.getBytes();
@@ -562,7 +645,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, serverPort);
                 udpSocket.send(packet);
 
-                android.util.Log.d("Universal", "Sent: " + key + " = " + pressed);
+                android.util.Log.d("Universal", "Sent: " + key + " = " + pressed + (multiplayerEnabled ? " (P" + playerNumber + ")" : ""));
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -709,6 +792,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
         btn.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 sendMouseClick(button, true);
+                vibrateShort();
                 btn.setAlpha(0.7f);
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
                 sendMouseClick(button, false);
@@ -954,7 +1038,19 @@ public class UniversalControllerActivity extends AppCompatActivity {
     private void setupButtonAction(Button btn, String action) {
         LayoutData.ButtonData data = (LayoutData.ButtonData) btn.getTag();
 
-        // ✅ mappedKey 가져오기 (없으면 기본값)
+        // Movement Joystick
+        if ("movement_joystick".equals(action)) {
+            setupJoystickControl(btn);
+            return;
+        }
+
+        // D-Pad Combined
+        if ("dpad_combined".equals(action)) {
+            setupDPadCombined(btn);
+            return;
+        }
+
+        // Load mappedKey
         String keyToSend = getKeyForButton(data, action);
 
         if (keyToSend == null || keyToSend.isEmpty()) {
@@ -962,46 +1058,293 @@ public class UniversalControllerActivity extends AppCompatActivity {
             return;
         }
 
-        // ✅ 모든 버튼 Hold 방식 (press + release)
+        // Hold-type buttons
         btn.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     sendKeyPress(keyToSend, true);
+                    vibrateShort();
                     btn.setAlpha(0.7f);
-                    btn.setScaleX(0.95f);
-                    btn.setScaleY(0.95f);
                     return true;
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     sendKeyPress(keyToSend, false);
                     btn.setAlpha(1.0f);
-                    btn.setScaleX(1.0f);
-                    btn.setScaleY(1.0f);
                     return true;
             }
             return false;
         });
     }
 
-    // ✅ mappedKey 우선, 없으면 기본 키
+    // Movement Joystick
+    private void setupMovementJoystick(Button btn) {
+        MovementJoystickView joystick = new MovementJoystickView(this);
+
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) btn.getLayoutParams();
+        joystick.setLayoutParams(params);
+        joystick.setTag(btn.getTag());
+
+        controllerContainer.removeView(btn);
+        controllerContainer.addView(joystick);
+    }
+
+    // ✅ D-Pad Combined 설정
+    private void setupDPadCombined(Button btn) {
+        // 현재 눌린 키들
+        final boolean[] keysPressed = {false, false, false, false}; // W, A, S, D
+
+        btn.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN ||
+                    event.getAction() == MotionEvent.ACTION_MOVE) {
+
+                float x = event.getX();
+                float y = event.getY();
+                float centerX = v.getWidth() / 2f;
+                float centerY = v.getHeight() / 2f;
+
+                float dx = x - centerX;
+                float dy = y - centerY;
+
+                // 모든 키 릴리즈
+                if (keysPressed[0]) { sendKeyPress("w", false); keysPressed[0] = false; }
+                if (keysPressed[1]) { sendKeyPress("a", false); keysPressed[1] = false; }
+                if (keysPressed[2]) { sendKeyPress("s", false); keysPressed[2] = false; }
+                if (keysPressed[3]) { sendKeyPress("d", false); keysPressed[3] = false; }
+
+                // 거리 체크
+                double distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < v.getWidth() * 0.15f) {
+                    // 중앙 데드존
+                    return true;
+                }
+
+                // 각도 계산
+                double angle = Math.toDegrees(Math.atan2(dy, dx));
+                if (angle < 0) angle += 360;
+
+                // 8방향
+                if (angle >= 337.5 || angle < 22.5) {
+                    // Right
+                    sendKeyPress("d", true);
+                    keysPressed[3] = true;
+                } else if (angle >= 22.5 && angle < 67.5) {
+                    // Down-Right
+                    sendKeyPress("s", true);
+                    sendKeyPress("d", true);
+                    keysPressed[2] = true;
+                    keysPressed[3] = true;
+                } else if (angle >= 67.5 && angle < 112.5) {
+                    // Down
+                    sendKeyPress("s", true);
+                    keysPressed[2] = true;
+                } else if (angle >= 112.5 && angle < 157.5) {
+                    // Down-Left
+                    sendKeyPress("s", true);
+                    sendKeyPress("a", true);
+                    keysPressed[2] = true;
+                    keysPressed[1] = true;
+                } else if (angle >= 157.5 && angle < 202.5) {
+                    // Left
+                    sendKeyPress("a", true);
+                    keysPressed[1] = true;
+                } else if (angle >= 202.5 && angle < 247.5) {
+                    // Up-Left
+                    sendKeyPress("w", true);
+                    sendKeyPress("a", true);
+                    keysPressed[0] = true;
+                    keysPressed[1] = true;
+                } else if (angle >= 247.5 && angle < 292.5) {
+                    // Up
+                    sendKeyPress("w", true);
+                    keysPressed[0] = true;
+                } else if (angle >= 292.5 && angle < 337.5) {
+                    // Up-Right
+                    sendKeyPress("w", true);
+                    sendKeyPress("d", true);
+                    keysPressed[0] = true;
+                    keysPressed[3] = true;
+                }
+
+                btn.setAlpha(0.7f);
+
+            } else if (event.getAction() == MotionEvent.ACTION_UP ||
+                    event.getAction() == MotionEvent.ACTION_CANCEL) {
+                // 모든 키 릴리즈
+                if (keysPressed[0]) { sendKeyPress("w", false); keysPressed[0] = false; }
+                if (keysPressed[1]) { sendKeyPress("a", false); keysPressed[1] = false; }
+                if (keysPressed[2]) { sendKeyPress("s", false); keysPressed[2] = false; }
+                if (keysPressed[3]) { sendKeyPress("d", false); keysPressed[3] = false; }
+
+                btn.setAlpha(1.0f);
+            }
+            return true;
+        });
+    }
+
+    // mappedKey First, if none default key settings
     private String getKeyForButton(LayoutData.ButtonData data, String action) {
-        // mappedKey가 있으면 그걸 사용
+        // if there is no mappedKey
         if (data != null && data.mappedKey != null && !data.mappedKey.isEmpty()) {
             return normalizeKeyName(data.mappedKey);
         }
 
-        // 없으면 action에서 기본 키 추출
+        //  load from action
         return getDefaultKeyForAction(action);
     }
 
-    // ✅ 키 이름 정규화 (Desktop app이 인식하는 형식으로)
+    // ========== 조이스틱 컨트롤 ==========
+    private void setupJoystickControl(Button btn) {
+        JoystickView joystick = new JoystickView(this);
+
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) btn.getLayoutParams();
+        joystick.setLayoutParams(params);
+        joystick.setTag(btn.getTag());
+
+        // 기존 버튼 제거하고 조이스틱 추가
+        controllerContainer.removeView(btn);
+        controllerContainer.addView(joystick);
+    }
+
+    // WASD JOYSTICK
+    private class MovementJoystickView extends View {
+        private float centerX, centerY;
+        private float handleX, handleY;
+        private float baseRadius = 100f;
+        private float handleRadius = 40f;
+        private boolean isTouching = false;
+
+        private Paint basePaint, handlePaint;
+
+
+        private boolean isWPressed = false;
+        private boolean isAPressed = false;
+        private boolean isSPressed = false;
+        private boolean isDPressed = false;
+
+        public MovementJoystickView(Context context) {
+            super(context);
+
+            basePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            basePaint.setColor(Color.parseColor("#2a2a2a"));
+            basePaint.setStyle(Paint.Style.FILL);
+
+            handlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            handlePaint.setColor(Color.parseColor("#616161"));
+            handlePaint.setStyle(Paint.Style.FILL);
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            centerX = w / 2f;
+            centerY = h / 2f;
+            handleX = centerX;
+            handleY = centerY;
+            baseRadius = Math.min(w, h) / 2.5f;
+            handleRadius = baseRadius / 2.5f;
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            canvas.drawCircle(centerX, centerY, baseRadius, basePaint);
+            canvas.drawCircle(handleX, handleY, handleRadius, handlePaint);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    isTouching = true;
+                    updateHandle(event.getX(), event.getY());
+                    updateKeys();
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    isTouching = false;
+                    handleX = centerX;
+                    handleY = centerY;
+                    releaseAllKeys();
+                    invalidate();
+                    break;
+            }
+            return true;
+        }
+
+        private void updateHandle(float x, float y) {
+            float dx = x - centerX;
+            float dy = y - centerY;
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > baseRadius) {
+                float angle = (float) Math.atan2(dy, dx);
+                handleX = centerX + baseRadius * (float) Math.cos(angle);
+                handleY = centerY + baseRadius * (float) Math.sin(angle);
+            } else {
+                handleX = x;
+                handleY = y;
+            }
+
+            invalidate();
+        }
+
+        private void updateKeys() {
+            float dx = handleX - centerX;
+            float dy = handleY - centerY;
+            float threshold = baseRadius * 0.3f;
+
+            // W/S
+            if (dy < -threshold && !isWPressed) {
+                sendKeyPress("w", true);
+                isWPressed = true;
+            } else if (dy >= -threshold && isWPressed) {
+                sendKeyPress("w", false);
+                isWPressed = false;
+            }
+
+            if (dy > threshold && !isSPressed) {
+                sendKeyPress("s", true);
+                isSPressed = true;
+            } else if (dy <= threshold && isSPressed) {
+                sendKeyPress("s", false);
+                isSPressed = false;
+            }
+
+            // A/D
+            if (dx < -threshold && !isAPressed) {
+                sendKeyPress("a", true);
+                isAPressed = true;
+            } else if (dx >= -threshold && isAPressed) {
+                sendKeyPress("a", false);
+                isAPressed = false;
+            }
+
+            if (dx > threshold && !isDPressed) {
+                sendKeyPress("d", true);
+                isDPressed = true;
+            } else if (dx <= threshold && isDPressed) {
+                sendKeyPress("d", false);
+                isDPressed = false;
+            }
+        }
+
+        private void releaseAllKeys() {
+            if (isWPressed) { sendKeyPress("w", false); isWPressed = false; }
+            if (isAPressed) { sendKeyPress("a", false); isAPressed = false; }
+            if (isSPressed) { sendKeyPress("s", false); isSPressed = false; }
+            if (isDPressed) { sendKeyPress("d", false); isDPressed = false; }
+        }
+    }
+
+    // key name
     private String normalizeKeyName(String key) {
         if (key == null) return null;
 
         key = key.toLowerCase().trim();
 
-        // 특수 키 매핑
+        // Special
         switch (key) {
             case "space": case "spacebar": return "space";
             case "enter": case "return": return "enter";
@@ -1012,7 +1355,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
             case "esc": case "escape": return "esc";
             case "backspace": return "backspace";
 
-            // 화살표
+            // Arrows
             case "up": case "arrow up": case "↑": return "up";
             case "down": case "arrow down": case "↓": return "down";
             case "left": case "arrow left": case "←": return "left";
@@ -1032,20 +1375,20 @@ public class UniversalControllerActivity extends AppCompatActivity {
             case "f11": return "f11";
             case "f12": return "f12";
 
-            // 숫자
+            // numbers
             case "0": case "1": case "2": case "3": case "4":
             case "5": case "6": case "7": case "8": case "9":
                 return key;
 
-            // 알파벳 (a-z)
+            // Alphabet
             default:
                 if (key.length() == 1 && key.matches("[a-z]")) {
                     return key;
                 }
-                return key; // 그대로 반환
+                return key;
         }
     }
-    // ✅ action 기본 키 (mappedKey 없을 때만)
+    // action keys
     private String getDefaultKeyForAction(String action) {
         switch (action) {
             // Triggers
@@ -1066,12 +1409,12 @@ public class UniversalControllerActivity extends AppCompatActivity {
             case "dpad_left": return "left";
             case "dpad_right": return "right";
 
-            // Sticks (기본 없음, 사용자가 매핑해야 함)
+            // Sticks
             case "stick_left": return null;
             case "stick_right": return null;
 
             default:
-                // "key_w", "key_a" 같은 형식이면 "w", "a" 추출
+
                 if (action.startsWith("key_")) {
                     return action.substring(4);
                 }
@@ -1109,10 +1452,10 @@ public class UniversalControllerActivity extends AppCompatActivity {
                 });
             }
         });
-        // connectToServer() 성공시:
+        // connectToServer() if it's successful
         updateStatus("Connected", Color.parseColor("#4CAF50"));
 
-        // 연결 실패시:
+        // if it's failed to connect
         updateStatus("Disconnected", Color.parseColor("#F44336"));
     }
 
@@ -1140,6 +1483,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
     }
 
     private void showMenu() {
+        vibrateShort();
         // Open OptionsActivity instead of showing dialog
         Intent intent = new Intent(this, OptionsActivity.class);
         intent.putExtra("LAYOUT_NAME", layoutName);
@@ -1163,6 +1507,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
         if (gyroEnabled && sensorManager != null) {
             sensorManager.unregisterListener(gyroListener);
         }
+
     }
 
     @Override
@@ -1177,6 +1522,13 @@ public class UniversalControllerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        android.util.Log.d("Disconnect", "Disconnected");
+
+        // Send disconnect signal to Desktop
+        sendDisconnectMessage();
+        heartbeatHandler.removeCallbacks(heartbeatRunnable);
+
+
         isPWMActive = false;
         if (pwmHandler != null && pwmRunnable != null) {
             pwmHandler.removeCallbacks(pwmRunnable);
@@ -1189,11 +1541,66 @@ public class UniversalControllerActivity extends AppCompatActivity {
             sendKeyPress("d", false);
         }
 
-        if (udpSocket != null) {
-            udpSocket.close();
-        }
+        // Send Message and quit
+        try {
+            Thread.sleep(300);
+        } catch (Exception e) {}
+
+        // ExecutorService finish
         if (executorService != null) {
             executorService.shutdown();
+        }
+
+        // Socket close
+        if (udpSocket != null && !udpSocket.isClosed()) {
+            udpSocket.close();
+        }
+
+        android.util.Log.d("Disconnect", "=== onDestroy() FINISHED ===");
+    }
+
+    // Send Disconnect Message
+    private void sendDisconnectMessage() {
+        android.util.Log.d("Disconnect", "=== sendDisconnectMessage() START ===");
+
+        if (udpSocket == null || udpSocket.isClosed()) {
+            android.util.Log.e("Disconnect", "Socket is null or closed!");
+            return;
+        }
+
+        if (serverIP == null || serverIP.isEmpty()) {
+            android.util.Log.e("Disconnect", "Server IP is null!");
+            return;
+        }
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.execute(() -> {
+                try {
+                    Map<String, Object> message = new HashMap<>();
+                    message.put("action", "disconnect");
+                    message.put("deviceName", deviceName);
+
+                    String json = gson.toJson(message);
+                    android.util.Log.d("Disconnect", "Message: " + json);
+
+                    byte[] buffer = json.getBytes();
+
+                    InetAddress serverAddress = InetAddress.getByName(serverIP);
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, serverPort);
+
+                    udpSocket.send(packet);
+
+                    android.util.Log.d("Disconnect", "✓✓✓ DISCONNECT SENT to " + serverIP + ":" + serverPort);
+
+                } catch (Exception e) {
+                    android.util.Log.e("Disconnect", "❌ ERROR: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+
+            // hold message
+            try {
+                Thread.sleep(200);
+            } catch (Exception e) {}
         }
     }
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/joystick_bg.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- 외부 큰 원 (베이스) -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#1a1a1a" />
+            <stroke 
+                android:width="4dp" 
+                android:color="#424242" />
+        </shape>
+    </item>
+    
+    <!-- 내부 작은 원 (스틱) - 중앙에 위치 -->
+    <item 
+        android:top="60dp" 
+        android:bottom="60dp" 
+        android:left="60dp" 
+        android:right="60dp">
+        <shape android:shape="oval">
+            <solid android:color="#616161" />
+            <stroke 
+                android:width="2dp" 
+                android:color="#9E9E9E" />
+        </shape>
+    </item>
+    
+</layer-list>

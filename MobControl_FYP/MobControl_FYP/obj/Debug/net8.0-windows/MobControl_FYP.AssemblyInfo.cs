@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MobControl_FYP")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05aa255f64133adf05db462beb26677c17e2c700")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7a25d981833a05fb4cc06820117d9590a9f812e8")]
 [assembly: System.Reflection.AssemblyProductAttribute("MobControl_FYP")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MobControl_FYP")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

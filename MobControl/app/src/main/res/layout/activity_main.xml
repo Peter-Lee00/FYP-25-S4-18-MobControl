@@ -1,104 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="#1E1E1E">
+    android:background="@drawable/gaming_background">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MobControl"
-        android:textSize="32sp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Connect to Desktop"
-        android:textSize="16sp"
-        android:textColor="#AAAAAA"
-        android:layout_marginBottom="48dp"/>
-
-    <!-- QR Scanner -->
-    <Button
-        android:id="@+id/scanQRButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="📷 Scan QR Code"
-        android:textSize="18sp"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#4CAF50"
-        android:padding="16dp"
-        android:layout_marginBottom="32dp"/>
-
-    <!-- Divider -->
+    <!-- Animated Grid Background  -->
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#444444"
-        android:layout_marginVertical="16dp"/>
+        android:layout_height="match_parent"
+        android:alpha="0.1"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OR"
-        android:textSize="14sp"
-        android:textColor="#AAAAAA"
-        android:layout_marginBottom="16dp"/>
-
-    <View
+    <!-- Main Content Container -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#444444"
-        android:layout_marginVertical="16dp"/>
-
-    <!-- 4-Digit Code -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter 4-Digit Code"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="8dp"/>
-
-    <EditText
-        android:id="@+id/manualCodeInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="1234"
-        android:textColorHint="#666666"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        android:inputType="number"
-        android:maxLength="4"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         android:gravity="center"
-        android:background="@drawable/input_background"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"/>
+        android:padding="32dp">
 
-    <Button
-        android:id="@+id/connectButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🎮 Connect"
-        android:textSize="18sp"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#2196F3"
-        android:padding="16dp"/>
+        <!-- Logo Section -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="48dp">
 
-    <!-- Instructions -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="💡 Enter the 4-digit code from Desktop\nApp will auto-find Desktop on Wi-Fi"
-        android:textSize="12sp"
-        android:textColor="#888888"
-        android:gravity="center"
-        android:layout_marginTop="24dp"/>
+            <!-- Gaming Icon -->
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_gaming_controller"
+                android:layout_marginBottom="16dp"/>
 
-</LinearLayout>
+            <!-- App Title with Glow -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MOBCONTROL"
+                android:textSize="36sp"
+                android:textColor="#00E5FF"
+                android:textStyle="bold"
+                android:fontFamily="monospace"
+                android:shadowColor="#00E5FF"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="20"
+                android:letterSpacing="0.1"/>
+
+            <!-- Subtitle -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GAME CONTROLLER"
+                android:textSize="14sp"
+                android:textColor="#B388FF"
+                android:letterSpacing="0.3"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+
+        <!-- QR Scan Button with Neon Glow -->
+        <RelativeLayout
+            android:id="@+id/scanQRButton"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/neon_button_bg"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_qr_scan"
+                    android:tint="#FFFFFF"
+                    android:layout_marginEnd="12dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SCAN QR CODE"
+                    android:textSize="18sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.1"/>
+
+            </LinearLayout>
+
+            <!-- Scan line animation overlay -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/scan_line"
+                android:alpha="0.5"/>
+
+        </RelativeLayout>
+
+        <!-- OR Divider with Glow -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_weight="1"
+                android:background="@drawable/divider_gradient"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" OR "
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.2"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_weight="1"
+                android:background="@drawable/divider_gradient"/>
+
+        </LinearLayout>
+
+        <!-- Manual Code Input -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ENTER 4-DIGIT CODE"
+            android:textSize="12sp"
+            android:textColor="#B388FF"
+            android:letterSpacing="0.2"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/manualCodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@drawable/neon_input_bg"
+            android:hint="0000"
+            android:textColorHint="#424242"
+            android:textColor="#00E5FF"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:inputType="number"
+            android:maxLength="4"
+            android:letterSpacing="0.3"
+            android:shadowColor="#00E5FF"
+            android:shadowRadius="10"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Connect Button -->
+        <RelativeLayout
+            android:id="@+id/connectButton"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@drawable/neon_button_secondary"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="CONNECT ▶"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.1"/>
+
+            <!-- Arrow pulse animation -->
+            <View
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/pulse_circle"
+                android:alpha="0.3"/>
+
+        </RelativeLayout>
+
+        <!-- Status/Info Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="• MAKE SURE DESKTOP APP IS RUNNING •"
+            android:textSize="10sp"
+            android:textColor="#616161"
+            android:letterSpacing="0.1"
+            android:layout_marginTop="32dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

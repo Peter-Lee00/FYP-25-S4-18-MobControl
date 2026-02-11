@@ -1,39 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#673AB7"
-    android:padding="16dp">
+    android:background="@drawable/gaming_background">
 
-    <TextView
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/headerSection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Controller Layout"
-        android:textSize="24sp"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <Button
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"
+            android:shadowColor="#00E5FF"
+            android:shadowRadius="15"
+            android:text="SELECT LAYOUT"
+            android:textColor="#00E5FF"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Create New Button -->
+    <RelativeLayout
         android:id="@+id/createNewLayoutButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="➕ Create New Layout"
-        android:textSize="16sp"
-        android:textColor="#FFFFFF"
-        android:background="#4CAF50"
+        android:layout_height="60dp"
+        android:layout_below="@id/headerSection"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:padding="16dp" />
+        android:background="@drawable/neon_button_bg"
+        android:clickable="true"
+        android:focusable="true">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="✚ CREATE NEW LAYOUT"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"/>
+
+    </RelativeLayout>
+
+    <!-- Divider -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/createNewLayoutButton"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/divider_gradient"/>
+
+    <!-- Layouts List -->
     <ListView
         android:id="@+id/layoutListView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFF"
-        android:divider="#E0E0E0"
-        android:dividerHeight="1dp" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:background="@android:color/transparent"
+        android:scrollbars="none"/>
 
-</LinearLayout>
+</RelativeLayout>

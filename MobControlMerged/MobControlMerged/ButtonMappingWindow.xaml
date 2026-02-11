@@ -4,12 +4,27 @@
         Title="Edit Controller Mapping" 
         Height="600"
         Width="750"
-        Background="#1E1E1E"
+        Background="Transparent"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         KeyDown="Window_KeyDown">
 
-    <Grid Margin="20">
+    <Grid>
+        <!-- Background layer (image centered, whole image visible) -->
+        <Grid x:Name="BackgroundLayer" Panel.ZIndex="0" ClipToBounds="True">
+            <!-- High-quality centered image that preserves whole image -->
+            <Image Source="pack://application:,,,/img/bg.jpg"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   SnapsToDevicePixels="True"/>
+            <!-- Semi-transparent overlay for contrast -->
+            <Rectangle Fill="#DD000000"/>
+        </Grid>
+
+        <!-- Main content above background -->
+        <Grid Panel.ZIndex="1" Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -374,5 +389,6 @@
                 </Button>
             </StackPanel>
         </Border>
+        </Grid>
     </Grid>
 </Window>

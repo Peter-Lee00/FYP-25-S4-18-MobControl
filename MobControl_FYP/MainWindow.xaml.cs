@@ -57,10 +57,14 @@ namespace MobControlDesktop
         // Dark mode state
         private bool isDarkMode = true;
 
+        // Heartbeat status
+        private Dictionary<string, DateTime> lastHeartbeat = new Dictionary<string, DateTime>();
+        private System.Threading.Timer heartbeatMonitor;
+
         public MainWindow()
         {
             InitializeComponent();
-           
+            inputSimulator = new InputSimulator();
             connectedDevices = new ObservableCollection<ConnectedDevice>();
             deviceEndpoints = new Dictionary<string, IPEndPoint>();
             ConnectedDevicesList.ItemsSource = connectedDevices;
@@ -440,7 +444,44 @@ namespace MobControlDesktop
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 AddLog($"✗ Server start failed: {ex.Message}");
             }
+
+            // check every 5 seconds
+            heartbeatMonitor = new System.Threading.Timer(CheckHeartbeats, null, 5000, 5000);
         }
+
+        // Heartbeat check
+        private void CheckHeartbeats(object state)
+        {
+            var now = DateTime.Now;
+            var timeoutDevices = new List<string>();
+
+            foreach (var kvp in lastHeartbeat)
+            {
+                // consider as 10 seconds
+                if ((now - kvp.Value).TotalSeconds > 10)
+                {
+                    timeoutDevices.Add(kvp.Key);
+                }
+            }
+
+            // Remove the Timeout device
+            foreach (var deviceIP in timeoutDevices)
+            {
+                Dispatcher.Invoke(() => {
+                    var device = connectedDevices.FirstOrDefault(d => d.IPAddress == deviceIP);
+                    if (device != null)
+                    {
+                        connectedDevices.Remove(device);
+                        deviceEndpoints.Remove(deviceIP);
+                        lastHeartbeat.Remove(deviceIP);
+
+                        UpdateConnectionStatus();
+                        AddLog($"⚠ Device timeout: {device.Name} ({deviceIP})");
+                    }
+                });
+            }
+        }
+
 
         private void GenerateQRCode(string data)
         {
@@ -507,19 +548,24 @@ namespace MobControlDesktop
             }
         }
 
+
         private void ProcessMessage(string message, IPEndPoint remoteEndPoint)
         {
             try
             {
                 var jsonData = JsonConvert.DeserializeObject<Dictionary<string, object>>(message);
 
-                if (!jsonData.ContainsKey("action"))
+                // support both action and type
+                string action = "";
+                if (jsonData.ContainsKey("action"))
+                    action = jsonData["action"].ToString();
+                else if (jsonData.ContainsKey("type"))
+                    action = jsonData["type"].ToString();
+                else
                 {
                     AddLog($"⚠ Invalid message format");
                     return;
                 }
-
-                string action = jsonData["action"].ToString();
 
                 // 1. Discovery
                 if (action == "discover")
@@ -538,7 +584,7 @@ namespace MobControlDesktop
                 }
 
                 // 2. Pairing
-                if (action == "pair")
+                if (action == "pair" || action == "pairing")
                 {
                     string code = jsonData.ContainsKey("code") ? jsonData["code"].ToString() : "";
 
@@ -549,6 +595,8 @@ namespace MobControlDesktop
                         string deviceName = "Unknown Device";
                         if (jsonData.ContainsKey("deviceName"))
                             deviceName = jsonData["deviceName"].ToString();
+                        else if (jsonData.ContainsKey("device_name"))
+                            deviceName = jsonData["device_name"].ToString();
                         else if (jsonData.ContainsKey("device"))
                             deviceName = jsonData["device"].ToString();
                         else
@@ -590,7 +638,73 @@ namespace MobControlDesktop
                     return;
                 }
 
-                // 3. Key input
+                if (action == "disconnect")
+                {
+                    string deviceIP = remoteEndPoint.Address.ToString();
+
+                    // remove from list
+                    var deviceToRemove = connectedDevices.FirstOrDefault(d => d.IPAddress == deviceIP);
+                    if (deviceToRemove != null)
+                    {
+                        connectedDevices.Remove(deviceToRemove);
+                        deviceEndpoints.Remove(deviceIP);
+
+                        UpdateConnectionStatus();
+
+                        AddLog($"✓ Device disconnected: {deviceToRemove.Name} ({deviceIP})");
+
+                        if (NotifyOnConnect != null && NotifyOnConnect.IsChecked == true)
+                        {
+                            MessageBox.Show($"Device disconnected: {deviceToRemove.Name}",
+                                "Device Disconnected",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                        }
+                    }
+                    return;
+                }
+
+                if (action == "heartbeat")
+                {
+                    string deviceIP = remoteEndPoint.Address.ToString();
+                    lastHeartbeat[deviceIP] = DateTime.Now;
+
+                    return;
+                }
+
+                // Ping
+                if (action == "ping")
+                {
+                    long timestamp = 0;
+                    if (jsonData.ContainsKey("timestamp"))
+                    {
+                        timestamp = Convert.ToInt64(jsonData["timestamp"]);
+                    }
+
+                    // Pong 
+                    var pongMessage = new
+                    {
+                        action = "pong",
+                        timestamp = timestamp
+                    };
+
+                    string pongJson = JsonConvert.SerializeObject(pongMessage);
+                    byte[] pongData = Encoding.UTF8.GetBytes(pongJson);
+
+                    udpServer.Send(pongData, pongData.Length, remoteEndPoint);
+
+
+                    return;
+                }
+
+                // 3. Universal Command Handler
+                if (action == "command")
+                {
+                    HandleUniversalCommand(jsonData);
+                    return;
+                }
+
+                // 4. Key input
                 if (action == "key")
                 {
                     if (!jsonData.ContainsKey("key") || !jsonData.ContainsKey("pressed"))
@@ -599,18 +713,7 @@ namespace MobControlDesktop
                     string key = jsonData["key"].ToString().ToLower();
                     bool pressed = Convert.ToBoolean(jsonData["pressed"]);
 
-                    VirtualKeyCode vk = VirtualKeyCode.NONAME;
-
-                    switch (key)
-                    {
-                        case "w": vk = VirtualKeyCode.VK_W; break;
-                        case "a": vk = VirtualKeyCode.VK_A; break;
-                        case "s": vk = VirtualKeyCode.VK_S; break;
-                        case "d": vk = VirtualKeyCode.VK_D; break;
-                        case "shift": vk = VirtualKeyCode.SHIFT; break;
-                        case "p": vk = VirtualKeyCode.VK_P; break;
-                        case "space": vk = VirtualKeyCode.SPACE; break;
-                    }
+                    VirtualKeyCode vk = GetVirtualKeyCode(key);
 
                     if (vk != VirtualKeyCode.NONAME)
                     {
@@ -625,10 +728,17 @@ namespace MobControlDesktop
                             AddLog($"🔼 RELEASED: {key.ToUpper()}");
                         }
                     }
+                    else
+                    {
+                        AddLog($"⚠ Unknown key: {key}");
+                    }
                     return;
                 }
 
-                // 4. Mouse movement (Win32 API)
+
+
+
+                // 5. Mouse movement
                 if (action == "mouse_move")
                 {
                     if (!jsonData.ContainsKey("x") || !jsonData.ContainsKey("y"))
@@ -652,7 +762,7 @@ namespace MobControlDesktop
                     return;
                 }
 
-                // 5. Mouse button
+                // 6. Mouse button
                 if (action == "mouse_button")
                 {
                     if (!jsonData.ContainsKey("button") || !jsonData.ContainsKey("pressed"))
@@ -660,13 +770,17 @@ namespace MobControlDesktop
 
                     string button = jsonData["button"].ToString().ToLower();
                     bool pressed = Convert.ToBoolean(jsonData["pressed"]);
+                    // Check Player Number
+                    int playerNumber = jsonData.ContainsKey("player") ?
+                        Convert.ToInt32(jsonData["player"]) : 1;
+
 
                     if (button == "left")
                     {
                         if (pressed)
                         {
                             inputSimulator.Mouse.LeftButtonDown();
-                            AddLog($"🔫 LEFT CLICK");
+                            AddLog($"P{playerNumber}: LEFT CLICK");
                         }
                         else
                         {
@@ -678,7 +792,7 @@ namespace MobControlDesktop
                         if (pressed)
                         {
                             inputSimulator.Mouse.RightButtonDown();
-                            AddLog($"🚀 RIGHT CLICK");
+                            AddLog($"P{playerNumber}: RIGHT CLICK");
                         }
                         else
                         {
@@ -688,13 +802,13 @@ namespace MobControlDesktop
                     return;
                 }
 
-                // 6. Gyro data
+                // 7. Gyro data
                 if (action == "gyro_data")
                 {
                     return;
                 }
 
-                // 7. Legacy "input" action (RacingController 호환)
+                // 8. Legacy input
                 if (action == "input")
                 {
                     if (!jsonData.ContainsKey("input"))
@@ -704,7 +818,6 @@ namespace MobControlDesktop
 
                     VirtualKeyCode vk = VirtualKeyCode.NONAME;
 
-                    // Parse action (e.g., "left_down", "right_up")
                     if (inputAction.Contains("left") || inputAction == "a")
                         vk = VirtualKeyCode.VK_A;
                     else if (inputAction.Contains("right") || inputAction == "d")
@@ -719,27 +832,318 @@ namespace MobControlDesktop
                         if (inputAction.Contains("_down") || (!inputAction.Contains("_up") && !inputAction.Contains("_down")))
                         {
                             inputSimulator.Keyboard.KeyDown(vk);
-                            AddLog($"🔽 INPUT: {inputAction.ToUpper()}");
+                            AddLog($"INPUT: {inputAction.ToUpper()}");
                         }
                         else if (inputAction.Contains("_up"))
                         {
                             inputSimulator.Keyboard.KeyUp(vk);
-                            AddLog($"🔼 INPUT: {inputAction.ToUpper()}");
+                            AddLog($"INPUT: {inputAction.ToUpper()}");
                         }
                         else
                         {
                             inputSimulator.Keyboard.KeyPress(vk);
-                            AddLog($"✓ INPUT: {inputAction.ToUpper()}");
+                            AddLog($"INPUT: {inputAction.ToUpper()}");
                         }
                     }
                     return;
                 }
 
-                AddLog($"⚠ Unknown action: {action}");
+                AddLog($"Unknown action: {action}");
             }
             catch (Exception ex)
             {
-                AddLog($"✗ Parse error: {ex.Message}");
+                AddLog($"Parse error: {ex.Message}");
+            }
+        }
+
+        // command handler
+        private void HandleUniversalCommand(Dictionary<string, object> jsonData)
+        {
+            if (!jsonData.ContainsKey("action") || !jsonData.ContainsKey("state"))
+                return;
+
+            string buttonAction = jsonData["action"].ToString().ToLower();
+            string state = jsonData["state"].ToString().ToLower();
+            bool isPressed = (state == "pressed" || state == "down");
+
+            AddLog($"Command: {buttonAction} = {state}");
+
+            // load mapping
+            string mappedKey = GetButtonMapping(buttonAction);
+
+            if (string.IsNullOrEmpty(mappedKey))
+            {
+                AddLog($"No mapping for: {buttonAction}");
+                return;
+            }
+
+            // mouse input
+            if (mappedKey.StartsWith("Mouse"))
+            {
+                HandleMouseCommand(mappedKey, isPressed);
+                return;
+            }
+
+            // keyboard key
+            VirtualKeyCode vk = ParseVirtualKey(mappedKey);
+
+            if (vk != VirtualKeyCode.NONAME)
+            {
+                if (isPressed)
+                {
+                    inputSimulator.Keyboard.KeyDown(vk);
+                    AddLog($"{buttonAction.ToUpper()} → {mappedKey}");
+                }
+                else
+                {
+                    inputSimulator.Keyboard.KeyUp(vk);
+                    AddLog($"{buttonAction.ToUpper()} → {mappedKey}");
+                }
+            }
+        }
+
+        // mouse input
+        private void HandleMouseCommand(string mouseButton, bool isPressed)
+        {
+            switch (mouseButton.ToUpper())
+            {
+                case "MOUSE1":
+                    if (isPressed)
+                        inputSimulator.Mouse.LeftButtonDown();
+                    else
+                        inputSimulator.Mouse.LeftButtonUp();
+                    AddLog($"LEFT BUTTON {(isPressed ? "DOWN" : "UP")}");
+                    break;
+
+                case "MOUSE2":
+                    if (isPressed)
+                        inputSimulator.Mouse.RightButtonDown();
+                    else
+                        inputSimulator.Mouse.RightButtonUp();
+                    AddLog($"RIGHT BUTTON {(isPressed ? "DOWN" : "UP")}");
+                    break;
+
+              
+            }
+        }
+
+        private VirtualKeyCode GetVirtualKeyCode(string key)
+        {
+            switch (key)
+            {
+                // 알파벳
+                case "a": return VirtualKeyCode.VK_A;
+                case "b": return VirtualKeyCode.VK_B;
+                case "c": return VirtualKeyCode.VK_C;
+                case "d": return VirtualKeyCode.VK_D;
+                case "e": return VirtualKeyCode.VK_E;
+                case "f": return VirtualKeyCode.VK_F;
+                case "g": return VirtualKeyCode.VK_G;
+                case "h": return VirtualKeyCode.VK_H;
+                case "i": return VirtualKeyCode.VK_I;
+                case "j": return VirtualKeyCode.VK_J;
+                case "k": return VirtualKeyCode.VK_K;
+                case "l": return VirtualKeyCode.VK_L;
+                case "m": return VirtualKeyCode.VK_M;
+                case "n": return VirtualKeyCode.VK_N;
+                case "o": return VirtualKeyCode.VK_O;
+                case "p": return VirtualKeyCode.VK_P;
+                case "q": return VirtualKeyCode.VK_Q;
+                case "r": return VirtualKeyCode.VK_R;
+                case "s": return VirtualKeyCode.VK_S;
+                case "t": return VirtualKeyCode.VK_T;
+                case "u": return VirtualKeyCode.VK_U;
+                case "v": return VirtualKeyCode.VK_V;
+                case "w": return VirtualKeyCode.VK_W;
+                case "x": return VirtualKeyCode.VK_X;
+                case "y": return VirtualKeyCode.VK_Y;
+                case "z": return VirtualKeyCode.VK_Z;
+
+                // 숫자
+                case "0": return VirtualKeyCode.VK_0;
+                case "1": return VirtualKeyCode.VK_1;
+                case "2": return VirtualKeyCode.VK_2;
+                case "3": return VirtualKeyCode.VK_3;
+                case "4": return VirtualKeyCode.VK_4;
+                case "5": return VirtualKeyCode.VK_5;
+                case "6": return VirtualKeyCode.VK_6;
+                case "7": return VirtualKeyCode.VK_7;
+                case "8": return VirtualKeyCode.VK_8;
+                case "9": return VirtualKeyCode.VK_9;
+
+                // 특수 키
+                case "space": return VirtualKeyCode.SPACE;
+                case "enter": return VirtualKeyCode.RETURN;
+                case "shift": return VirtualKeyCode.SHIFT;
+                case "ctrl": return VirtualKeyCode.CONTROL;
+                case "alt": return VirtualKeyCode.MENU;
+                case "tab": return VirtualKeyCode.TAB;
+                case "esc": return VirtualKeyCode.ESCAPE;
+                case "backspace": return VirtualKeyCode.BACK;
+
+                // 화살표
+                case "up": return VirtualKeyCode.UP;
+                case "down": return VirtualKeyCode.DOWN;
+                case "left": return VirtualKeyCode.LEFT;
+                case "right": return VirtualKeyCode.RIGHT;
+
+                // F키
+                case "f1": return VirtualKeyCode.F1;
+                case "f2": return VirtualKeyCode.F2;
+                case "f3": return VirtualKeyCode.F3;
+                case "f4": return VirtualKeyCode.F4;
+                case "f5": return VirtualKeyCode.F5;
+                case "f6": return VirtualKeyCode.F6;
+                case "f7": return VirtualKeyCode.F7;
+                case "f8": return VirtualKeyCode.F8;
+                case "f9": return VirtualKeyCode.F9;
+                case "f10": return VirtualKeyCode.F10;
+                case "f11": return VirtualKeyCode.F11;
+                case "f12": return VirtualKeyCode.F12;
+
+                default:
+                    return VirtualKeyCode.NONAME;
+            }
+        }
+
+        // hardcoded 
+        private string GetButtonMapping(string buttonAction)
+        {
+            var defaultMappings = new Dictionary<string, string>
+    {
+        // Racing
+        { "gas", "W" },
+        { "brake", "S" },
+        { "left", "A" },
+        { "right", "D" },
+        { "turbo", "Shift" },
+        { "pause", "P" },
+
+        // Flight
+        { "machine_gun", "Mouse1" },
+        { "rocket", "Mouse2" },
+        { "missile", "Space" },
+
+        // Game keys
+        { "key_w", "W" },
+        { "key_a", "A" },
+        { "key_s", "S" },
+        { "key_d", "D" },
+        { "key_space", "Space" },
+        { "key_shift", "Shift" },
+        { "key_e", "E" },
+        { "key_q", "Q" },
+        { "key_r", "R" },
+        { "key_f", "F" },
+
+        // Actions
+        { "jump", "Space" },
+        { "fire", "Mouse1" },
+        { "reload", "R" },
+        { "crouch", "Ctrl" }
+    };
+
+            return defaultMappings.ContainsKey(buttonAction) ? defaultMappings[buttonAction] : "";
+        }
+
+        // simple key
+        private VirtualKeyCode ParseSimpleKey(string key)
+        {
+            switch (key.ToLower())
+            {
+                case "w": return VirtualKeyCode.VK_W;
+                case "a": return VirtualKeyCode.VK_A;
+                case "s": return VirtualKeyCode.VK_S;
+                case "d": return VirtualKeyCode.VK_D;
+                case "shift": return VirtualKeyCode.SHIFT;
+                case "p": return VirtualKeyCode.VK_P;
+                case "space": return VirtualKeyCode.SPACE;
+                // D-Pad 
+                case "up": return VirtualKeyCode.UP;
+                case "down": return VirtualKeyCode.DOWN;
+                case "left": return VirtualKeyCode.LEFT;
+                case "right": return VirtualKeyCode.RIGHT;
+
+                default: return VirtualKeyCode.NONAME;
+            }
+        }
+
+        // all key
+        private VirtualKeyCode ParseVirtualKey(string key)
+        {
+            switch (key.ToUpper())
+            {
+                // Letters A-Z
+                case "A": return VirtualKeyCode.VK_A;
+                case "B": return VirtualKeyCode.VK_B;
+                case "C": return VirtualKeyCode.VK_C;
+                case "D": return VirtualKeyCode.VK_D;
+                case "E": return VirtualKeyCode.VK_E;
+                case "F": return VirtualKeyCode.VK_F;
+                case "G": return VirtualKeyCode.VK_G;
+                case "H": return VirtualKeyCode.VK_H;
+                case "I": return VirtualKeyCode.VK_I;
+                case "J": return VirtualKeyCode.VK_J;
+                case "K": return VirtualKeyCode.VK_K;
+                case "L": return VirtualKeyCode.VK_L;
+                case "M": return VirtualKeyCode.VK_M;
+                case "N": return VirtualKeyCode.VK_N;
+                case "O": return VirtualKeyCode.VK_O;
+                case "P": return VirtualKeyCode.VK_P;
+                case "Q": return VirtualKeyCode.VK_Q;
+                case "R": return VirtualKeyCode.VK_R;
+                case "S": return VirtualKeyCode.VK_S;
+                case "T": return VirtualKeyCode.VK_T;
+                case "U": return VirtualKeyCode.VK_U;
+                case "V": return VirtualKeyCode.VK_V;
+                case "W": return VirtualKeyCode.VK_W;
+                case "X": return VirtualKeyCode.VK_X;
+                case "Y": return VirtualKeyCode.VK_Y;
+                case "Z": return VirtualKeyCode.VK_Z;
+
+                // Numbers 0-9
+                case "0": return VirtualKeyCode.VK_0;
+                case "1": return VirtualKeyCode.VK_1;
+                case "2": return VirtualKeyCode.VK_2;
+                case "3": return VirtualKeyCode.VK_3;
+                case "4": return VirtualKeyCode.VK_4;
+                case "5": return VirtualKeyCode.VK_5;
+                case "6": return VirtualKeyCode.VK_6;
+                case "7": return VirtualKeyCode.VK_7;
+                case "8": return VirtualKeyCode.VK_8;
+                case "9": return VirtualKeyCode.VK_9;
+
+                // Special keys
+                case "SPACE": return VirtualKeyCode.SPACE;
+                case "ENTER": return VirtualKeyCode.RETURN;
+                case "SHIFT": return VirtualKeyCode.SHIFT;
+                case "CTRL": case "CONTROL": return VirtualKeyCode.CONTROL;
+                case "ALT": return VirtualKeyCode.MENU;
+                case "TAB": return VirtualKeyCode.TAB;
+                case "ESC": case "ESCAPE": return VirtualKeyCode.ESCAPE;
+                case "BACKSPACE": return VirtualKeyCode.BACK;
+
+                // Arrow keys
+                case "UP": return VirtualKeyCode.UP;
+                case "DOWN": return VirtualKeyCode.DOWN;
+                case "LEFT": return VirtualKeyCode.LEFT;
+                case "RIGHT": return VirtualKeyCode.RIGHT;
+
+                // Function keys
+                case "F1": return VirtualKeyCode.F1;
+                case "F2": return VirtualKeyCode.F2;
+                case "F3": return VirtualKeyCode.F3;
+                case "F4": return VirtualKeyCode.F4;
+                case "F5": return VirtualKeyCode.F5;
+                case "F6": return VirtualKeyCode.F6;
+                case "F7": return VirtualKeyCode.F7;
+                case "F8": return VirtualKeyCode.F8;
+                case "F9": return VirtualKeyCode.F9;
+                case "F10": return VirtualKeyCode.F10;
+                case "F11": return VirtualKeyCode.F11;
+                case "F12": return VirtualKeyCode.F12;
+
+                default: return VirtualKeyCode.NONAME;
             }
         }
 
@@ -786,12 +1190,14 @@ namespace MobControlDesktop
             AddLog($"✓ {action.ToUpper()} → {mapping.Key}");
         }
 
+
+
         private string GetLocalIPAddress()
         {
             string localIP = "127.0.0.1";
 
-            try
-            {
+            try                                                    
+            {                                                                                                  
                 var host = Dns.GetHostEntry(Dns.GetHostName());
 
                 foreach (var ip in host.AddressList)
@@ -956,6 +1362,12 @@ namespace MobControlDesktop
             AddLog("✓ Controller mapping editor requested");
         }
 
+        // compatibility stub: forwards to your existing handler
+        private void EditDeviceMapping_Click(object? sender, System.Windows.RoutedEventArgs e)
+        {
+            // forward to the existing method (keeps behavior identical)
+            EditControllerMappingButton_Click(sender ?? this, e);
+        }
         #endregion
 
         #region Logging

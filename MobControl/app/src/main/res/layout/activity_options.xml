@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1a1a1a"
+    android:background="@drawable/gaming_background"
     android:padding="16dp">
 
     <!-- Back Button -->
@@ -16,7 +16,7 @@
         android:src="@drawable/ic_back"
         android:contentDescription="Back" />
 
-    <!-- Title -->
+    <!-- Title-->
     <TextView
         android:id="@+id/titleText"
         android:layout_width="wrap_content"
@@ -24,9 +24,13 @@
         android:layout_centerHorizontal="true"
         android:layout_alignTop="@id/backButton"
         android:layout_marginTop="12dp"
-        android:text="Options"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:text="OPTIONS"
+        android:fontFamily="monospace"
+        android:letterSpacing="0.15"
+        android:shadowColor="#00E5FF"
+        android:shadowRadius="12"
+        android:textColor="#00E5FF"
+        android:textSize="26sp"
         android:textStyle="bold" />
 
     <!-- Scrollable Container -->
@@ -34,34 +38,40 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/backButton"
-        android:layout_marginTop="32dp"
-        android:fillViewport="true">
+        android:layout_marginTop="40dp"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="8dp">
 
-            <!-- Settings Section Title -->
+            <!-- Settings Section -->
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⚙️ Settings"
-                android:textColor="#90CAF9"
-                android:textSize="16sp"
+                android:text="SETTINGS"
+                android:textColor="#64B5F6"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:letterSpacing="0.1"
+                android:paddingLeft="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp" />
 
-            <!-- Vibration Switch -->
+            <!-- Vibration -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
-                android:padding="8dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:background="#2a2a2a"
-                android:elevation="2dp">
+                android:layout_marginBottom="2dp"
+                android:elevation="1dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -69,7 +79,7 @@
                     android:layout_weight="1"
                     android:text="Vibration"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <Switch
                     android:id="@+id/vibrationSwitch"
@@ -77,15 +87,17 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <!-- Dark Mode Switch -->
+            <!-- Dark Mode -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
-                android:padding="8dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:background="#2a2a2a"
-                android:elevation="2dp">
+                android:layout_marginBottom="2dp"
+                android:elevation="1dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -93,7 +105,7 @@
                     android:layout_weight="1"
                     android:text="Dark Mode"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <Switch
                     android:id="@+id/darkModeSwitch"
@@ -101,15 +113,17 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <!-- Sound Switch -->
+            <!-- Sound -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
-                android:padding="8dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:background="#2a2a2a"
-                android:elevation="2dp">
+                android:layout_marginBottom="2dp"
+                android:elevation="1dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -117,7 +131,7 @@
                     android:layout_weight="1"
                     android:text="Sound"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <Switch
                     android:id="@+id/soundSwitch"
@@ -125,63 +139,155 @@
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
-            <!-- Navigation Section Title -->
-            <TextView
+            <!-- Multiplayer -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="🧭 Navigation"
-                android:textColor="#90CAF9"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:background="#2a2a2a"
+                android:elevation="1dp">
 
-            <!-- ✨ NEW: Edit Layout Button -->
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Multiplayer"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <Switch
+                    android:id="@+id/multiplayerSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- Network Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NETWORK"
+                android:textColor="#64B5F6"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:paddingLeft="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="24dp" />
+
+            <!-- Ping Test -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingLeft="16dp"
+                android:paddingRight="12dp"
+                android:background="#2a2a2a"
+                android:elevation="1dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Ping Test"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+
+                <Button
+                    android:id="@+id/pingTestButton"
+                    android:layout_width="80dp"
+                    android:layout_height="38dp"
+                    android:text="TEST"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:background="#2196F3"
+                    android:layout_marginRight="8dp"/>
+
+                <TextView
+                    android:id="@+id/pingDisplay"
+                    android:layout_width="80dp"
+                    android:layout_height="38dp"
+                    android:text="-- ms"
+                    android:textSize="13sp"
+                    android:textColor="#9E9E9E"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#1a1a1a"/>
+
+            </LinearLayout>
+
+            <!-- Layout Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LAYOUT"
+                android:textColor="#64B5F6"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1"
+                android:paddingLeft="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="24dp" />
+
+            <!-- Edit Layout -->
             <Button
                 android:id="@+id/editLayoutButton"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="12dp"
+                android:layout_height="56dp"
+                android:layout_marginBottom="8dp"
                 android:background="#2196F3"
-                android:text="✏️ EDIT LAYOUT"
+                android:text="EDIT LAYOUT"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                android:elevation="4dp" />
+                android:letterSpacing="0.05"
+                android:elevation="2dp" />
 
-            <!-- ✨ NEW: Back to Menu Button -->
+            <!-- Back to Menu -->
             <Button
                 android:id="@+id/backToMenuButton"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginBottom="24dp"
+                android:layout_height="56dp"
                 android:background="#4CAF50"
-                android:text="🏠 BACK TO MENU"
+                android:text="BACK TO MENU"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                android:elevation="4dp" />
+                android:letterSpacing="0.05"
+                android:elevation="2dp" />
 
-            <!-- System Section Title -->
+            <!-- System Section -->
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🔴 System"
-                android:textColor="#F44336"
-                android:textSize="16sp"
+                android:text="SYSTEM"
+                android:textColor="#EF5350"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:letterSpacing="0.1"
+                android:paddingLeft="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="24dp" />
 
-            <!-- Quit Button -->
+            <!-- Quit -->
             <Button
                 android:id="@+id/quitButton"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="56dp"
+                android:layout_marginBottom="16dp"
                 android:background="#F44336"
-                android:text="❌ QUIT APP"
+                android:text="QUIT APP"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                android:elevation="4dp" />
+                android:letterSpacing="0.05"
+                android:elevation="2dp" />
 
         </LinearLayout>
     </ScrollView>

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP.csproj": {}
+    "C:\\Users\\Peter\\Downloads\\MobControl_FYP_UIupdate\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP.csproj": {
+    "C:\\Users\\Peter\\Downloads\\MobControl_FYP_UIupdate\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP.csproj",
+        "projectUniqueName": "C:\\Users\\Peter\\Downloads\\MobControl_FYP_UIupdate\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
         "projectName": "MobControl_FYP",
-        "projectPath": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\MobControl_FYP.csproj",
-        "packagesPath": "C:\\Users\\Tengri\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Tengri\\Documents\\GitHub\\FYP-25-S4-18-MobControl\\MobControl_FYP\\obj\\",
+        "projectPath": "C:\\Users\\Peter\\Downloads\\MobControl_FYP_UIupdate\\MobControl_FYP\\MobControl_FYP\\MobControl_FYP.csproj",
+        "packagesPath": "C:\\Users\\Peter\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Peter\\Downloads\\MobControl_FYP_UIupdate\\MobControl_FYP\\MobControl_FYP\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Tengri\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Peter\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0-windows7.0": {
@@ -82,24 +82,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.23, 8.0.23]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
@@ -108,7 +90,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.307/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
