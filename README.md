@@ -22,12 +22,5 @@ Together, they provide seamless QR-code pairing, offline WebSocket communication
     Accelerometer/Gyroscope support
     Real-time input mapping
 
-<hr />
-
-# 📖Documentation
-- [Technical Design Documentation]()
-- [User Manual]()
-<hr />
-
 # 📂Releases
-Builds (APK + Desktop installer) are published under [GitHub Releases](https://youtu.be/dQw4w9WgXcQ?si=29JWFjpnn3ebl6kk)
+Builds (APK + Desktop installer) can be downloaded from [MobControl Website](https://mobcontrolfyp.netlify.app/) or [GitHub Releases](https://youtu.be/dQw4w9WgXcQ?si=29JWFjpnn3ebl6kk)
