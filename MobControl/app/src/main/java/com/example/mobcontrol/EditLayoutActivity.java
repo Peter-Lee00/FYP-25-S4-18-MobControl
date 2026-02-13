@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.RelativeLayout;
 
 
 public class EditLayoutActivity extends AppCompatActivity {
@@ -43,9 +41,9 @@ public class EditLayoutActivity extends AppCompatActivity {
     private boolean isDragging = false;
     private float dX, dY;
     private long pressStartTime = 0;
-    private float initialTouchX = 0;  // ✅ 추가: 초기 터치 위치
-    private float initialTouchY = 0;  // ✅ 추가: 초기 터치 위치
-    private static final int DRAG_THRESHOLD = 20;  // ✅ 추가: 드래그 임계값 (픽셀)
+    private float initialTouchX = 0;
+    private float initialTouchY = 0;
+    private static final int DRAG_THRESHOLD = 20;
 
     // Available button templates
     private static final Map<String, ButtonTemplate> BUTTON_TEMPLATES = new HashMap<>();
@@ -950,7 +948,6 @@ public class EditLayoutActivity extends AppCompatActivity {
     }
 
     private String getTemplateName(ButtonTemplate template) {
-        // BUTTON_TEMPLATES에서 역으로 찾기
         for (Map.Entry<String, ButtonTemplate> entry : BUTTON_TEMPLATES.entrySet()) {
             if (entry.getValue() == template) {
                 return entry.getKey();
@@ -959,7 +956,6 @@ public class EditLayoutActivity extends AppCompatActivity {
         return template.label;
     }
 
-    // EditLayoutActivity.java의 addButton() 메서드 수정
 
     private void addButton(String templateName) {
         ButtonTemplate template = BUTTON_TEMPLATES.get(templateName);

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/movement_joystick_bg.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 외부 큰 원 -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#50FFFFFF" />
+            <stroke android:width="3dp" android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 내부 테두리 원 -->
+    <item
+        android:left="15dp"
+        android:top="15dp"
+        android:right="15dp"
+        android:bottom="15dp">
+        <shape android:shape="oval">
+            <stroke android:width="2dp" android:color="#80FFFFFF" />
+            <solid android:color="#00000000" />
+        </shape>
+    </item>
+
+    <!-- 중앙 스틱 -->
+    <item
+        android:left="75dp"
+        android:top="75dp"
+        android:right="75dp"
+        android:bottom="75dp">
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 스틱 하이라이트 -->
+    <item
+        android:left="80dp"
+        android:top="80dp"
+        android:right="105dp"
+        android:bottom="105dp">
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFFFF" />
+        </shape>
+    </item>
+
+</layer-list>

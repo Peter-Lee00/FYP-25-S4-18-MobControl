@@ -623,9 +623,9 @@ public class UniversalControllerActivity extends AppCompatActivity {
 
         executorService.execute(() -> {
             try {
-                // Multiplayer 설정 가져오기
+                // Multiplayer
                 SharedPreferences prefs = getSharedPreferences("AppSettings", MODE_PRIVATE);
-                boolean multiplayerEnabled = prefs.getBoolean("multiplayer_enabled", false);
+                boolean isMultiplayer = prefs.getBoolean("multiplayer_enabled", false);
                 int playerNumber = prefs.getInt("player_number", 1);
 
                 Map<String, Object> message = new HashMap<>();
@@ -633,8 +633,8 @@ public class UniversalControllerActivity extends AppCompatActivity {
                 message.put("key", key);
                 message.put("pressed", pressed);
 
-                // Multiplayer 활성화 시 player 번호 추가
-                if (multiplayerEnabled) {
+                // Multiplayer informations
+                if (isMultiplayer) {
                     message.put("player", playerNumber);
                 }
 
@@ -645,9 +645,12 @@ public class UniversalControllerActivity extends AppCompatActivity {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, serverPort);
                 udpSocket.send(packet);
 
-                android.util.Log.d("Universal", "Sent: " + key + " = " + pressed + (multiplayerEnabled ? " (P" + playerNumber + ")" : ""));
+                String playerTag = isMultiplayer ? " (P" + playerNumber + ")" : "";
+                android.util.Log.d("Universal", "Sent: " + key + " = " + pressed + playerTag);
+
 
             } catch (Exception e) {
+                android.util.Log.e("Universal", "sendKeyPress error: " + e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -1037,10 +1040,12 @@ public class UniversalControllerActivity extends AppCompatActivity {
     }
     private void setupButtonAction(Button btn, String action) {
         LayoutData.ButtonData data = (LayoutData.ButtonData) btn.getTag();
+        android.util.Log.d("Universal", "setupButtonAction: " + action);
+
 
         // Movement Joystick
         if ("movement_joystick".equals(action)) {
-            setupJoystickControl(btn);
+            setupMovementJoystick(btn);
             return;
         }
 
@@ -1049,6 +1054,7 @@ public class UniversalControllerActivity extends AppCompatActivity {
             setupDPadCombined(btn);
             return;
         }
+
 
         // Load mappedKey
         String keyToSend = getKeyForButton(data, action);
@@ -1065,12 +1071,16 @@ public class UniversalControllerActivity extends AppCompatActivity {
                     sendKeyPress(keyToSend, true);
                     vibrateShort();
                     btn.setAlpha(0.7f);
+                    btn.setScaleX(0.95f);
+                    btn.setScaleY(0.95f);
                     return true;
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     sendKeyPress(keyToSend, false);
                     btn.setAlpha(1.0f);
+                    btn.setScaleX(1.0f);
+                    btn.setScaleY(1.0f);
                     return true;
             }
             return false;
@@ -1087,99 +1097,97 @@ public class UniversalControllerActivity extends AppCompatActivity {
 
         controllerContainer.removeView(btn);
         controllerContainer.addView(joystick);
+
+        android.util.Log.d("Universal", "✓ Movement Joystick added");
     }
 
-    // ✅ D-Pad Combined 설정
+    // Dpad
     private void setupDPadCombined(Button btn) {
-        // 현재 눌린 키들
-        final boolean[] keysPressed = {false, false, false, false}; // W, A, S, D
+        final boolean[] keysPressed = new boolean[4]; // [W, A, S, D]
 
         btn.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN ||
-                    event.getAction() == MotionEvent.ACTION_MOVE) {
+            int action = event.getAction();
 
+            if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
                 float x = event.getX();
                 float y = event.getY();
-                float centerX = v.getWidth() / 2f;
-                float centerY = v.getHeight() / 2f;
+                float width = v.getWidth();
+                float height = v.getHeight();
+                float centerX = width / 2f;
+                float centerY = height / 2f;
 
                 float dx = x - centerX;
                 float dy = y - centerY;
+                float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
-                // 모든 키 릴리즈
-                if (keysPressed[0]) { sendKeyPress("w", false); keysPressed[0] = false; }
-                if (keysPressed[1]) { sendKeyPress("a", false); keysPressed[1] = false; }
-                if (keysPressed[2]) { sendKeyPress("s", false); keysPressed[2] = false; }
-                if (keysPressed[3]) { sendKeyPress("d", false); keysPressed[3] = false; }
-
-                // 거리 체크
-                double distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < v.getWidth() * 0.15f) {
-                    // 중앙 데드존
+                if (distance < width * 0.2f) {
+                    releaseAllDirectionKeys(keysPressed);
+                    btn.setAlpha(1.0f);
                     return true;
                 }
 
-                // 각도 계산
-                double angle = Math.toDegrees(Math.atan2(dy, dx));
-                if (angle < 0) angle += 360;
+                double angleDeg = Math.toDegrees(Math.atan2(dy, dx));
 
-                // 8방향
-                if (angle >= 337.5 || angle < 22.5) {
-                    // Right
-                    sendKeyPress("d", true);
-                    keysPressed[3] = true;
-                } else if (angle >= 22.5 && angle < 67.5) {
-                    // Down-Right
-                    sendKeyPress("s", true);
-                    sendKeyPress("d", true);
-                    keysPressed[2] = true;
-                    keysPressed[3] = true;
-                } else if (angle >= 67.5 && angle < 112.5) {
-                    // Down
-                    sendKeyPress("s", true);
-                    keysPressed[2] = true;
-                } else if (angle >= 112.5 && angle < 157.5) {
-                    // Down-Left
-                    sendKeyPress("s", true);
-                    sendKeyPress("a", true);
-                    keysPressed[2] = true;
-                    keysPressed[1] = true;
-                } else if (angle >= 157.5 && angle < 202.5) {
-                    // Left
-                    sendKeyPress("a", true);
-                    keysPressed[1] = true;
-                } else if (angle >= 202.5 && angle < 247.5) {
-                    // Up-Left
-                    sendKeyPress("w", true);
-                    sendKeyPress("a", true);
-                    keysPressed[0] = true;
-                    keysPressed[1] = true;
-                } else if (angle >= 247.5 && angle < 292.5) {
-                    // Up
-                    sendKeyPress("w", true);
-                    keysPressed[0] = true;
-                } else if (angle >= 292.5 && angle < 337.5) {
-                    // Up-Right
-                    sendKeyPress("w", true);
-                    sendKeyPress("d", true);
-                    keysPressed[0] = true;
-                    keysPressed[3] = true;
+                if (angleDeg < 0) angleDeg += 360;
+
+                releaseAllDirectionKeys(keysPressed);
+
+                if (angleDeg >= 337.5 || angleDeg < 22.5) {
+                    // Right (0°)
+                    pressKey("d", 3, keysPressed);
+                } else if (angleDeg >= 22.5 && angleDeg < 67.5) {
+                    // Down-Right (45°)
+                    pressKey("s", 2, keysPressed);
+                    pressKey("d", 3, keysPressed);
+                } else if (angleDeg >= 67.5 && angleDeg < 112.5) {
+                    // Down (90°)
+                    pressKey("s", 2, keysPressed);
+                } else if (angleDeg >= 112.5 && angleDeg < 157.5) {
+                    // Down-Left (135°)
+                    pressKey("s", 2, keysPressed);
+                    pressKey("a", 1, keysPressed);
+                } else if (angleDeg >= 157.5 && angleDeg < 202.5) {
+                    // Left (180°)
+                    pressKey("a", 1, keysPressed);
+                } else if (angleDeg >= 202.5 && angleDeg < 247.5) {
+                    // Up-Left (225°)
+                    pressKey("w", 0, keysPressed);
+                    pressKey("a", 1, keysPressed);
+                } else if (angleDeg >= 247.5 && angleDeg < 292.5) {
+                    // Up (270°)
+                    pressKey("w", 0, keysPressed);
+                } else if (angleDeg >= 292.5 && angleDeg < 337.5) {
+                    // Up-Right (315°)
+                    pressKey("w", 0, keysPressed);
+                    pressKey("d", 3, keysPressed);
                 }
 
                 btn.setAlpha(0.7f);
+                vibrateShort();
 
-            } else if (event.getAction() == MotionEvent.ACTION_UP ||
-                    event.getAction() == MotionEvent.ACTION_CANCEL) {
-                // 모든 키 릴리즈
-                if (keysPressed[0]) { sendKeyPress("w", false); keysPressed[0] = false; }
-                if (keysPressed[1]) { sendKeyPress("a", false); keysPressed[1] = false; }
-                if (keysPressed[2]) { sendKeyPress("s", false); keysPressed[2] = false; }
-                if (keysPressed[3]) { sendKeyPress("d", false); keysPressed[3] = false; }
-
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                releaseAllDirectionKeys(keysPressed);
                 btn.setAlpha(1.0f);
             }
+
             return true;
         });
+    }
+
+    // Press for Dpad
+    private void pressKey(String key, int index, boolean[] keysPressed) {
+        if (!keysPressed[index]) {
+            sendKeyPress(key, true);
+            keysPressed[index] = true;
+        }
+    }
+
+    // Release for Dpad
+    private void releaseAllDirectionKeys(boolean[] keysPressed) {
+        if (keysPressed[0]) { sendKeyPress("w", false); keysPressed[0] = false; }
+        if (keysPressed[1]) { sendKeyPress("a", false); keysPressed[1] = false; }
+        if (keysPressed[2]) { sendKeyPress("s", false); keysPressed[2] = false; }
+        if (keysPressed[3]) { sendKeyPress("d", false); keysPressed[3] = false; }
     }
 
     // mappedKey First, if none default key settings
@@ -1208,30 +1216,29 @@ public class UniversalControllerActivity extends AppCompatActivity {
 
     // WASD JOYSTICK
     private class MovementJoystickView extends View {
+        private Paint basePaint, stickPaint, borderPaint;
         private float centerX, centerY;
-        private float handleX, handleY;
-        private float baseRadius = 100f;
-        private float handleRadius = 40f;
-        private boolean isTouching = false;
+        private float stickX, stickY;
+        private float baseRadius;
+        private float stickRadius;
 
-        private Paint basePaint, handlePaint;
-
-
-        private boolean isWPressed = false;
-        private boolean isAPressed = false;
-        private boolean isSPressed = false;
-        private boolean isDPressed = false;
+        private boolean[] keysPressed = new boolean[4]; // [W, A, S, D]
 
         public MovementJoystickView(Context context) {
             super(context);
 
             basePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            basePaint.setColor(Color.parseColor("#2a2a2a"));
+            basePaint.setColor(Color.parseColor("#40FFFFFF"));
             basePaint.setStyle(Paint.Style.FILL);
 
-            handlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            handlePaint.setColor(Color.parseColor("#616161"));
-            handlePaint.setStyle(Paint.Style.FILL);
+            borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            borderPaint.setColor(Color.parseColor("#60FFFFFF"));
+            borderPaint.setStyle(Paint.Style.STROKE);
+            borderPaint.setStrokeWidth(4f);
+
+            stickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            stickPaint.setColor(Color.parseColor("#80FFFFFF"));
+            stickPaint.setStyle(Paint.Style.FILL);
         }
 
         @Override
@@ -1239,16 +1246,26 @@ public class UniversalControllerActivity extends AppCompatActivity {
             super.onSizeChanged(w, h, oldw, oldh);
             centerX = w / 2f;
             centerY = h / 2f;
-            handleX = centerX;
-            handleY = centerY;
-            baseRadius = Math.min(w, h) / 2.5f;
-            handleRadius = baseRadius / 2.5f;
+            stickX = centerX;
+            stickY = centerY;
+            baseRadius = Math.min(w, h) / 2.2f;
+            stickRadius = baseRadius / 2.5f;
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
+            // 베이스 원
             canvas.drawCircle(centerX, centerY, baseRadius, basePaint);
-            canvas.drawCircle(handleX, handleY, handleRadius, handlePaint);
+            canvas.drawCircle(centerX, centerY, baseRadius - 10, borderPaint);
+
+            // 스틱
+            canvas.drawCircle(stickX, stickY, stickRadius, stickPaint);
+
+            // 스틱 하이라이트
+            canvas.drawCircle(stickX - stickRadius/3, stickY - stickRadius/3,
+                    stickRadius/3, new Paint(Paint.ANTI_ALIAS_FLAG) {{
+                        setColor(Color.WHITE);
+                    }});
         }
 
         @Override
@@ -1256,85 +1273,96 @@ public class UniversalControllerActivity extends AppCompatActivity {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_MOVE:
-                    isTouching = true;
-                    updateHandle(event.getX(), event.getY());
-                    updateKeys();
+                    updateStickPosition(event.getX(), event.getY());
+                    updateMovementKeys();
+                    invalidate();
                     break;
 
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
-                    isTouching = false;
-                    handleX = centerX;
-                    handleY = centerY;
-                    releaseAllKeys();
+                    resetStick();
+                    releaseAllMovementKeys();
                     invalidate();
                     break;
             }
             return true;
         }
 
-        private void updateHandle(float x, float y) {
+        private void updateStickPosition(float x, float y) {
             float dx = x - centerX;
             float dy = y - centerY;
             float distance = (float) Math.sqrt(dx * dx + dy * dy);
+            float maxDistance = baseRadius - stickRadius;
 
-            if (distance > baseRadius) {
+            if (distance > maxDistance) {
                 float angle = (float) Math.atan2(dy, dx);
-                handleX = centerX + baseRadius * (float) Math.cos(angle);
-                handleY = centerY + baseRadius * (float) Math.sin(angle);
+                stickX = centerX + maxDistance * (float) Math.cos(angle);
+                stickY = centerY + maxDistance * (float) Math.sin(angle);
             } else {
-                handleX = x;
-                handleY = y;
+                stickX = x;
+                stickY = y;
             }
-
-            invalidate();
         }
 
-        private void updateKeys() {
-            float dx = handleX - centerX;
-            float dy = handleY - centerY;
-            float threshold = baseRadius * 0.3f;
+        private void resetStick() {
+            stickX = centerX;
+            stickY = centerY;
+        }
 
-            // W/S
-            if (dy < -threshold && !isWPressed) {
-                sendKeyPress("w", true);
-                isWPressed = true;
-            } else if (dy >= -threshold && isWPressed) {
+        private void updateMovementKeys() {
+            float dx = stickX - centerX;
+            float dy = stickY - centerY;
+            float maxDistance = baseRadius - stickRadius;
+            float threshold = maxDistance * 0.3f;
+
+            // W/S (Up/Down)
+            if (dy < -threshold) {
+                if (!keysPressed[0]) {
+                    sendKeyPress("w", true);
+                    keysPressed[0] = true;
+                }
+            } else if (keysPressed[0]) {
                 sendKeyPress("w", false);
-                isWPressed = false;
+                keysPressed[0] = false;
             }
 
-            if (dy > threshold && !isSPressed) {
-                sendKeyPress("s", true);
-                isSPressed = true;
-            } else if (dy <= threshold && isSPressed) {
+            if (dy > threshold) {
+                if (!keysPressed[2]) {
+                    sendKeyPress("s", true);
+                    keysPressed[2] = true;
+                }
+            } else if (keysPressed[2]) {
                 sendKeyPress("s", false);
-                isSPressed = false;
+                keysPressed[2] = false;
             }
 
-            // A/D
-            if (dx < -threshold && !isAPressed) {
-                sendKeyPress("a", true);
-                isAPressed = true;
-            } else if (dx >= -threshold && isAPressed) {
+            // A/D (Left/Right)
+            if (dx < -threshold) {
+                if (!keysPressed[1]) {
+                    sendKeyPress("a", true);
+                    keysPressed[1] = true;
+                }
+            } else if (keysPressed[1]) {
                 sendKeyPress("a", false);
-                isAPressed = false;
+                keysPressed[1] = false;
             }
 
-            if (dx > threshold && !isDPressed) {
-                sendKeyPress("d", true);
-                isDPressed = true;
-            } else if (dx <= threshold && isDPressed) {
+            if (dx > threshold) {
+                if (!keysPressed[3]) {
+                    sendKeyPress("d", true);
+                    keysPressed[3] = true;
+                }
+            } else if (keysPressed[3]) {
                 sendKeyPress("d", false);
-                isDPressed = false;
+                keysPressed[3] = false;
             }
         }
 
-        private void releaseAllKeys() {
-            if (isWPressed) { sendKeyPress("w", false); isWPressed = false; }
-            if (isAPressed) { sendKeyPress("a", false); isAPressed = false; }
-            if (isSPressed) { sendKeyPress("s", false); isSPressed = false; }
-            if (isDPressed) { sendKeyPress("d", false); isDPressed = false; }
+        private void releaseAllMovementKeys() {
+            if (keysPressed[0]) { sendKeyPress("w", false); keysPressed[0] = false; }
+            if (keysPressed[1]) { sendKeyPress("a", false); keysPressed[1] = false; }
+            if (keysPressed[2]) { sendKeyPress("s", false); keysPressed[2] = false; }
+            if (keysPressed[3]) { sendKeyPress("d", false); keysPressed[3] = false; }
         }
     }
 

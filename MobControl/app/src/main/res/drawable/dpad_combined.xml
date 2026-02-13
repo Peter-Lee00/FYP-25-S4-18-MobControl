@@ -1,45 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- res/drawable/dpad_combined.xml -->
+<!-- res/drawable/dpad_combined_bg.xml - REAL Mobile Game Style -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <!-- 배경 원 -->
+
+    <!-- 배경 큰 원 -->
     <item>
         <shape android:shape="oval">
-            <solid android:color="#2a2a2a" />
-            <stroke android:width="3dp" android:color="#424242" />
+            <solid android:color="#40FFFFFF" />
         </shape>
     </item>
-    
-    <!-- 중앙 십자가 -->
-    <item 
-        android:top="70dp" 
-        android:bottom="70dp" 
-        android:left="60dp" 
-        android:right="60dp">
+
+    <!-- 위쪽 화살표 영역 -->
+    <item android:top="20dp" android:bottom="100dp" android:left="65dp" android:right="65dp">
         <shape android:shape="rectangle">
-            <solid android:color="#616161" />
+            <solid android:color="#60FFFFFF" />
+            <corners android:topLeftRadius="8dp" android:topRightRadius="8dp"/>
         </shape>
     </item>
-    
-    <item 
-        android:left="70dp" 
-        android:right="70dp" 
-        android:top="60dp" 
-        android:bottom="60dp">
+
+    <!-- 아래쪽 화살표 영역 -->
+    <item android:top="100dp" android:bottom="20dp" android:left="65dp" android:right="65dp">
         <shape android:shape="rectangle">
-            <solid android:color="#616161" />
+            <solid android:color="#60FFFFFF" />
+            <corners android:bottomLeftRadius="8dp" android:bottomRightRadius="8dp"/>
         </shape>
     </item>
-    
-    <!-- 중앙 점 -->
-    <item 
-        android:top="85dp" 
-        android:bottom="85dp" 
-        android:left="85dp" 
-        android:right="85dp">
+
+    <!-- 왼쪽 화살표 영역 -->
+    <item android:top="65dp" android:bottom="65dp" android:left="20dp" android:right="100dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#60FFFFFF" />
+            <corners android:topLeftRadius="8dp" android:bottomLeftRadius="8dp"/>
+        </shape>
+    </item>
+
+    <!-- 오른쪽 화살표 영역 -->
+    <item android:top="65dp" android:bottom="65dp" android:left="100dp" android:right="20dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#60FFFFFF" />
+            <corners android:topRightRadius="8dp" android:bottomRightRadius="8dp"/>
+        </shape>
+    </item>
+
+    <!-- 중앙 원 (투명) -->
+    <item android:top="70dp" android:bottom="70dp" android:left="70dp" android:right="70dp">
         <shape android:shape="oval">
-            <solid android:color="#9E9E9E" />
+            <solid android:color="#20000000" />
         </shape>
     </item>
-    
+
 </layer-list>

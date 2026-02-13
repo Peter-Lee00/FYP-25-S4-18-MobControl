@@ -713,19 +713,28 @@ namespace MobControlDesktop
                     string key = jsonData["key"].ToString().ToLower();
                     bool pressed = Convert.ToBoolean(jsonData["pressed"]);
 
+                    // Multiplayer player information
+                    int playerNumber = 1;
+                    if (jsonData.ContainsKey("player"))
+                    {
+                        playerNumber = Convert.ToInt32(jsonData["player"]);
+                    }
+
                     VirtualKeyCode vk = GetVirtualKeyCode(key);
 
                     if (vk != VirtualKeyCode.NONAME)
                     {
                         if (pressed)
                         {
-                            inputSimulator.Keyboard.KeyDown(vk);
-                            AddLog($"🔽 PRESSED: {key.ToUpper()}");
+                            // Log
+                            string playerTag = playerNumber > 1 ? $" (P{playerNumber})" : "";
+                            AddLog($"🔽 PRESSED: {key.ToUpper()}{playerTag}");
                         }
                         else
                         {
                             inputSimulator.Keyboard.KeyUp(vk);
-                            AddLog($"🔼 RELEASED: {key.ToUpper()}");
+                            string playerTag = playerNumber > 1 ? $" (P{playerNumber})" : "";
+                            AddLog($"🔼 RELEASED: {key.ToUpper()}{playerTag}");
                         }
                     }
                     else
